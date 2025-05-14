@@ -1,0 +1,142 @@
+from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask_mail import Mail, Message
+from flask_cors import CORS
+from email_validator import validate_email, EmailNotValidError
+import random
+import time
+import json
+app = Flask(__name__)
+CORS(app)
+mail=Mail(app)
+app.config['MAIL_SERVER']='smtp.qq.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = '3281671353@qq.com'
+app.config['MAIL_PASSWORD'] = 'bvhjbykykirycifa'
+app.config['MAIL_DEFAULT_SENDER'] = '3281671353@qq.com'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+verification_codes = {}
+def generate_code():
+    return str(random.randint(100000, 999999))
+@app.route('/')
+def index():
+    return render_template('login.html')
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+@app.route('/success/<name>')
+def success(name):
+    return 'welcome %s' % name
+@app.route('/login',methods = ['POST'])
+def login():
+    username = request.form.get('login-username')
+    password = request.form.get('login-password')
+    try:
+        with open("static/user.json", "r", encoding="utf-8") as file:
+            users = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return jsonify({'success': False, 'message': '用户数据不存在'})
+    user = next((u for u in users if u['username'] == username), None)
+    if not user:
+        return jsonify({'success': False, 'message': '用户名不存在'})
+    if user['password'] != password:
+        return jsonify({'success': False, 'message': '密码错误'})
+    return jsonify({'success': True, 'redirect': url_for('success', name = username)})
+@app.route('/login_admin',methods = ['POST'])
+def login_admin():
+    adminname = request.form.get('login-adminname')
+    password = request.form.get('login-password')
+    try:
+        with open("static/admin.json", "r", encoding="utf-8") as file:
+            admins = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return jsonify({'success': False, 'message': '管理员数据不存在'})
+    admin = next((a for a in admins if a['adminname'] == adminname), None)
+    if not admin:
+        return jsonify({'success': False, 'message': '管理员不存在'})
+    if admin['password'] != password:
+        return jsonify({'success': False, 'message': '密码错误'})
+    return jsonify({'success': True, 'redirect': url_for('success', name = adminname)})
+@app.route('/login_by_email',methods = ['POST'])
+def login_by_email():
+    email = request.form.get('email')
+    verification_code = request.form.get('verification-code')
+    stored_data = verification_codes[email]
+    if not stored_data or time.time() > stored_data['expire_time']:
+        return jsonify({'success': False, 'message': '验证码已过期'})
+    if verification_code == stored_data['code']:
+        del verification_codes[email]
+        return jsonify({'success': True, 'redirect': url_for('success', name = email)})
+    else:
+        print(stored_data['code'])
+        print(verification_code)
+        return jsonify({'success': False, 'message': '验证码错误'})
+@app.route('/add_user',methods = ['POST'])
+def add_user():
+    username = request.form.get('register-username')
+    email = request.form.get('email')
+    password = request.form.get('register-password')
+    confirm_password = request.form.get('register-confirm-password')
+    try:
+        validate_email(email)
+    except EmailNotValidError:
+        return jsonify({'success': False, 'message': '邮箱格式无效'})
+    if password != confirm_password:
+        return jsonify({'success': False, 'message': '确认密码必须与密码一致'})
+    data_dict={"username" : username, "email" : email, "password" : password}
+    file_path = "static/user.json"
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            users = json.load(file)  # 读取为列表
+    except (FileNotFoundError, json.JSONDecodeError):
+        users = []
+    if any(user['username'] == username for user in users):
+        return jsonify({'success': False, 'message': '用户名已被注册'})
+    if any(user['email'] == email for user in users):
+        return jsonify({'success': False, 'message': '邮箱已被注册'})
+    users.append(data_dict)
+    with open(file_path, "w", encoding="utf-8") as file:
+        json.dump(users, file, ensure_ascii=False, indent=4)
+    return jsonify({'success': True, 'message': '注册成功', 'redirect': url_for('index')})
+@app.route('/register')
+def register():
+    return render_template('register.html')
+@app.route('/VerificationCode')
+def VerificationCode():
+    return render_template('VerificationCode.html')
+@app.route('/send_code', methods=['POST'])
+def send_code():
+    email = request.form.get('email')
+    try:
+        validate_email(email)
+    except EmailNotValidError:
+        return jsonify({'success': False, 'message': '邮箱格式无效'})
+
+    file_path = "static/user.json"
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            users = json.load(file)  # 读取为列表
+    except (FileNotFoundError, json.JSONDecodeError):
+        users = []
+    if all(user['email'] != email for user in users):
+        return jsonify({'success': False, 'message': '邮箱未被注册'})
+    
+    code = generate_code()
+    verification_codes[email] = {
+        'code': code,
+        'expire_time': time.time() + 300
+    }
+    try:
+        msg = Message(
+            subject='您的验证码',
+            recipients=[email],
+            body=f'您的验证码是：{code}，5分钟内有效。'
+        )
+        mail.send(msg)
+        return jsonify({'success': True, 'message': '验证码已发送'})
+    except Exception as e:
+        print(f"邮件发送失败: {e}")
+        return jsonify({'success': False, 'message': '发送失败，请重试'})
+if __name__ == '__main__':
+    app.run(debug = True)
