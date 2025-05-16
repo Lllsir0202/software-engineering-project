@@ -1,2 +1,0 @@
-ENV_NAME=my_env
-USE_CONDA=1
