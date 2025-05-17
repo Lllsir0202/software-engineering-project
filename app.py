@@ -28,6 +28,9 @@ def admin():
 @app.route('/success/<name>')
 def success(name):
     return 'welcome %s' % name
+@app.route('/admin_page')
+def admin_page():
+    return render_template('用户列表.html')
 @app.route('/login',methods = ['POST'])
 def login():
     username = request.form.get('login-username')
@@ -57,7 +60,7 @@ def login_admin():
         return jsonify({'success': False, 'message': '管理员不存在'})
     if admin['password'] != password:
         return jsonify({'success': False, 'message': '密码错误'})
-    return jsonify({'success': True, 'redirect': url_for('success', name = adminname)})
+    return jsonify({'success': True, 'redirect': url_for('admin_page')})
 @app.route('/login_by_email',methods = ['POST'])
 def login_by_email():
     email = request.form.get('email')
@@ -138,5 +141,20 @@ def send_code():
     except Exception as e:
         print(f"邮件发送失败: {e}")
         return jsonify({'success': False, 'message': '发送失败，请重试'})
+@app.route('/user_list')
+def user_list():
+    return render_template('用户列表.html')
+@app.route('/admin_list')
+def admin_list():
+    return render_template('管理员列表.html')
+@app.route('/computer_list')
+def computer_list():
+    return render_template('机器列表.html')
+@app.route('/sensor_list')
+def sensor_list():
+    return render_template('传感器列表.html')
+@app.route('/warning')
+def warning():
+    return render_template('预警设置.html')
 if __name__ == '__main__':
     app.run(debug = True)
