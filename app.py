@@ -5,7 +5,15 @@ from email_validator import validate_email, EmailNotValidError
 import random
 import time
 import json
+import openmeteo_requests
+import requests_cache
+from retry_requests import retry
+import pandas as pd
+from datetime import datetime, timedelta
+import pytz
+
 from plot_utils import plot_average_by_species
+
 
 app = Flask(__name__)
 CORS(app)
@@ -37,9 +45,13 @@ def admin():
 
 @app.route('/success/<name>')
 def success(name):
-    return render_template('dashboard.html', name=name)
-    return 'welcome %s' % name
+    # return render_template('dashboard.html', name=name)
+    # return 'welcome %s' % name
+    return redirect(url_for('dashboard', name=name))
 
+@app.route('/dashboard/<name>')
+def dashboard(name):
+    return render_template('dashboard.html', name=name)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -55,7 +67,7 @@ def login():
         return jsonify({'success': False, 'message': '用户名不存在'})
     if user['password'] != password:
         return jsonify({'success': False, 'message': '密码错误'})
-    return jsonify({'success': True, 'redirect': url_for('success', name=username)})
+    return jsonify({'success': True, 'redirect': url_for('dashboard', name=username)})
 
 
 @app.route('/login_admin', methods=['POST'])
@@ -72,7 +84,7 @@ def login_admin():
         return jsonify({'success': False, 'message': '管理员不存在'})
     if admin['password'] != password:
         return jsonify({'success': False, 'message': '密码错误'})
-    return jsonify({'success': True, 'redirect': url_for('success', name=adminname)})
+    return jsonify({'success': True, 'redirect': url_for('dashboard', name=adminname)})
 
 
 @app.route('/login_by_email', methods=['POST'])
@@ -84,7 +96,7 @@ def login_by_email():
         return jsonify({'success': False, 'message': '验证码已过期'})
     if verification_code == stored_data['code']:
         del verification_codes[email]
-        return jsonify({'success': True, 'redirect': url_for('success', name=email)})
+        return jsonify({'success': True, 'redirect': url_for('dashboard', name=email)})
     else:
         print(stored_data['code'])
         print(verification_code)
@@ -171,16 +183,11 @@ def plot(metric):
         return send_file(img_io, mimetype='image/png')
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-import openmeteo_requests
-import requests_cache
-from retry_requests import retry
-import pandas as pd
-from datetime import datetime, timedelta
+
 @app.route('/api/weather', methods=['GET'])
 def get_weather():
     """获取当前天气信息"""
     try:
-        
         # 设置缓存，避免频繁请求API
         cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
@@ -206,8 +213,32 @@ def get_weather():
         
         # 提取当前天气数据
         current = response.Current()
-        current_time = pd.to_datetime(current.Time()).strftime("%Y-%m-%d %H:%M:%S")
-        weather_code = current.Variables(3).Value()
+
+         # 调试信息
+        api_time = current.Time()
+        print(f"API返回的原始时间类型: {type(api_time)}, 值: {api_time}")
+        # 更安全的时间转换方法
+        try:
+            # 方法1: 如果返回的是UNIX时间戳
+            if isinstance(api_time, (int, float)):
+                dt = datetime.fromtimestamp(api_time, tz=pytz.UTC)
+            # 方法2: 如果返回的是字符串
+            else:
+                dt = pd.to_datetime(api_time)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=pytz.UTC)
+            
+            # 转换为北京时间
+            beijing_dt = dt.astimezone(pytz.timezone('Asia/Shanghai'))
+            current_time = beijing_dt.strftime("%Y-%m-%d %H:%M:%S")
+            print(f"转换后的北京时间: {current_time}")
+        except Exception as time_err:
+            print(f"时间转换错误: {time_err}")
+            # 使用当前系统时间作为备用
+            current_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime("%Y-%m-%d %H:%M:%S")
+        
+        
+        weather_code = current.Variables(4).Value()
         
         # 天气代码转为描述
         weather_descriptions = {
