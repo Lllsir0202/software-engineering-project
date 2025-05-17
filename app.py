@@ -1,10 +1,11 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify
+from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file
 from flask_mail import Mail, Message
 from flask_cors import CORS
 from email_validator import validate_email, EmailNotValidError
 import random
 import time
 import json
+from plot_utils import plot_average_by_species
 
 app = Flask(__name__)
 CORS(app)
@@ -161,6 +162,14 @@ def send_code():
     except Exception as e:
         print(f"邮件发送失败: {e}")
         return jsonify({'success': False, 'message': '发送失败，请重试'})
+
+@app.route('/plot/<metric>')
+def plot(metric):
+    try:
+        img_io = plot_average_by_species(metric)
+        return send_file(img_io, mimetype='image/png')
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 
 if __name__ == '__main__':

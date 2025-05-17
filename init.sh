@@ -12,8 +12,8 @@ echo "1. Create a Conda virtual environment (recommended)"
 echo "2. Install packages directly using pip (without creating an environment)"
 read -p "Enter your choice (1 or 2, default is 1): " choice
 
-REQUIRED_PACKAGES="flask flask-mail flask-cors email-validator"
-CONDA_REQUIRED_PACKAGES="flask email-validator"
+REQUIRED_PACKAGES="flask flask-mail flask-cors email-validator matplotlib seaborn"
+CONDA_REQUIRED_PACKAGES="flask email-validator matplotlib seaborn"
 CONDA_REQUIRED_PIP_PACKAGES="flask-mail flask-cors"
 ENV_NAME="my_env"   # Default Conda environment name. You can change it as you like.
 
