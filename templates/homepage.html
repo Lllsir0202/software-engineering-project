@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>智慧渔场监测系统 - 首页</title>
+    
+    <!-- 样式表 -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <style>
+        /* 首页专属样式 */
+        .welcome-banner {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            min-height: 180px;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .quick-action-btn {
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .system-status-icon {
+            font-size: 2.5rem;
+            vertical-align: middle;
+        }
+
+        .data-trend-chart {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: 350px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏（与仪表盘相同） -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <!-- <a href="/"> -->
+                        <img src="icon.png" 
+                             height="40" 
+                             alt="数据平台" 
+                             class="custom-logo">
+                    <!-- </a> -->
+                </div>
+                <button class="navbar-toggler" 
+                        type="button" 
+                        data-toggle="collapse" 
+                        data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">管理员页面</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
+                        <span class="user-name" title="当前用户：admin">
+                            <i class="fa fa-user-circle-o"></i>
+                            admin
+                        </span>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 首页内容 -->
+    <main class="container-fluid py-4">
+        <div class="container">
+            <!-- 欢迎横幅 -->
+            <div class="welcome-banner">
+                <h1 class="display-4">欢迎回来，管理员</h1>
+                <p class="lead">当前系统运行时间：<span id="uptime">367小时25分钟</span></p>
+            </div>
+
+            <!-- 关键指标 -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="summary-card bg-primary text-white p-4">
+                        <h5><i class="fa fa-tachometer system-status-icon"></i> 总监测点</h5>
+                        <div class="display-4 mt-2">32</div>
+                        <small>已部署智能传感设备</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="summary-card bg-success text-white p-4">
+                        <h5><i class="fa fa-check-circle system-status-icon"></i> 今日警报</h5>
+                        <div class="display-4 mt-2">2</div>
+                        <small>异常事件报告</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="summary-card bg-info text-white p-4">
+                        <h5><i class="fa fa-clock-o system-status-icon"></i> 正常运行</h5>
+                        <div class="display-4 mt-2">98.7%</div>
+                        <small>本月设备可用率</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="row mb-4">
+                <div class="col-md-3 col-6 mb-3">
+                    <a href="/dashboard" class="quick-action-btn bg-light">
+                        <i class="fa fa-video-camera fa-2x text-primary"></i>
+                        <div class="mt-2">实时监控</div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <a href="#" class="quick-action-btn bg-light">
+                        <i class="fa fa-line-chart fa-2x text-success"></i>
+                        <div class="mt-2">生产报表</div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <a href="#" class="quick-action-btn bg-light">
+                        <i class="fa fa-bell fa-2x text-danger"></i>
+                        <div class="mt-2">警报中心</div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <a href="#" class="quick-action-btn bg-light">
+                        <i class="fa fa-cog fa-2x text-warning"></i>
+                        <div class="mt-2">系统设置</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 数据趋势 -->
+            <div class="row">
+                <div class="col-lg-8 mb-4">
+                    <div class="data-trend-chart">
+                        <h5><i class="fa fa-area-chart"></i> 近期水质趋势</h5>
+                        <div class="chart-container mt-3">
+                            <div class="chart-loading">
+                                <i class="fa fa-spinner fa-spin"></i> 加载趋势图表...
+                            </div>
+                            <canvas id="water-quality-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="data-trend-chart">
+                        <h5><i class="fa fa-pie-chart"></i> 设备状态分布</h5>
+                        <div class="chart-container mt-3">
+                            <div class="chart-loading">
+                                <i class="fa fa-spinner fa-spin"></i> 加载状态数据...
+                            </div>
+                            <canvas id="device-status-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcss.com/Chart.js/2.7.3/Chart.min.js"></script>
+    <script>
+        // 图表初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 水质趋势图
+            new Chart(document.getElementById('water-quality-chart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['周一','周二','周三','周四','周五','周六','周日'],
+                    datasets: [{
+                        label: 'PH值',
+                        data: [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8],
+                        borderColor: '#4CAF50'
+                    },{
+                        label: '溶解氧 (mg/L)',
+                        data: [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1],
+                        borderColor: '#2196F3'
+                    }]
+                }
+            });
+
+            // 设备状态饼图
+            new Chart(document.getElementById('device-status-chart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['正常','预警','离线'],
+                    datasets: [{
+                        data: [85, 10, 5],
+                        backgroundColor: ['#4CAF50','#FFC107','#9E9E9E']
+                    }]
+                }
+            });
+
+            // 退出确认
+            document.querySelector('.logout-link').addEventListener('click', function(e) {
+                if(!confirm('确定要退出系统吗？')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

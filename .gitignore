@@ -1,0 +1,6 @@
+env.mk
+.idea
+__pycache__
+*.pyc
+data
+*.cache.sqlite
