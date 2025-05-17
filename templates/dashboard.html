@@ -104,6 +104,37 @@
             color: #dc3545 !important;
             text-decoration: none;
         }
+
+        /* 天气描述样式 */
+        .weather-description {
+            color: #495057;
+            font-weight: 400;
+            margin-top: -10px;
+            font-style: italic;
+        }
+
+        /* 地点信息样式 */
+        .location-info {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 5px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        /* 天气信息卡片样式调整 */
+        #weather-info {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -114,10 +145,7 @@
             <nav class="navbar navbar-expand-md no-gutters">
                 <div class="col-2 text-left">
                     <a href="/">
-                        <img src="icon.png" 
-                             height="40" 
-                             alt="数据平台" 
-                             class="custom-logo">
+                        <img src="icon.png" height="40" alt="数据平台" class="custom-logo">
                     </a>
                 </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
@@ -176,22 +204,45 @@
                             <i class="fa fa-spinner fa-spin"></i> 获取天气信息...
                         </div>
                         <!-- 天气信息接口预留位置 -->
+                        <!-- 在天气信息接口预留位置内，修改HTML结构 -->
                         <div id="weather-info" style="display: none;">
                             <div class="text-center">
                                 <i class="fa fa-sun-o weather-icon text-warning"></i>
                                 <h3 class="location">智慧渔场监测点</h3>
+                                <h4 class="weather-description mb-3">--</h4>
+
+                                <!-- 添加位置信息 -->
+                                <div class="location-info weather-info-item">
+                                    <i class="fa fa-map-marker"></i>
+                                    地点：<span class="value">北京市</span>
+                                </div>
+
                                 <div class="temperature weather-info-item">
                                     <i class="fa fa-thermometer"></i>
-                                    当前水温：<span class="value">--</span>℃
+                                    当前气温：<span class="value">--</span>℃
                                 </div>
+
+                                <div class="apparent-temp weather-info-item">
+                                    <i class="fa fa-thermometer-half"></i>
+                                    体感温度：<span class="value">--</span>℃
+                                </div>
+
                                 <div class="humidity weather-info-item">
                                     <i class="fa fa-tint"></i>
-                                    水体PH值：<span class="value">--</span>
+                                    湿度：<span class="value">--</span>%
                                 </div>
+
                                 <div class="wind weather-info-item">
                                     <i class="fa fa-leaf"></i>
-                                    溶解氧：<span class="value">--</span>mg/L
+                                    风速：<span class="value">--</span>km/h
                                 </div>
+
+                                <!-- 添加降水量信息 -->
+                                <div class="precipitation weather-info-item">
+                                    <i class="fa fa-umbrella"></i>
+                                    降水量：<span class="value">--</span>mm
+                                </div>
+
                                 <div class="update-time weather-info-item">
                                     <i class="fa fa-clock-o"></i>
                                     更新于：<span id="weather-update-time">--</span>
@@ -284,6 +335,194 @@
         // 初始化图表加载
         document.addEventListener('DOMContentLoaded', () => {
             new ChartLoader();
+
+            // 退出确认
+            document.querySelector('.logout-link').addEventListener('click', function (e) {
+                if (!confirm('确定要退出系统吗？')) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // deal with video stream and weather
+        // 视频流处理类
+        class VideoStream {
+            constructor() {
+                this.videoContainer = document.getElementById('video-stream');
+                this.loadingElement = document.querySelector('.video-container .chart-loading');
+                this.init();
+            }
+
+            init() {
+                // 创建视频元素
+                const video = document.createElement('video');
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.controls = true;
+                video.autoplay = true;
+                video.muted = true; // 大多数浏览器要求自动播放时静音
+
+                // 设置视频源（使用示例视频文件）
+                const source = document.createElement('source');
+                source.src = '/static/demo_fish_tank.mp4'; // 替换为您的视频路径
+                source.type = 'video/mp4';
+                video.appendChild(source);
+
+                // 视频加载事件
+                video.onloadeddata = () => {
+                    this.loadingElement.style.display = 'none';
+                };
+
+                video.onerror = () => {
+                    this.showError('视频加载失败，请检查网络连接');
+                };
+
+                this.videoContainer.appendChild(video);
+            }
+
+            showError(message) {
+                this.loadingElement.style.display = 'none';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chart-error';
+                errorDiv.innerHTML = `
+            <i class="fa fa-exclamation-triangle"></i>
+            <p>${message}</p>
+            <button class="btn btn-sm btn-outline-secondary" 
+                    onclick="new VideoStream()">重试</button>
+        `;
+                this.videoContainer.innerHTML = '';
+                this.videoContainer.appendChild(errorDiv);
+            }
+        }
+
+        // 天气信息处理类
+        class WeatherInfo {
+            constructor() {
+                this.weatherContainer = document.getElementById('weather-info');
+                this.loadingElement = document.querySelector('.weather-container .chart-loading');
+                this.init();
+            }
+
+            init() {
+                // 获取天气数据并定期更新
+                this.fetchWeatherData();
+                setInterval(() => this.fetchWeatherData(), 60000); // 每分钟更新一次
+            }
+
+            fetchWeatherData() {
+                // 使用fetch API请求天气数据
+                fetch('/api/weather')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('数据请求失败');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        this.updateWeatherUI(data);
+                    })
+                    .catch(error => {
+                        console.error('获取天气数据错误:', error);
+                        // 使用模拟数据
+                        this.updateWeatherUI({
+                            temperature: '23.5',
+                            humidity: "65.0",
+                            wind_speed: "3.2",
+                            precipitation: "0.0",
+                            apparent_temperature: "24.2",
+                            weather_description: "晴天",
+                            condition: 'sunny',
+                            location: "北京市",
+                            timestamp: new Date().toLocaleString('zh-CN')
+                        });
+                    });
+            }
+
+            updateWeatherUI(data) {
+                console.log("接收到的天气数据:", data); // 调试用
+
+                // 隐藏加载动画
+                this.loadingElement.style.display = 'none';
+
+                // 显示天气信息容器
+                this.weatherContainer.style.display = 'block';
+
+                // 更新各项指标
+                const temperatureElement = document.querySelector('.temperature .value');
+                const humidityElement = document.querySelector('.humidity .value');
+                const windElement = document.querySelector('.wind .value');
+                const updateTimeElement = document.getElementById('weather-update-time');
+
+                // 获取新添加的元素
+                const locationElement = document.querySelector('.location');
+                const weatherDescElement = document.querySelector('.weather-description');
+                const apparentTempElement = document.querySelector('.apparent-temp .value');
+                const precipitationElement = document.querySelector('.precipitation .value');
+                const locationInfoElement = document.querySelector('.location-info .value');
+
+                // 设置数据
+                temperatureElement.textContent = data.temperature || '--';
+                humidityElement.textContent = data.humidity || '--';
+                windElement.textContent = data.wind_speed || '--';
+
+                // 设置新添加的数据
+                if (data.weather_description) {
+                    weatherDescElement.textContent = data.weather_description;
+                }
+
+                if (data.apparent_temperature) {
+                    apparentTempElement.textContent = data.apparent_temperature;
+                }
+
+                if (data.precipitation) {
+                    precipitationElement.textContent = data.precipitation;
+                }
+
+                // 设置地点 - 如果后端未提供，使用默认值
+                locationInfoElement.textContent = data.location || "北京市";
+
+                // 设置更新时间
+                updateTimeElement.textContent = data.timestamp || new Date().toLocaleString('zh-CN');
+
+                // 更新图标
+                this.updateWeatherIcon(data.condition);
+
+                // 根据天气状况设置页面标题
+                if (data.weather_description) {
+                    document.title = `数据可视化平台 - ${data.weather_description}`;
+                }
+            }
+
+            updateWeatherIcon(condition) {
+                const iconElement = document.querySelector('.weather-icon');
+                // 移除所有类
+                iconElement.className = 'weather-icon';
+
+                // 根据条件设置图标和颜色
+                switch (condition) {
+                    case 'sunny':
+                        iconElement.classList.add('fa', 'fa-sun-o', 'text-warning');
+                        break;
+                    case 'cloudy':
+                        iconElement.classList.add('fa', 'fa-cloud', 'text-secondary');
+                        break;
+                    case 'rain':
+                        iconElement.classList.add('fa', 'fa-tint', 'text-primary');
+                        break;
+                    case 'alert':
+                        iconElement.classList.add('fa', 'fa-exclamation-triangle', 'text-danger');
+                        break;
+                    default:
+                        iconElement.classList.add('fa', 'fa-tint', 'text-info');
+                }
+            }
+        }
+
+        // 修改现有的DOMContentLoaded处理程序，添加新功能初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChartLoader();
+            new VideoStream(); // 初始化视频流
+            new WeatherInfo();  // 初始化天气信息
 
             // 退出确认
             document.querySelector('.logout-link').addEventListener('click', function (e) {

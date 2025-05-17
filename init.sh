@@ -12,18 +12,18 @@ echo "1. Create a Conda virtual environment (recommended)"
 echo "2. Install packages directly using pip (without creating an environment)"
 read -p "Enter your choice (1 or 2, default is 1): " choice
 
-REQUIRED_PACKAGES="flask flask-mail flask-cors email-validator matplotlib seaborn"
-CONDA_REQUIRED_PACKAGES="flask email-validator matplotlib seaborn"
-CONDA_REQUIRED_PIP_PACKAGES="flask-mail flask-cors"
-ENV_NAME="my_env"   # Default Conda environment name. You can change it as you like.
+REQUIRED_PACKAGES="flask flask-mail flask-cors email-validator matplotlib openmeteo-requests requests-cache retry-requests"
+CONDA_REQUIRED_PACKAGES="flask email-validator matplotlib pandas"
+CONDA_REQUIRED_PIP_PACKAGES="flask-mail flask-cors openmeteo-requests requests-cache retry-requests"
+ENV_NAME="soft_engineering"   # Default Conda environment name. You can change it as you like.
 
 # pip method
 if [[ "$choice" == "2" ]]; then
     echo "Installing packages directly using pip (no virtual environment will be created)..."
 
-    if command -v python3.7 &> /dev/null; then
-        PYTHON_BIN=$(command -v python3.7)
-        echo "Using python3.7: $PYTHON_BIN"
+    if command -v python3.12 &> /dev/null; then
+        PYTHON_BIN=$(command -v python3.12)
+        echo "Using python3.12: $PYTHON_BIN"
     elif command -v python3 &> /dev/null; then
         PYTHON_BIN=$(command -v python3)
         echo "Using default python3: $PYTHON_BIN"
@@ -54,8 +54,8 @@ else
     if conda info --envs | grep -q "^$ENV_NAME[[:space:]]"; then
         echo "Conda environment '$ENV_NAME' already exists. Skipping creation..."
     else
-        echo "Creating Conda virtual environment: $ENV_NAME (Python 3.7)..."
-        conda create -y -n $ENV_NAME python=3.7
+        echo "Creating Conda virtual environment: $ENV_NAME (Python 3.12)..."
+        conda create -y -n $ENV_NAME python=3.12
     fi
 
     echo "Initializing Conda..."
