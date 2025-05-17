@@ -47,11 +47,19 @@ def admin():
 def success(name):
     # return render_template('dashboard.html', name=name)
     # return 'welcome %s' % name
-    return redirect(url_for('dashboard', name=name))
+    return redirect(url_for('homepage'))
 
-@app.route('/dashboard/<name>')
-def dashboard(name):
-    return render_template('dashboard.html', name=name)
+@app.route('/homepage/')
+def homepage():
+    return render_template('homepage.html')
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/visualization')
+def visualization():
+    return render_template('visualization.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -67,7 +75,7 @@ def login():
         return jsonify({'success': False, 'message': '用户名不存在'})
     if user['password'] != password:
         return jsonify({'success': False, 'message': '密码错误'})
-    return jsonify({'success': True, 'redirect': url_for('dashboard', name=username)})
+    return jsonify({'success': True, 'redirect': url_for('homepage', name=username)})
 
 
 @app.route('/login_admin', methods=['POST'])
@@ -84,7 +92,7 @@ def login_admin():
         return jsonify({'success': False, 'message': '管理员不存在'})
     if admin['password'] != password:
         return jsonify({'success': False, 'message': '密码错误'})
-    return jsonify({'success': True, 'redirect': url_for('dashboard', name=adminname)})
+    return jsonify({'success': True, 'redirect': url_for('homepage', name=adminname)})
 
 
 @app.route('/login_by_email', methods=['POST'])
@@ -96,7 +104,7 @@ def login_by_email():
         return jsonify({'success': False, 'message': '验证码已过期'})
     if verification_code == stored_data['code']:
         del verification_codes[email]
-        return jsonify({'success': True, 'redirect': url_for('dashboard', name=email)})
+        return jsonify({'success': True, 'redirect': url_for('homepage', name=email)})
     else:
         print(stored_data['code'])
         print(verification_code)
