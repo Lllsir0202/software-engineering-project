@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>数据可视化平台</title>
+    
+    <!-- 样式表 -->
+    <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <style>
+        /* 图表容器样式 */
+        .chart-container {
+            position: relative;
+            min-height: 400px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #6c757d;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+        .chart-error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #dc3545;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .chart-img {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .chart-img.loaded {
+            opacity: 1;
+        }
+
+        /* 用户菜单样式 */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            margin-left: auto;
+        }
+
+        .user-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 1rem;
+        }
+
+        .logout-link {
+            color: #6c757d !important;
+            transition: color 0.2s;
+            padding: 0.5rem;
+        }
+
+        .logout-link:hover {
+            color: #dc3545 !important;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <a href="/">
+                        <img src="icon.png" 
+                             height="40" 
+                             alt="数据平台" 
+                             class="custom-logo">
+                    </a>
+                </div>
+                <button class="navbar-toggler" 
+                        type="button" 
+                        data-toggle="collapse" 
+                        data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">管理员页面</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
+                        <span class="user-name" title="当前用户：admin">
+                            <i class="fa fa-user-circle-o"></i>
+                            admin
+                        </span>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container-fluid py-5">
+        <section class="chart-section">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col text-center">
+                        <h1 class="display-4">数据可视化</h1>
+                        <p class="text-muted">实时数据更新：<span id="update-time"></span></p>
+                    </div>
+                </div>
+
+                <!-- 图表行1 -->
+                <div class="row">
+                    <div class="col-lg-6 chart-container">
+                        <img id="chart-growth" 
+                             class="chart-img img-fluid" 
+                             alt="水质数据"
+                             data-chart-id="growth"
+                             data-src="/api/charts/growth">
+                        <div class="chart-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载趋势图...
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 chart-container">
+                        <img id="chart-distribution" 
+                             class="chart-img img-fluid" 
+                             alt="鱼类数据" 
+                             data-chart-id="distribution"
+                             data-src="/api/charts/distribution">
+                        <div class="chart-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载分布图...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表行2 -->
+                <div class="row mt-4">
+                    <div class="col-12 chart-container">
+                        <img id="chart-realtime" 
+                             class="chart-img img-fluid" 
+                             alt="视频展示" 
+                             data-chart-id="realtime"
+                             data-src="/api/charts/realtime">
+                        <div class="chart-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载实时数据...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 图表加载器
+        class ChartLoader {
+            constructor() {
+                this.charts = document.querySelectorAll('.chart-img');
+                this.init();
+            }
+
+            init() {
+                this.updateTimestamp();
+                this.loadCharts();
+                this.setupAutoRefresh();
+            }
+
+            loadCharts() {
+                this.charts.forEach(chart => {
+                    const container = chart.parentElement;
+                    const src = chart.dataset.src;
+                    
+                    const img = new Image();
+                    img.className = 'chart-img img-fluid';
+                    img.alt = chart.alt;
+
+                    img.onload = () => {
+                        chart.replaceWith(img);
+                        img.classList.add('loaded');
+                        container.querySelector('.chart-loading').style.display = 'none';
+                    };
+
+                    img.onerror = () => {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'chart-error';
+                        errorDiv.innerHTML = `
+                            <i class="fa fa-exclamation-triangle"></i>
+                            <p>图表加载失败</p>
+                            <button class="btn btn-sm btn-outline-secondary" 
+                                    onclick="location.reload()">重试</button>
+                        `;
+                        container.querySelector('.chart-loading').remove();
+                        container.appendChild(errorDiv);
+                    };
+
+                    img.src = `${src}?t=${new Date().getTime()}`;
+                });
+            }
+
+            updateTimestamp() {
+                const options = { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                };
+                document.getElementById('update-time').textContent = 
+                    new Date().toLocaleString('zh-CN', options);
+            }
+
+            setupAutoRefresh() {
+                setInterval(() => {
+                    this.updateTimestamp();
+                    this.loadCharts();
+                }, 300);
+            }
+        }
+
+        // 初始化图表加载
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChartLoader();
+            
+            // 退出确认
+            document.querySelector('.logout-link').addEventListener('click', function(e) {
+                if(!confirm('确定要退出系统吗？')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
