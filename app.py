@@ -45,10 +45,6 @@ def admin():
 @app.route('/admin_page')
 def admin_page():
     return render_template('用户列表.html')
-@app.route('/login',methods = ['POST'])
-    # return render_template('dashboard.html', name=name)
-    # return 'welcome %s' % name
-    return redirect(url_for('homepage'))
 
 @app.route('/homepage/')
 def homepage():
