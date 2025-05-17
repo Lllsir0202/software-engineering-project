@@ -3,7 +3,6 @@ from io import BytesIO
 import os
 import re
 import json
-import seaborn as sns
 import pandas as pd
 plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False #用来正常显示负号
