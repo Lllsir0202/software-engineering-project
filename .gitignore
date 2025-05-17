@@ -3,3 +3,4 @@ env.mk
 __pycache__
 *.pyc
 data
+*.cache.sqlite
