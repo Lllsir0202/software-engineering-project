@@ -145,7 +145,7 @@ def plot_average_by_species():
     )
 
     # 调整布局
-    plt.tight_layout()
+    # plt.tight_layout()
 
     # 保存图表
     img_io = BytesIO()

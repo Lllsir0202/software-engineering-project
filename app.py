@@ -12,6 +12,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import pytz
 import re
+import base64
 
 from plot_utils import plot_average_by_species
 from waterQualityUtils import draw_metrics
@@ -211,11 +212,18 @@ def warning():
 @app.route("/api/charts/growth")
 def plot():
     try:
-        # print(metric)
         img_io = plot_average_by_species()
-        return send_file(img_io, mimetype="image/png")
+        img_io.seek(0)
+        img_base64 = base64.b64encode(img_io.read()).decode('utf-8')
+
+        return jsonify({
+            "status": "success",
+            "image": f"data:image/png;base64,{img_base64}"
+        })
+
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 
 
 @app.route("/api/weather", methods=["GET"])
@@ -385,29 +393,32 @@ def water_quality_chart():
             "to_month": request.args.get("to_month", "05").strip(),
             "to_day": request.args.get("to_day", "08").strip(),
             "position": request.args.get("position", "鼓楼外大街").strip(),
-            # 关键修改：从metrics参数中去除HTML标签和非法字符
             "metrics": re.sub(r"<[^>]+>|\?.*", "", request.args.get("metrics", "水温")),
             "data_root_dir": "data",
         }
 
-        # 生成图表
+        # 获取图像 BytesIO
         result = draw_metrics(**params)
 
-        # 处理错误情况
         if isinstance(result, str):
             app.logger.error(f"图表生成失败: {result}")
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": result,
-                        "suggestions": ["检查指标名称是否正确", "确认日期范围内存在数据", "验证监测点名称是否有效"],
-                    }
-                ),
-                400,
-            )
+            return jsonify({
+                "status": "error",
+                "message": result,
+                "suggestions": [
+                    "检查指标名称是否正确", 
+                    "确认日期范围内存在数据", 
+                    "验证监测点名称是否有效"
+                ]
+            }), 400
 
-        return send_file(result, mimetype="image/png")
+        result.seek(0)
+        img_base64 = base64.b64encode(result.read()).decode('utf-8')
+
+        return jsonify({
+            "status": "success",
+            "image": f"data:image/png;base64,{img_base64}"
+        })
 
     except Exception as e:
         app.logger.error(f"系统错误: {str(e)}")

@@ -28,7 +28,7 @@ def query(
     """
     # 构建文件路径
     file_name = f"{year}-{month}-{day}.json"
-    month_dir = os.path.join(data_root_dir, f"{year}-{month}")
+    month_dir = os.path.join(data_root_dir, '水质数据', f"{year}-{month}")
     file_path = os.path.join(month_dir, file_name)
 
     # 错误处理：文件检查
@@ -221,7 +221,7 @@ def draw_metrics(
         )
         plt.xlabel("日期", fontsize=12)
         plt.ylabel(f"{metrics}数值", fontsize=12)
-        plt.legend()
+        # plt.legend()
         plt.grid(True, alpha=0.3)
 
         # 日期格式
