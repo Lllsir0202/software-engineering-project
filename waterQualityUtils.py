@@ -28,7 +28,7 @@ def query(
     """
     # 构建文件路径
     file_name = f"{year}-{month}-{day}.json"
-    month_dir = os.path.join(data_root_dir, '水质数据', f"{year}-{month}")
+    month_dir = os.path.join(data_root_dir, 'waterquality', f"{year}-{month}")
     file_path = os.path.join(month_dir, file_name)
 
     # 错误处理：文件检查

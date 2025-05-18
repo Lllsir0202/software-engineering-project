@@ -51,3 +51,14 @@ You can run following commands:
     
     run: used to run app.py.
     clean-port: clean in-use port,default clean before run.
+
+## Dataset
+We just origanise dataset like following structure:
+    
+```
+    In the workspace
+    -data
+        -waterquality
+            -dir(year-month)
+                -detailed data(year-month-day.json)
+```
