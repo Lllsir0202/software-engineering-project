@@ -391,7 +391,7 @@ def water_quality_chart():
             "from_day": request.args.get("from_day", "08").strip(),
             "to_year": request.args.get("to_year", "2020").strip(),
             "to_month": request.args.get("to_month", "05").strip(),
-            "to_day": request.args.get("to_day", "08").strip(),
+            "to_day": request.args.get("to_day", "31").strip(),
             "position": request.args.get("position", "鼓楼外大街").strip(),
             "metrics": re.sub(r"<[^>]+>|\?.*", "", request.args.get("metrics", "水温")),
             "data_root_dir": "data",

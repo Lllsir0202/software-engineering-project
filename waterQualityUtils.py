@@ -118,7 +118,7 @@ def draw_metrics(
     from_day="08",
     to_year="2020",
     to_month="05",
-    to_day="08",
+    to_day="22",
     position="鼓楼外大街",
     metrics="水温",
     data_root_dir="data",
@@ -164,9 +164,11 @@ def draw_metrics(
     values_to_plot = []
     current_date = start_date
     date_range = (end_date - start_date).days + 1
+    print(f"日期范围: {date_range}天")
 
     for day_count in range(date_range):
         date_str = current_date.strftime("%Y-%m-%d")
+        print(f"查询日期: {date_str}")
         year_str = str(current_date.year)
         month_str = f"{current_date.month:02d}"
         day_str = f"{current_date.day:02d}"
