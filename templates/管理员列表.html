@@ -62,7 +62,7 @@
         <div class="panel-body">
 <div class="clearfix">
             <div class="pull-left"> 
-				<a href="#" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">新增用户</a>
+				<a href="#" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">新增管理员</a>
 				
 
 
@@ -112,36 +112,8 @@
   </div>
 </section>
 
-	<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document" style="width: 500px;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">修改用户信息</h4>
-      </div>
-      <div class="modal-body">
-    <div class="form1">
-           
-		<ul class="row">
-              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户呢称：</span> <input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户密码：</span> <input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户身份：</span> <select class="form-control"><option>管理员</option></select></li>
-            </ul>
-		
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary">修改</button>
-      </div>
-    </div>
-  </div>
-</div>
-	
-	
-	<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+<!-- Modal -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
   <div class="modal-dialog" role="document" style="width: 500px;">
     <div class="modal-content">
       <div class="modal-header">
@@ -151,23 +123,19 @@
       <div class="modal-body">
     <div class="form1">
             <ul class="row">
-              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户呢称：</span> <input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户密码：</span> <input type="text" class="form-control"></li>
+              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control" name="adminname"></li>
+              <li class="col-xs-12"> <span>用户邮箱：</span> <input type="text" class="form-control" name="email"></li>
+              <li class="col-xs-12"> <span>用户密码：</span> <input type="password" class="form-control" name="password"></li>
             </ul>
           </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary">新增</button>
+        <button type="button" class="btn btn-primary" id="addAdminBtn">新增</button>
       </div>
     </div>
   </div>
 </div>
-	
-	
-	
-	
 	
 	
 	
@@ -177,6 +145,7 @@
 <script src="{{ url_for('static', filename = 'laydate/laydate.js') }}"></script> 
 <script>
 const jsonUrl = "{{ url_for('static', filename='admin.json') }}";
+const apiUrl = "{{ url_for('delete_admin') }}"; // 后端删除API的URL
 
 window.addEventListener('DOMContentLoaded', function() {
     const tbody = document.getElementById('userTableBody');
@@ -191,15 +160,90 @@ window.addEventListener('DOMContentLoaded', function() {
                     <td>${user.password}</td>
                     <td>${user.email}</td>
                     <td>
-                        <a href="#" data-toggle="modal" data-target="#myModal">编辑</a>
-                        <a href="#">删除</a>
+                        <button class="btn btn-danger delete-btn" data-adminname="${user.adminname}">删除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const adminname = this.getAttribute('data-adminname');
+                    deleteUser(adminname);
+                });
+            });
         })
         .catch(error => console.error('Error:', error));
+    
+    function deleteUser(adminname) {
+        if (confirm(`确定要删除用户 "${adminname}" 吗？`)) {
+            fetch('/api/admin', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(adminname)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('删除失败');
+                }
+            })
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除用户时出错');
+            });
+        }
+    }
 });
+</script>
+<script>
+  document.getElementById('addAdminBtn').addEventListener('click', function() {
+    // 获取表单数据
+    const adminname = document.querySelector('input[name="adminname"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    
+    // 验证数据
+    if (!adminname || !email || !password) {
+      alert('请填写所有字段');
+      return;
+    }
+    
+    // 准备数据
+    const userData = {
+      adminname: adminname,
+      email: email,
+      password: password
+    };
+    
+    // 发送请求
+    fetch('/api/admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('管理员添加成功');
+        $('#myModal2').modal('hide');
+      } else {
+        alert('添加失败: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('发生错误，请重试');
+    });
+  });
 </script>
 <script>
 lay('#version').html('-v'+ laydate.v);

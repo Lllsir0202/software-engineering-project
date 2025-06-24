@@ -112,35 +112,8 @@
   </div>
 </section>
 
-	<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document" style="width: 500px;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">修改用户信息</h4>
-      </div>
-      <div class="modal-body">
-    <div class="form1">
-           
-		<ul class="row">
-              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户呢称：</span> <input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户密码：</span> <input type="text" class="form-control"></li>
-            </ul>
-		
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary">修改</button>
-      </div>
-    </div>
-  </div>
-</div>
-	
-	
-	<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
+<!-- Modal -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
   <div class="modal-dialog" role="document" style="width: 500px;">
     <div class="modal-content">
       <div class="modal-header">
@@ -150,31 +123,29 @@
       <div class="modal-body">
     <div class="form1">
             <ul class="row">
-              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户呢称：</span> <input type="text" class="form-control"></li>
-              <li class="col-xs-12"> <span>用户密码：</span> <input type="text" class="form-control"></li>
+              <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control" name="username"></li>
+              <li class="col-xs-12"> <span>用户邮箱：</span> <input type="text" class="form-control" name="email"></li>
+              <li class="col-xs-12"> <span>用户密码：</span> <input type="password" class="form-control" name="password"></li>
             </ul>
           </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary">新增</button>
+        <button type="button" class="btn btn-primary" id="addUserBtn">新增</button>
       </div>
     </div>
   </div>
 </div>
 	
 	
-	
-	
-	
-	
+
 <script src="{{ url_for('static', filename = 'js/bootstrap.js') }}"></script> 
 <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script> 
 <script src="{{ url_for('static', filename = 'js/scripts.js') }}"></script> 
 <script src="{{ url_for('static', filename = 'laydate/laydate.js') }}"></script> 
 <script>
 const jsonUrl = "{{ url_for('static', filename='user.json') }}";
+const apiUrl = "{{ url_for('delete_user') }}"; // 后端删除API的URL
 
 window.addEventListener('DOMContentLoaded', function() {
     const tbody = document.getElementById('userTableBody');
@@ -189,15 +160,90 @@ window.addEventListener('DOMContentLoaded', function() {
                     <td>${user.password}</td>
                     <td>${user.email}</td>
                     <td>
-                        <a href="#" data-toggle="modal" data-target="#myModal">编辑</a>
-                        <a href="#">删除</a>
+                        <button class="btn btn-danger delete-btn" data-username="${user.username}">删除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    deleteUser(username);
+                });
+            });
         })
         .catch(error => console.error('Error:', error));
+    
+    function deleteUser(username) {
+        if (confirm(`确定要删除用户 "${username}" 吗？`)) {
+            fetch('/api/users', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(username)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('删除失败');
+                }
+            })
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除用户时出错');
+            });
+        }
+    }
 });
+</script>
+<script>
+  document.getElementById('addUserBtn').addEventListener('click', function() {
+    // 获取表单数据
+    const username = document.querySelector('input[name="username"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    const password = document.querySelector('input[name="password"]').value;
+    
+    // 验证数据
+    if (!username || !email || !password) {
+      alert('请填写所有字段');
+      return;
+    }
+    
+    // 准备数据
+    const userData = {
+      username: username,
+      email: email,
+      password: password
+    };
+    
+    // 发送请求
+    fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('用户添加成功');
+        $('#myModal2').modal('hide');
+      } else {
+        alert('添加失败: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('发生错误，请重试');
+    });
+  });
 </script>
 <script>
 lay('#version').html('-v'+ laydate.v);
