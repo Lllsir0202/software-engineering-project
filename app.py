@@ -32,15 +32,6 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 mail = Mail(app)
-app.config["MAIL_SERVER"] = "smtp.qq.com"
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USERNAME"] = "3281671353@qq.com"
-app.config["MAIL_PASSWORD"] = "bvhjbykykirycifa"
-app.config["MAIL_DEFAULT_SENDER"] = "3281671353@qq.com"
-app.config["MAIL_USE_TLS"] = False
-app.config["MAIL_USE_SSL"] = True
-mail = Mail(app)
-
 
 def generate_code():
     return str(random.randint(100000, 999999))
