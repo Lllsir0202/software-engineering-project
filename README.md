@@ -62,3 +62,35 @@ We just origanise dataset like following structure:
             -dir(year-month)
                 -detailed data(year-month-day.json)
 ```
+
+## Set up database
+Now we can consider to move all the data into a database, here we name it as ``smart_farm``, you can choose whatever you like but you need to change source code accordingly.
+
+``` bash
+    chmod +x install_mysql.sh
+    ./install_mysql.sh
+```
+
+Then you can initialize the database as following(Platform=Linux)
+``` bash
+    mysql -u root -p
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourpassword';
+
+    CREATE DATABASE smart_farm DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+
+```
+**Attention**:you can replace 'yourpassword' with your own password
+
+To use it in the ``python``, we need to install according packages, following is the commands.
+
+``` bash
+    pip install pymysql
+    # Before this , you should create a .env file and add the next code into it.
+    DB_URL=mysql+pymysql://root:yourpassword@localhost:3306/smart_farm
+
+    # Then we can run this python code to move our data into database
+    python3 import_data.py
+```

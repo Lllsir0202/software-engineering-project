@@ -74,4 +74,3 @@ else
     echo "ENV_NAME=$ENV_NAME" > env.mk
     echo "USE_CONDA=1" >> env.mk
 fi
-
