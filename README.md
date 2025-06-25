@@ -22,6 +22,10 @@ please ensure you have __install python and version=3.7 is recommended__
     pip install flask-mail
     pip install flask-cors
     pip install email-validator
+    pip install flask_sqlalchemy
+    pip install pymysql
+    pip install flask_migrate
+    ...
 ```
 
 ### In conda environment
@@ -32,6 +36,10 @@ please ensure you have __install python and version=3.7 is recommended__
     pip install flask-mail
     pip install flask-cors
     conda install email-validator
+    pip install flask_sqlalchemy
+    pip install pymysql
+    pip install flask_migrate
+    ...
 ```
 Attention: **you can REPLACE __your_env__ by any name you like.**
 
@@ -62,3 +70,53 @@ We just origanise dataset like following structure:
             -dir(year-month)
                 -detailed data(year-month-day.json)
 ```
+
+## Set up database
+Now we can consider to move all the data into a database, here we name it as ``smart_farm``, you can choose whatever you like but you need to change source code accordingly.
+
+``` bash
+    chmod +x install_mysql.sh
+    ./install_mysql.sh
+```
+
+Then you can initialize the database as following(Platform=Linux)
+``` bash
+    mysql -u root -p
+
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'yourpassword';
+
+    CREATE DATABASE smart_farm DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+
+```
+**Attention**:you can replace 'yourpassword' with your own password
+
+To use it in the ``python``, we need to install according packages, following is the commands.
+
+``` bash
+    # If you have set up the environment by our ``init.sh``, it has be prepared.
+    pip install pymysql
+    # Before this , you should create a .env file and add the next code into it.
+    DB_URL=mysql+pymysql://root:yourpassword@localhost:3306/smart_farm
+
+    # Then we can run this python code to move our data into database
+    python3 import_data.py
+```
+
+Here we use ``flask_migrate`` to create a database tables:
+
+``` bash
+    flask db init       # Only once
+    flask db migrate -m "Initial migration"
+    flask db upgrade    # initialize all tablse
+```
+**Attention**: Must run in the root directory **!!!**
+
+## import data into database
+Then we can import all data into the database, and detailed instructions can be refered to the **README.md** in the dir ``database/``
+
+# FAQ
+1. ``flask db init`` failed
+
+> mainly because flask is not in the environment of ``conda``, you can check by ``which flask`` to identify which flask you are using. If you are using a ``flask`` which is not in conda env , you can first deactivate and then uninstall it, then activate conda to install again.
