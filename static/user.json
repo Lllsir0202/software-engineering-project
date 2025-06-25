@@ -1,11 +1,6 @@
 [
     {
         "username": "luyao",
-        "email": "3281671353@qq.com",
-        "password": "123456"
-    },
-    {
-        "username": "luyao1234",
         "email": "2211843@mail.nankai.edu.cn",
         "password": "123456"
     },
@@ -15,8 +10,13 @@
         "password": "123456"
     },
     {
-        "username": "admin",
-        "email": "1135580282@qq.com",
-        "password": "1"
+        "username": "zzj",
+        "email": "2213919@mail.nankai.edu.cn",
+        "password": "123456"
+    },
+    {
+        "username": "wh",
+        "email": "2210207@mail.nankai.edu.cn",
+        "password": "123456"
     }
 ]
