@@ -206,7 +206,13 @@ def send_code():
     except Exception as e:
         print(f"邮件发送失败: {e}")
         return jsonify({'success': False, 'message': '发送失败，请重试'})
-    
+
+# Logout
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template("login.html")
+
 @app.route('/api/users', methods=['GET'])
 def get_users():
     USER_FILE = "static/user.json"
@@ -370,7 +376,6 @@ def delete_admin():
         return jsonify({'error': str(e)}), 500
     
 @app.route('/user_list')
-
 def user_list():
     return render_template("用户列表.html")
 
