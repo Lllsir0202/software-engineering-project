@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from werkzeug.security import check_password_hash
 
 db = SQLAlchemy()
 
@@ -25,6 +26,10 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.now())
+
+    # 添加此方法用于登录校验
+    def check_password(self, password_plaintext):
+        return check_password_hash(self.password, password_plaintext)
 
 class WarningConfig(db.Model):
     __tablename__ = 'warning_configs'

@@ -47,13 +47,14 @@ mail = Mail(app)
 def generate_code():
     return str(random.randint(100000, 999999))
 
+# Used for test
 
-@app.route("/test-db")
-def test_db():
-    from database.models import User
+# @app.route("/test-db")
+# def test_db():
+#     from database.models import User
 
-    user = User.query.first()
-    return f"第一个用户：{user.username if user else '暂无用户'}"
+#     user = User.query.first()
+#     return f"第一个用户：{user.username if user else '暂无用户'}"
 
 
 @app.route("/")
@@ -63,6 +64,12 @@ def index():
 
 @app.route("/admin")
 def admin():
+    # Check if the user is logged in as admin
+    username = session.get("username")
+    admin = User.query.filter_by(username=username, role='admin').first()
+    if admin:
+        # If the user is an admin, redirect to the admin page
+        return redirect(url_for("admin_page"))
     return render_template("admin.html")
 
 
@@ -90,44 +97,45 @@ def dashboard():
 def visualization():
     return render_template("visualization.html")
 
+# Used to get user information
+def login_as_user(username, password_input):
+    user = User.query.filter_by(username=username).first()
+    if user and user.check_password(password_input):
+        return user
+    return None
 
 @app.route("/login", methods=["POST"])
 def login():
     username = request.form.get("login-username")
     password = request.form.get("login-password")
-    try:
-        with open("static/user.json", "r", encoding="utf-8") as file:
-            users = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return jsonify({"success": False, "message": "用户数据不存在"})
-    user = next((u for u in users if u["username"] == username), None)
-    if not user:
-        return jsonify({"success": False, "message": "用户名不存在"})
-    if user["password"] != password:
-        return jsonify({"success": False, "message": "密码错误"})
-    # Reach here means login is successful
-    session["username"] = username
-    # session["email"] = user["email"]
-    session["login_time"] = time.time()
-    return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
+    
+    user = login_as_user(username, password)
+    if user:
+        # Reach here means login is successful
+        session["username"] = username
+        # session["email"] = user["email"]
+        session["login_time"] = time.time()
+        return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
+    else:
+        return jsonify({"success": False, "message": "用户名或密码错误"})
 
+def login_as_admin(adminname, password):
+    user = User.query.filter_by(username=adminname, role='admin').first()
+    if user and user.check_password(password):
+        return user
+    print(f"Admin login failed for {adminname} with password {password}")
+    return None
 
 @app.route("/login_admin", methods=["POST"])
 def login_admin():
     adminname = request.form.get("login-adminname")
     password = request.form.get("login-password")
-    try:
-        with open("static/admin.json", "r", encoding="utf-8") as file:
-            admins = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return jsonify({"success": False, "message": "管理员数据不存在"})
-    admin = next((a for a in admins if a["adminname"] == adminname), None)
-    if not admin:
-        return jsonify({"success": False, "message": "管理员不存在"})
-    if admin["password"] != password:
-        return jsonify({"success": False, "message": "密码错误"})
-    return jsonify({"success": True, "redirect": url_for("admin_page")})
-
+     
+    admin = login_as_admin(adminname, password)
+    if admin:
+        return jsonify({"success": True, "redirect": url_for("admin_page")})
+    else:
+        return jsonify({"success": False, "message": "管理员名或密码错误"})
 
 @app.route("/login_by_email", methods=["POST"])
 def login_by_email():
