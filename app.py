@@ -123,7 +123,7 @@ def login_as_admin(adminname, password):
     user = User.query.filter_by(username=adminname, role='admin').first()
     if user and user.check_password(password):
         return user
-    print(f"Admin login failed for {adminname} with password {password}")
+    # print(f"Admin login failed for {adminname} with password {password}")
     return None
 
 @app.route("/login_admin", methods=["POST"])
