@@ -1,4 +1,13 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file, session
+from flask import (
+    Flask,
+    redirect,
+    url_for,
+    request,
+    render_template,
+    jsonify,
+    send_file,
+    session,
+)
 from flask_mail import Mail, Message
 from flask_cors import CORS
 from email_validator import validate_email, EmailNotValidError
@@ -31,8 +40,8 @@ mail = Mail(app)
 # Reoriganize the verification codes dictionary
 # verification_codes = {}
 from config import SECRET_KEY
-app.secret_key = SECRET_KEY  # 用于加密 session 数据
 
+app.secret_key = SECRET_KEY  # 用于加密 session 数据
 
 
 def generate_code():
@@ -57,6 +66,11 @@ def admin_page():
 @app.route("/homepage/")
 def homepage():
     return render_template("homepage.html")
+
+
+@app.route("/datacenter/", methods=["GET"])
+def datacenter():
+    return render_template("datacenter.html")
 
 
 @app.route("/dashboard", methods=["GET"])
@@ -236,16 +250,14 @@ def plot():
     try:
         img_io = plot_average_by_species()
         img_io.seek(0)
-        img_base64 = base64.b64encode(img_io.read()).decode('utf-8')
+        img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
-        return jsonify({
-            "status": "success",
-            "image": f"data:image/png;base64,{img_base64}"
-        })
+        return jsonify(
+            {"status": "success", "image": f"data:image/png;base64,{img_base64}"}
+        )
 
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
-
 
 
 @app.route("/api/weather", methods=["GET"])
@@ -424,23 +436,23 @@ def water_quality_chart():
 
         if isinstance(result, str):
             app.logger.error(f"图表生成失败: {result}")
-            return jsonify({
-                "status": "error",
-                "message": result,
-                "suggestions": [
-                    "检查指标名称是否正确", 
-                    "确认日期范围内存在数据", 
-                    "验证监测点名称是否有效"
-                ]
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": result,
+                        "suggestions": ["检查指标名称是否正确", "确认日期范围内存在数据", "验证监测点名称是否有效"],
+                    }
+                ),
+                400,
+            )
 
         result.seek(0)
-        img_base64 = base64.b64encode(result.read()).decode('utf-8')
+        img_base64 = base64.b64encode(result.read()).decode("utf-8")
 
-        return jsonify({
-            "status": "success",
-            "image": f"data:image/png;base64,{img_base64}"
-        })
+        return jsonify(
+            {"status": "success", "image": f"data:image/png;base64,{img_base64}"}
+        )
 
     except Exception as e:
         app.logger.error(f"系统错误: {str(e)}")
