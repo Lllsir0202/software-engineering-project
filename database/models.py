@@ -55,7 +55,7 @@ class WaterQuality(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     province = db.Column(db.String(50), nullable=True)
     basin = db.Column(db.String(100), nullable=True)
-    site_name = db.Column(db.String(100), nullable=True)
+    site_name = db.Column(db.String(512), nullable=True)
     monitor_time = db.Column(db.DateTime, nullable=True, index=True)
     water_quality_level = db.Column(db.String(20), nullable=True)
 
