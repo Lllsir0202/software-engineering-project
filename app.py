@@ -279,39 +279,27 @@ def get_users():
 # 新增用户
 @app.route("/api/users", methods=["POST"])
 def add_users():
-    USER_FILE = "static/user.json"
     data = request.get_json()
     # 验证必填字段
     required_fields = ["username", "email", "password"]
     for field in required_fields:
         if field not in data:
             return jsonify({"success": False, "message": f"Missing field: {field}"})
-
     try:
-        # 读取现有用户
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-
-        # 检查用户名是否已存在
-        for user in users:
-            if user["username"] == data["username"]:
-                return jsonify({"success": False, "message": "Username already exists"})
-
-        # 创建新用户
-        new_user = {
-            "username": data["username"],
-            "email": data["email"],
-            "password": data["password"],
-        }
-
-        # 添加到用户列表
-        users.append(new_user)
-        print(new_user)
-
-        # 保存回文件
-        with open(USER_FILE, "w", encoding="utf-8") as file:
-            json.dump(users, file, ensure_ascii=False, indent=4)
-
+        # 检查是否被创建了
+        if User.query.filter_by(username=data["username"]).first():
+            return jsonify({"success": False, "message": "用户名已被注册"})
+        if User.query.filter_by(email=data["email"]).first():
+            return jsonify({"success": False, "message": "邮箱已被注册"})
+        new_user = User(
+            username=data["username"],
+            email=data["email"],
+            password=generate_password_hash(data["password"], method='pbkdf2:sha256'),  # 使用模型方法加密密码
+            role='user',  # 默认角色为用户
+            created_at=datetime.now()  # 设置创建时间
+        )
+        db.session.add(new_user)
+        db.session.commit()
         return jsonify({"success": True, "message": "User added successfully"})
 
     except Exception as e:
@@ -320,43 +308,47 @@ def add_users():
 
 @app.route("/api/users", methods=["DELETE"])
 def delete_user():
-    USER_FILE = "static/user.json"
     username = request.get_json()
     try:
-        # 读取用户文件
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-
-        # 查找要删除的用户
-        user_index = next(
-            (i for i, user in enumerate(users) if user["username"] == username), None
+        deleted_user = User.query.filter_by(username=username,role='user').first()
+        if deleted_user is None:
+            return jsonify({"success": False, "error": f'未找到用户名 "{username}"'}), 404
+        # 找到后
+        db.session.delete(deleted_user)
+        db.session.commit()
+        return jsonify(
+            {"success": True, "message": f'用户 "{username}" 已成功删除'}
         )
 
-        if user_index is not None:
-            # 删除用户
-            deleted_user = users.pop(user_index)
-
-            # 保存更新后的用户列表
-            with open(USER_FILE, "w", encoding="utf-8") as file:
-                json.dump(users, file, ensure_ascii=False, indent=4)
-
-            return jsonify(
-                {"message": f'用户 "{username}" 已成功删除', "deleted_user": deleted_user}
-            )
-        else:
-            return jsonify({"error": f'未找到用户名 "{username}"'}), 404
-
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/api/admin", methods=["GET"])
 def get_admin():
-    USER_FILE = "static/admin.json"
     try:
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-        return jsonify(users)
+        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
+
+        query = User.query.order_by(User.created_at.desc())
+        query = User.query.filter_by(role='admin')  # 只查询普通用户
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        users = [
+            {
+                "username": user.username,
+                "email": user.email,
+                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for user in pagination.items
+        ]
+
+        return jsonify({
+            "users": users,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -364,42 +356,28 @@ def get_admin():
 # 新增用户
 @app.route("/api/admin", methods=["POST"])
 def add_admin():
-    USER_FILE = "static/admin.json"
     data = request.get_json()
     # 验证必填字段
-    required_fields = ["adminname", "email", "password"]
+    required_fields = ["username", "email", "password"]
     for field in required_fields:
         if field not in data:
             return jsonify({"success": False, "message": f"Missing field: {field}"})
-
     try:
-        # 读取现有用户
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-
-        # 检查用户名是否已存在
-        for user in users:
-            if user["adminname"] == data["adminname"]:
-                return jsonify(
-                    {"success": False, "message": "Adminname already exists"}
-                )
-
-        # 创建新用户
-        new_user = {
-            "adminname": data["adminname"],
-            "email": data["email"],
-            "password": data["password"],
-        }
-
-        # 添加到用户列表
-        users.append(new_user)
-        print(new_user)
-
-        # 保存回文件
-        with open(USER_FILE, "w", encoding="utf-8") as file:
-            json.dump(users, file, ensure_ascii=False, indent=4)
-
-        return jsonify({"success": True, "message": "Admin added successfully"})
+        # 检查是否被创建了
+        if User.query.filter_by(username=data["username"]).first():
+            return jsonify({"success": False, "message": "用户名已被注册"})
+        if User.query.filter_by(email=data["email"]).first():
+            return jsonify({"success": False, "message": "邮箱已被注册"})
+        new_user = User(
+            username=data["username"],
+            email=data["email"],
+            password=generate_password_hash(data["password"], method='pbkdf2:sha256'),  # 使用模型方法加密密码
+            role='admin',
+            created_at=datetime.now()  # 设置创建时间
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"success": True, "message": "User added successfully"})
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)})
@@ -407,34 +385,22 @@ def add_admin():
 
 @app.route("/api/admin", methods=["DELETE"])
 def delete_admin():
-    USER_FILE = "static/admin.json"
-    adminname = request.get_json()
+    username = request.get_json()
     try:
-        # 读取用户文件
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-
-        # 查找要删除的用户
-        user_index = next(
-            (i for i, user in enumerate(users) if user["adminname"] == adminname), None
+        deleted_user = User.query.filter_by(username=username, role='admin').first()
+        if deleted_user.username == 'admin':
+            return jsonify({"success": False, "error": '无法删除默认管理员 "admin"'}), 403
+        if deleted_user is None:
+            return jsonify({"success": False, "error": f'未找到管理员名 "{username}"'}), 404
+        # 找到后
+        db.session.delete(deleted_user)
+        db.session.commit()
+        return jsonify(
+            {"success": True, "message": f'管理员 "{username}" 已成功删除'}
         )
 
-        if user_index is not None:
-            # 删除用户
-            deleted_user = users.pop(user_index)
-
-            # 保存更新后的用户列表
-            with open(USER_FILE, "w", encoding="utf-8") as file:
-                json.dump(users, file, ensure_ascii=False, indent=4)
-
-            return jsonify(
-                {"message": f'管理员 "{adminname}" 已成功删除', "deleted_user": deleted_user}
-            )
-        else:
-            return jsonify({"error": f'未找到管理员名 "{adminname}"'}), 404
-
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # Reset admin password
 @app.route('/api/users/reset_password', methods=['POST'])

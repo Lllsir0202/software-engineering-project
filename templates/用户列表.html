@@ -93,17 +93,10 @@
               <div class="pull-right">
                 <nav aria-label="..." class="pull-left">
                   <ul class="pagination" id="pagination-bar">
-                    <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">«</span></a></li>
-                    <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#" aria-label="Next"><span aria-hidden="true">»</span></a></li>
                   </ul>
                 </nav>
                 <div class="pull-left p-r-20  p-l-20">
-                  <select class="form-control">
+                  <select class="form-control" id="per-page-selector">
                     <option value="10">10条每页</option>
                     <option value="20">20条每页</option>
                     <option value="50">50条每页</option>
@@ -133,7 +126,8 @@
             <ul class="row">
               <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control" name="username"></li>
               <li class="col-xs-12"> <span>用户邮箱：</span> <input type="text" class="form-control" name="email"></li>
-              <li class="col-xs-12"> <span>创建/修改时间：</span> <input type="text" class="form-control" name="created_at">
+              <li class="col-xs-12"> <span>用户密码：</span> <input type="password" class="form-control" name="password">
+              </li>
               </li>
             </ul>
           </div>
@@ -153,8 +147,6 @@
   <script src="{{ url_for('static', filename = 'js/scripts.js') }}"></script>
   <script src="{{ url_for('static', filename = 'laydate/laydate.js') }}"></script>
   <script>
-    const apiUrl = "{{ url_for('delete_user') }}"; // 后端删除API的URL
-
     window.addEventListener('DOMContentLoaded', function () {
       const tbody = document.getElementById('userTableBody');
       loadUsers(1, 10);  // 默认加载第1页，每页10条
@@ -249,15 +241,59 @@
               })
                 .then(res => res.json())
                 .then(data => {
-                  alert(data.message);
-                  loadUsers();  // 重新加载
+                  if (data.success) {
+                    alert(data.message);
+                    loadUsers();  // 重新加载
+                  } else {
+                    alert('删除失败: ' + data.error);
+                  }
                 })
                 .catch(error => alert('删除用户时出错'));
             }
           });
         });
       }
+      document.getElementById('addUserBtn').addEventListener('click', function () {
+        // 获取表单数据
+        const username = document.querySelector('input[name="username"]').value;
+        const email = document.querySelector('input[name="email"]').value;
+        const password = document.querySelector('input[name="password"]').value;
 
+        // 验证数据
+        if (!username || !email || !password) {
+          alert('请填写所有字段');
+          return;
+        }
+
+        // 准备数据
+        const userData = {
+          username: username,
+          email: email,
+          password: password
+        };
+
+        // 发送请求
+        fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('用户添加成功');
+              $('#myModal2').modal('hide');
+            } else {
+              alert('添加失败: ' + data.error);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('发生错误，请重试');
+          });
+      });
     });
   </script>
   <script>
@@ -271,49 +307,7 @@
       loadUsers(page); // 加载指定页
     });
   </script>
-  <script>
-    document.getElementById('addUserBtn').addEventListener('click', function () {
-      // 获取表单数据
-      const username = document.querySelector('input[name="username"]').value;
-      const email = document.querySelector('input[name="email"]').value;
-      const password = document.querySelector('input[name="password"]').value;
 
-      // 验证数据
-      if (!username || !email || !password) {
-        alert('请填写所有字段');
-        return;
-      }
-
-      // 准备数据
-      const userData = {
-        username: username,
-        email: email,
-        password: password
-      };
-
-      // 发送请求
-      fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert('用户添加成功');
-            $('#myModal2').modal('hide');
-          } else {
-            alert('添加失败: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('发生错误，请重试');
-        });
-    });
-  </script>
   <script>
     lay('#version').html('-v' + laydate.v);
     laydate.render({
