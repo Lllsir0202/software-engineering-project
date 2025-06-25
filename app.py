@@ -17,27 +17,30 @@ import base64
 from plot_utils import plot_average_by_species
 from waterQualityUtils import draw_metrics
 
+# Used in database
+from database.models import *
+from flask_migrate import Migrate
+
 app = Flask(__name__)
-CORS(app)
-mail = Mail(app)
-app.config["MAIL_SERVER"] = "smtp.qq.com"
-app.config["MAIL_PORT"] = 465
-app.config["MAIL_USERNAME"] = "3281671353@qq.com"
-app.config["MAIL_PASSWORD"] = "bvhjbykykirycifa"
-app.config["MAIL_DEFAULT_SENDER"] = "3281671353@qq.com"
-app.config["MAIL_USE_TLS"] = False
-app.config["MAIL_USE_SSL"] = True
-mail = Mail(app)
 # Reoriganize the verification codes dictionary
 # verification_codes = {}
-from config import SECRET_KEY
-app.secret_key = SECRET_KEY  # 用于加密 session 数据
+from config import Config
+app.config.from_object(Config)
+CORS(app)
 
+db.init_app(app)
+migrate = Migrate(app, db)
 
+mail = Mail(app)
 
 def generate_code():
     return str(random.randint(100000, 999999))
 
+@app.route('/test-db')
+def test_db():
+    from database.models import User
+    user = User.query.first()
+    return f"第一个用户：{user.username if user else '暂无用户'}"
 
 @app.route("/")
 def index():
@@ -85,7 +88,8 @@ def login():
         return jsonify({"success": False, "message": "密码错误"})
     # Reach here means login is successful
     session["username"] = username
-    session["email"] = user["email"]
+    # session["email"] = user["email"]
+    session["login_time"] = time.time()
     return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
 
 
@@ -129,6 +133,7 @@ def login_by_email():
             return jsonify({"success": False, "message": "邮箱未注册"})
         # Store user information in session
         session["username"] = user["username"]
+        session["login_time"] = time.time()
         session.pop("verification_code", None)
         session.pop("verification_email", None)
         session.pop("verification_expire", None)
@@ -204,7 +209,13 @@ def send_code():
     except Exception as e:
         print(f"邮件发送失败: {e}")
         return jsonify({'success': False, 'message': '发送失败，请重试'})
-    
+
+# Logout
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template("login.html")
+
 @app.route('/api/users', methods=['GET'])
 def get_users():
     USER_FILE = "static/user.json"
@@ -368,7 +379,6 @@ def delete_admin():
         return jsonify({'error': str(e)}), 500
     
 @app.route('/user_list')
-
 def user_list():
     return render_template("用户列表.html")
 

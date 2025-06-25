@@ -1,12 +1,7 @@
 [
     {
-        "adminname": "luyao",
-        "email": "3281671353@qq.com",
-        "password": "123456"
-    },
-    {
-        "adminname": "luyao1234",
-        "email": "2211843@mail.nankai.edu.cn",
+        "username": "admin",
+        "email": "admin@example.com",
         "password": "123456"
     }
 ]
