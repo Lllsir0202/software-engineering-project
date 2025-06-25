@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file
+from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file, session
 from flask_mail import Mail, Message
 from flask_cors import CORS
 from email_validator import validate_email, EmailNotValidError
@@ -28,7 +28,11 @@ app.config["MAIL_DEFAULT_SENDER"] = "3281671353@qq.com"
 app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
 mail = Mail(app)
-verification_codes = {}
+# Reoriganize the verification codes dictionary
+# verification_codes = {}
+from config import SECRET_KEY
+app.secret_key = SECRET_KEY  # 用于加密 session 数据
+
 
 
 def generate_code():
@@ -79,6 +83,9 @@ def login():
         return jsonify({"success": False, "message": "用户名不存在"})
     if user["password"] != password:
         return jsonify({"success": False, "message": "密码错误"})
+    # Reach here means login is successful
+    session["username"] = username
+    session["email"] = user["email"]
     return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
 
 
@@ -103,16 +110,29 @@ def login_admin():
 def login_by_email():
     email = request.form.get("email")
     verification_code = request.form.get("verification-code")
-    stored_data = verification_codes[email]
-    if not stored_data or time.time() > stored_data["expire_time"]:
+    stored_code = session.get("verification_code")
+    stored_email = session.get("verification_email")
+    expire_time = session.get("verification_expire")
+    if time.time() > expire_time:
         return jsonify({"success": False, "message": "验证码已过期"})
-    if verification_code == stored_data["code"]:
-        del verification_codes[email]
+    if stored_code != verification_code or stored_email != email:
+        return jsonify({"success": False, "message": "验证码错误或邮箱不匹配"})
+    if verification_code == stored_code:
+        # Find the user by email
+        try:
+            with open("static/user.json", "r", encoding="utf-8") as file:
+                users = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return jsonify({"success": False, "message": "用户数据不存在"})
+        user = next((u for u in users if u["email"] == email), None)
+        if not user:
+            return jsonify({"success": False, "message": "邮箱未注册"})
+        # Store user information in session
+        session["username"] = user["username"]
+        session.pop("verification_code", None)
+        session.pop("verification_email", None)
+        session.pop("verification_expire", None)
         return jsonify({"success": True, "redirect": url_for("homepage", name=email)})
-    else:
-        print(stored_data["code"])
-        print(verification_code)
-        return jsonify({"success": False, "message": "验证码错误"})
 
 
 @app.route("/add_user", methods=["POST"])
@@ -172,7 +192,9 @@ def send_code():
         return jsonify({"success": False, "message": "邮箱未被注册"})
 
     code = generate_code()
-    verification_codes[email] = {"code": code, "expire_time": time.time() + 300}
+    session["verification_code"] = code
+    session["verification_email"] = email
+    session["verification_expire"] = time.time() + 300  # 5分钟有效
     try:
         msg = Message(
             subject="您的验证码", recipients=[email], body=f"您的验证码是：{code}，5分钟内有效。"
