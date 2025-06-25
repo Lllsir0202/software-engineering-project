@@ -179,20 +179,22 @@ def add_user():
         return jsonify({"success": False, "message": "邮箱格式无效"})
     if password != confirm_password:
         return jsonify({"success": False, "message": "确认密码必须与密码一致"})
-    data_dict = {"username": username, "email": email, "password": password}
-    file_path = "static/user.json"
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            users = json.load(file)  # 读取为列表
-    except (FileNotFoundError, json.JSONDecodeError):
-        users = []
-    if any(user["username"] == username for user in users):
+    # Check if the username is already taken
+    if User.query.filter_by(username=username).first():
         return jsonify({"success": False, "message": "用户名已被注册"})
-    if any(user["email"] == email for user in users):
+    # Check if the email is already taken
+    if User.query.filter_by(email=email).first():
         return jsonify({"success": False, "message": "邮箱已被注册"})
-    users.append(data_dict)
-    with open(file_path, "w", encoding="utf-8") as file:
-        json.dump(users, file, ensure_ascii=False, indent=4)
+    
+    new_user = User(
+        username = username,
+        email = email,
+        password = User.generate_password_hash(password, method='pbkdf2:sha256'),  # 使用模型方法加密密码->because it's too long so we use pbkdf2:sha256
+        role = 'user',
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
     return jsonify({"success": True, "message": "注册成功", "redirect": url_for("index")})
 
 
@@ -247,11 +249,17 @@ def logout():
 
 @app.route("/api/users", methods=["GET"])
 def get_users():
-    USER_FILE = "static/user.json"
     try:
-        with open(USER_FILE, "r") as f:
-            users = json.load(f)
-        return jsonify(users)
+        users = User.query.filter_by(role='user').all()
+        user_list = []
+        for u in users:
+            user_list.append({
+                "id": u.id,
+                "username": u.username,
+                "email": u.email,
+                "created_at": u.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            })
+        return jsonify(user_list)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -415,6 +423,23 @@ def delete_admin():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# Reset admin password
+@app.route('/api/users/reset_password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+    username = data.get('username')
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'success': False, 'message': '用户不存在'}), 404
+
+    # 例如默认重置为 123456
+    new_password = '123456'
+    user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+    user.created_at = datetime.now()  # 更新创建时间
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'用户 {username} 的密码已重置为 {new_password}'})
 
 
 @app.route("/user_list")
