@@ -17,8 +17,20 @@ import base64
 from plot_utils import plot_average_by_species
 from waterQualityUtils import draw_metrics
 
+# Used in database
+from database.models import *
+from flask_migrate import Migrate
+
 app = Flask(__name__)
+# Reoriganize the verification codes dictionary
+# verification_codes = {}
+from config import Config
+app.config.from_object(Config)
 CORS(app)
+
+db.init_app(app)
+migrate = Migrate(app, db)
+
 mail = Mail(app)
 app.config["MAIL_SERVER"] = "smtp.qq.com"
 app.config["MAIL_PORT"] = 465
@@ -28,16 +40,16 @@ app.config["MAIL_DEFAULT_SENDER"] = "3281671353@qq.com"
 app.config["MAIL_USE_TLS"] = False
 app.config["MAIL_USE_SSL"] = True
 mail = Mail(app)
-# Reoriganize the verification codes dictionary
-# verification_codes = {}
-from config import SECRET_KEY
-app.secret_key = SECRET_KEY  # 用于加密 session 数据
-
 
 
 def generate_code():
     return str(random.randint(100000, 999999))
 
+@app.route('/test-db')
+def test_db():
+    from database.models import User
+    user = User.query.first()
+    return f"第一个用户：{user.username if user else '暂无用户'}"
 
 @app.route("/")
 def index():
