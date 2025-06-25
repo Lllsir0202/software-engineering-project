@@ -89,10 +89,10 @@
 
 
             <div class="page clearfix">
-              <div class="pull-left">共 400 条记录 第 1 / 80 页</div>
+              <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
               <div class="pull-right">
                 <nav aria-label="..." class="pull-left">
-                  <ul class="pagination">
+                  <ul class="pagination" id="pagination-bar">
                     <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">«</span></a></li>
                     <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
                     <li><a href="#">2</a></li>
@@ -104,13 +104,13 @@
                 </nav>
                 <div class="pull-left p-r-20  p-l-20">
                   <select class="form-control">
-                    <option>10条每页</option>
+                    <option value="10">10条每页</option>
+                    <option value="20">20条每页</option>
+                    <option value="50">50条每页</option>
                   </select>
-                </div>
-                <div class="pull-left">跳至
-                  <input type="text" value="5" class="form-control">
-                  页
-                </div>
+                </div>第
+                <input type="text" id="goto-page-input" class="form-control" value="1">页
+                <button id="goto-page-btn" class="btn btn-default">跳转</button>
               </div>
             </div>
           </div>
@@ -133,7 +133,8 @@
             <ul class="row">
               <li class="col-xs-12"> <span>用户名称：</span><input type="text" class="form-control" name="username"></li>
               <li class="col-xs-12"> <span>用户邮箱：</span> <input type="text" class="form-control" name="email"></li>
-              <li class="col-xs-12"> <span>创建/修改时间：</span> <input type="text" class="form-control" name="created_at"></li>
+              <li class="col-xs-12"> <span>创建/修改时间：</span> <input type="text" class="form-control" name="created_at">
+              </li>
             </ul>
           </div>
         </div>
@@ -152,85 +153,122 @@
   <script src="{{ url_for('static', filename = 'js/scripts.js') }}"></script>
   <script src="{{ url_for('static', filename = 'laydate/laydate.js') }}"></script>
   <script>
-    const addapiUrl = "/api/users";
     const apiUrl = "{{ url_for('delete_user') }}"; // 后端删除API的URL
 
     window.addEventListener('DOMContentLoaded', function () {
       const tbody = document.getElementById('userTableBody');
+      loadUsers(1, 10);  // 默认加载第1页，每页10条
 
-      fetch(addapiUrl)
-        .then(response => response.json())
-        .then(users => {
-          users.forEach(user => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                    <td>${user.username}</td>
-                    <td>${user.email}</td>
-                    <td>${user.created_at}</td>
-                    <td>
-                        <button class="btn btn-danger delete-btn" data-username="${user.username}">删除</button>
-                        <button class="btn btn-info reset-btn" data-username="${user.username}">重置密码</button>
-                    </td>
-                `;
-            tbody.appendChild(tr);
-          });
-          document.querySelectorAll('.reset-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-              const username = this.getAttribute('data-username');
-              if (confirm(`确定要重置用户 "${username}" 的密码吗？`)) {
-                fetch('/api/users/reset_password', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ username: username })
-                })
-                  .then(response => response.json())
-                  .then(data => {
-                    alert(data.message);
-                  })
-                  .catch(error => {
-                    console.error('Error:', error);
-                    alert('重置密码时出错');
-                  });
-              }
-            })
-          })
+      function loadUsers(page = 1, perPage = 10) {
+        fetch(`/api/users?page=${page}&per_page=${perPage}`)
+          .then(response => response.json())
+          .then(data => {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';  // 清空旧数据
 
-          document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-              const username = this.getAttribute('data-username');
-              deleteUser(username);
+            data.users.forEach(user => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+          <td>${user.username}</td>
+          <td>${user.email}</td>
+          <td>${user.created_at}</td>
+          <td>
+              <button class="btn btn-danger delete-btn" data-username="${user.username}">删除</button>
+              <button class="btn btn-info reset-btn" data-username="${user.username}">重置密码</button>
+          </td>`;
+              tbody.appendChild(tr);
             });
-          });
-        })
-        .catch(error => console.error('Error:', error));
 
-      function deleteUser(username) {
-        if (confirm(`确定要删除用户 "${username}" 吗？`)) {
-          fetch('/api/users', {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(username)
-          })
-            .then(response => {
-              if (response.ok) {
-                return response.json();
-              } else {
-                throw new Error('删除失败');
-              }
-            })
-            .then(data => {
-              alert(data.message);
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('删除用户时出错');
+            // 渲染总数
+            document.getElementById('pagination-info').textContent =
+              `共 ${data.total} 条记录 第 ${data.current_page} / ${data.pages} 页`;
+
+            // 渲染分页按钮
+            const paginationContainer = document.getElementById('pagination-bar');
+            paginationContainer.innerHTML = '';
+
+            // 上一页按钮
+            const prevLi = document.createElement('li');
+            prevLi.className = data.current_page === 1 ? 'disabled' : '';
+            prevLi.innerHTML = `<a href="#" aria-label="Previous"><span aria-hidden="true">«</span></a>`;
+            prevLi.addEventListener('click', function () {
+              if (data.current_page > 1) loadUsers(data.current_page - 1, perPage);
             });
-        }
+            paginationContainer.appendChild(prevLi);
+
+            // 中间页码按钮
+            for (let i = 1; i <= data.pages; i++) {
+              const li = document.createElement('li');
+              li.className = (i === data.current_page) ? 'active' : '';
+              li.innerHTML = `<a href="#">${i}</a>`;
+              li.addEventListener('click', function () {
+                loadUsers(i, perPage);
+              });
+              paginationContainer.appendChild(li);
+            }
+
+            // 下一页按钮
+            const nextLi = document.createElement('li');
+            nextLi.className = data.current_page === data.pages ? 'disabled' : '';
+            nextLi.innerHTML = `<a href="#" aria-label="Next"><span aria-hidden="true">»</span></a>`;
+            nextLi.addEventListener('click', function () {
+              if (data.current_page < data.pages) loadUsers(data.current_page + 1, perPage);
+            });
+            paginationContainer.appendChild(nextLi);
+
+            attachEventListeners(); // 重新绑定事件
+          })
+          .catch(error => console.error('Error:', error));
       }
+
+      function attachEventListeners() {
+        document.querySelectorAll('.reset-btn').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const username = this.getAttribute('data-username');
+            if (confirm(`确定要重置用户 "${username}" 的密码吗？`)) {
+              fetch('/api/users/reset_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username })
+              })
+                .then(res => res.json())
+                .then(data => alert(data.message))
+                .catch(error => alert('重置密码时出错'));
+            }
+          });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const username = this.getAttribute('data-username');
+            if (confirm(`确定要删除用户 "${username}" 吗？`)) {
+              fetch('/api/users', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(username)
+              })
+                .then(res => res.json())
+                .then(data => {
+                  alert(data.message);
+                  loadUsers();  // 重新加载
+                })
+                .catch(error => alert('删除用户时出错'));
+            }
+          });
+        });
+      }
+
+    });
+  </script>
+  <script>
+    document.getElementById('per-page-selector').addEventListener('change', function () {
+      const perPage = parseInt(this.value);
+      loadUsers(1, perPage); // 重新加载第一页
+    });
+
+    document.getElementById('goto-page-btn').addEventListener('click', function () {
+      const page = parseInt(document.getElementById('goto-page-input').value);
+      loadUsers(page); // 加载指定页
     });
   </script>
   <script>

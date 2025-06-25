@@ -250,16 +250,28 @@ def logout():
 @app.route("/api/users", methods=["GET"])
 def get_users():
     try:
-        users = User.query.filter_by(role='user').all()
-        user_list = []
-        for u in users:
-            user_list.append({
-                "id": u.id,
-                "username": u.username,
-                "email": u.email,
-                "created_at": u.created_at.strftime("%Y-%m-%d %H:%M:%S")
-            })
-        return jsonify(user_list)
+        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
+
+        query = User.query.order_by(User.created_at.desc())
+        query = User.query.filter_by(role='user')  # 只查询普通用户
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        users = [
+            {
+                "username": user.username,
+                "email": user.email,
+                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for user in pagination.items
+        ]
+
+        return jsonify({
+            "users": users,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
