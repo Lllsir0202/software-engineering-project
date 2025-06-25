@@ -150,21 +150,17 @@ def login_by_email():
         return jsonify({"success": False, "message": "验证码错误或邮箱不匹配"})
     if verification_code == stored_code:
         # Find the user by email
-        try:
-            with open("static/user.json", "r", encoding="utf-8") as file:
-                users = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
+        if User.query.filter_by(email=email).first() is None:
             return jsonify({"success": False, "message": "用户数据不存在"})
-        user = next((u for u in users if u["email"] == email), None)
-        if not user:
-            return jsonify({"success": False, "message": "邮箱未注册"})
+        
+        user = User.query.filter_by(email=email).first()
         # Store user information in session
-        session["username"] = user["username"]
+        session["username"] = user.username
         session["login_time"] = time.time()
         session.pop("verification_code", None)
         session.pop("verification_email", None)
         session.pop("verification_expire", None)
-        return jsonify({"success": True, "redirect": url_for("homepage", name=email)})
+        return jsonify({"success": True, "redirect": url_for("homepage", name=session['username'])})
 
 
 @app.route("/add_user", methods=["POST"])
@@ -216,13 +212,7 @@ def send_code():
     except EmailNotValidError:
         return jsonify({"success": False, "message": "邮箱格式无效"})
 
-    file_path = "static/user.json"
-    try:
-        with open(file_path, "r", encoding="utf-8") as file:
-            users = json.load(file)  # 读取为列表
-    except (FileNotFoundError, json.JSONDecodeError):
-        users = []
-    if all(user["email"] != email for user in users):
+    if User.query.filter_by(email=email).first() is None:
         return jsonify({"success": False, "message": "邮箱未被注册"})
 
     code = generate_code()
