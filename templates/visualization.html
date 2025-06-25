@@ -109,9 +109,9 @@
 
                     <!-- 用户状态区域 -->
                     <div class="user-menu">
-                        <span class="user-name" title="当前用户：admin">
+                        <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
-                            admin
+                            {{ session.get('username', '游客') }}
                         </span>
                         <a href="/logout" class="logout-link">
                             <i class="fa fa-sign-out"></i>
