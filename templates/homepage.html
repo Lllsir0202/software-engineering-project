@@ -103,7 +103,9 @@
             <!-- 欢迎横幅 -->
             <div class="welcome-banner">
                 <h1 class="display-4">欢迎回来，{{ session.get('username', '游客') }}</h1>
-                <p class="lead">当前系统运行时间：<span id="uptime">367小时25分钟</span></p>
+                <p class="lead">
+                    当前系统运行时间：<span id="uptime">计算中...</span>
+                </p>
             </div>
 
             <!-- 关键指标 -->
@@ -234,6 +236,24 @@
             });
         });
     </script>
+    <script>
+        // 将 Flask 的 login_time 注入为 JS 变量
+        const loginTimestamp = {{ session.get('login_time', 0) | int }};
+        const updateUptime = () => {
+            const now = Math.floor(Date.now() / 1000);
+            const elapsed = now - loginTimestamp;
+
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+
+            document.getElementById('uptime').textContent = `${hours}小时${minutes}分钟${seconds}秒`;
+        };
+
+        updateUptime();
+        setInterval(updateUptime, 1000);
+    </script>
+
 </body>
 
 </html>

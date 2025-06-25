@@ -85,7 +85,8 @@ def login():
         return jsonify({"success": False, "message": "密码错误"})
     # Reach here means login is successful
     session["username"] = username
-    session["email"] = user["email"]
+    # session["email"] = user["email"]
+    session["login_time"] = time.time()
     return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
 
 
@@ -129,6 +130,7 @@ def login_by_email():
             return jsonify({"success": False, "message": "邮箱未注册"})
         # Store user information in session
         session["username"] = user["username"]
+        session["login_time"] = time.time()
         session.pop("verification_code", None)
         session.pop("verification_email", None)
         session.pop("verification_expire", None)
