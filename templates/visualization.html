@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/templates/icon.png" type="image/x-icon">
+
     <title>数据可视化平台</title>
 
     <!-- 样式表 -->
@@ -86,7 +88,7 @@
             <nav class="navbar navbar-expand-md no-gutters">
                 <div class="col-2 text-left">
                     <!-- <a href="/"> -->
-                    <img src="icon.png" height="40" alt="数据平台" class="custom-logo">
+                    <img height="40" alt="数据平台" class="custom-logo">
                     <!-- </a> -->
                 </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
@@ -107,9 +109,9 @@
 
                     <!-- 用户状态区域 -->
                     <div class="user-menu">
-                        <span class="user-name" title="当前用户：admin">
+                        <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
-                            admin
+                            {{ session.get('username', '游客') }}
                         </span>
                         <a href="/logout" class="logout-link">
                             <i class="fa fa-sign-out"></i>
@@ -133,50 +135,36 @@
                 </div>
 
                 <!-- 图表行1 -->
-                <!-- 在图表部分上方添加 -->
-                <div class="row mb-4">
-                    <div class="col-md-6 offset-md-3">
-                        <div class="form-group">
-                            <label for="metric-selector">选择数据指标：</label>
-                            <select class="form-control" id="metric-selector">
-                                <option value="Weight(g)">鱼类体重 (g)</option>
-                                <option value="Height(cm)">鱼类高度 (cm)</option>
-                                <option value="Width(cm)">鱼类宽度 (cm)</option>
-                                <option value="Length1(cm)">鱼类长度1 (cm)</option>
-                                <option value="Length2(cm)">鱼类长度2 (cm)</option>
-                                <option value="Length3(cm)">鱼类长度3 (cm)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+
                 <div class="row">
                     <div class="col-lg-6 chart-container">
-                        <img id="chart-growth" class="chart-img img-fluid" alt="水质数据" data-chart-id="growth"
+                        <img id="chart-growth" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="growth"
                             data-src="/api/charts/growth">
-                        <div class="chart-loading">
-                            <i class="fa fa-spinner fa-spin"></i> 加载水质数据图...
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 chart-container">
-                        <img id="chart-distribution" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="distribution"
-                            data-src="/api/charts/distribution">
                         <div class="chart-loading">
                             <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
                         </div>
                     </div>
-                </div>
 
-                <!-- 图表行2 -->
-                <div class="row mt-4">
-                    <div class="col-12 chart-container">
-                        <img id="chart-realtime" class="chart-img img-fluid" alt="视频展示" data-chart-id="realtime"
-                            data-src="/api/charts/realtime">
+                    <div class="col-lg-6 chart-container">
+                        <img id="chart-water" class="chart-img img-fluid" alt="水质数据" data-chart-id="water_quality"
+                            data-src="/api/charts/water_quality">
                         <div class="chart-loading">
-                            <i class="fa fa-spinner fa-spin"></i> 加载实时数据...
+                            <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
                         </div>
                     </div>
+
                 </div>
+
+                <!--            &lt;!&ndash; 图表行2 &ndash;&gt;-->
+                <!--            <div class="row mt-4">-->
+                <!--                <div class="col-12 chart-container">-->
+                <!--                    <img id="chart-realtime" class="chart-img img-fluid" alt="视频展示" data-chart-id="realtime"-->
+                <!--                         data-src="/api/charts/realtime">-->
+                <!--                    <div class="chart-loading">-->
+                <!--                        <i class="fa fa-spinner fa-spin"></i> 加载实时数据...-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
             </div>
         </section>
     </main>
@@ -185,7 +173,6 @@
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 图表加载器
         class ChartLoader {
             constructor() {
                 this.charts = document.querySelectorAll('.chart-img');
@@ -198,36 +185,42 @@
                 this.setupAutoRefresh();
             }
 
-            loadCharts() {
-                this.charts.forEach(chart => {
+            async loadCharts() {
+                for (const chart of this.charts) {
                     const container = chart.parentElement;
                     const src = chart.dataset.src;
+                    const chartId = chart.dataset.chartId;
 
-                    const img = new Image();
-                    img.className = 'chart-img img-fluid';
-                    img.alt = chart.alt;
+                    // 显示加载中
+                    chart.classList.remove('loaded');
+                    container.querySelector('.chart-loading').style.display = 'block';
 
-                    img.onload = () => {
-                        chart.replaceWith(img);
-                        img.classList.add('loaded');
-                        container.querySelector('.chart-loading').style.display = 'none';
-                    };
+                    try {
+                        const response = await fetch(`${src}?t=${new Date().getTime()}`);
+                        const data = await response.json();
 
-                    img.onerror = () => {
+                        if (data.status === "success") {
+                            chart.src = data.image;  // base64 图片
+                            chart.onload = () => {
+                                chart.classList.add('loaded');
+                                container.querySelector('.chart-loading').style.display = 'none';
+                            };
+                        } else {
+                            throw new Error(data.message || "图表加载失败");
+                        }
+                    } catch (error) {
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'chart-error';
                         errorDiv.innerHTML = `
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <p>图表加载失败</p>
-                            <button class="btn btn-sm btn-outline-secondary" 
-                                    onclick="location.reload()">重试</button>
-                        `;
-                        container.querySelector('.chart-loading').remove();
+                    <i class="fa fa-exclamation-triangle"></i>
+                    <p>图表加载失败：${error.message}</p>
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="location.reload()">重试</button>
+                `;
+                        container.querySelector('.chart-loading')?.remove();
                         container.appendChild(errorDiv);
-                    };
-
-                    img.src = `${src}?t=${new Date().getTime()}`;
-                });
+                    }
+                }
             }
 
             updateTimestamp() {
@@ -247,33 +240,13 @@
                 setInterval(() => {
                     this.updateTimestamp();
                     this.loadCharts();
-                }, 300);
+                }, 60000);  // 每分钟刷新
             }
         }
-
-        // 初始化图表加载
         document.addEventListener('DOMContentLoaded', () => {
             new ChartLoader();
-
-            // 退出确认
-            document.querySelector('.logout-link').addEventListener('click', function (e) {
-                if (!confirm('确定要退出系统吗？')) {
-                    e.preventDefault();
-                }
-            });
         });
-        // 在现有JavaScript后添加
-        document.getElementById('metric-selector').addEventListener('change', function () {
-            const metric = this.value;
-            const chartContainers = document.querySelectorAll('.chart-container');
 
-            // 更新第一个图表
-            const firstChart = chartContainers[0].querySelector('.chart-img');
-            firstChart.dataset.src = `/plot/${metric}`;
-
-            // 手动触发图表重新加载
-            new ChartLoader().loadCharts();
-        });
     </script>
 </body>
 

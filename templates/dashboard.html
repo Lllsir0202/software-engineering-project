@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>数据可视化平台</title>
-
+    <link rel="icon" href="/templates/icon.png" type="image/x-icon">
     <!-- 样式表 -->
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
@@ -145,7 +145,7 @@
             <nav class="navbar navbar-expand-md no-gutters">
                 <div class="col-2 text-left">
                     <!-- <a href="/"> -->
-                        <img src="icon.png" height="40" alt="数据平台" class="custom-logo">
+                    <img height="40" alt="数据平台" class="custom-logo">
                     <!-- </a> -->
                 </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
@@ -166,9 +166,9 @@
 
                     <!-- 用户状态区域 -->
                     <div class="user-menu">
-                        <span class="user-name" title="当前用户：admin">
+                        <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
-                            admin
+                            {{ session.get('username', '游客') }}
                         </span>
                         <a href="/logout" class="logout-link">
                             <i class="fa fa-sign-out"></i>
@@ -364,7 +364,7 @@
 
                 // 设置视频源（使用示例视频文件）
                 const source = document.createElement('source');
-                source.src = '/static/demo_fish_tank.mp4'; // 替换为您的视频路径
+                source.src = '/static/demo.mp4'; // 替换为您的视频路径
                 source.type = 'video/mp4';
                 video.appendChild(source);
 

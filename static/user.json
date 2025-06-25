@@ -13,5 +13,10 @@
         "username": "lhz",
         "email": "2212878@mail.nankai.edu.cn",
         "password": "123456"
+    },
+    {
+        "username": "admin",
+        "email": "1135580282@qq.com",
+        "password": "1"
     }
 ]
