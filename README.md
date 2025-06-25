@@ -113,6 +113,9 @@ Here we use ``flask_migrate`` to create a database tables:
 ```
 **Attention**: Must run in the root directory **!!!**
 
+## import data into database
+Then we can import all data into the database, and detailed instructions can be refered to the **README.md** in the dir ``database/``
+
 # FAQ
 1. ``flask db init`` failed
 
