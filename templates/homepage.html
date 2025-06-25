@@ -102,7 +102,7 @@
         <div class="container">
             <!-- 欢迎横幅 -->
             <div class="welcome-banner">
-                <h1 class="display-4">欢迎回来，管理员</h1>
+                <h1 class="display-4">欢迎回来，{{ session.get('username', '游客') }}</h1>
                 <p class="lead">当前系统运行时间：<span id="uptime">367小时25分钟</span></p>
             </div>
 
