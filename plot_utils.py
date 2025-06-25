@@ -25,8 +25,7 @@ def get_valid_metrics():
     return valid_metrics
 
 
-def plot_average_by_species():
-    metric = 'Height(cm)'
+def plot_average_by_species(metric='Height(cm)'):
     if metric not in valid_metrics:
         raise ValueError(f"无效指标: {metric}")
 

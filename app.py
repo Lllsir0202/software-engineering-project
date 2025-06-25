@@ -1,4 +1,13 @@
-from flask import Flask, redirect, url_for, request, render_template, jsonify, send_file, session
+from flask import (
+    Flask,
+    redirect,
+    url_for,
+    request,
+    render_template,
+    jsonify,
+    send_file,
+    session,
+)
 from flask_mail import Mail, Message
 from flask_cors import CORS
 from email_validator import validate_email, EmailNotValidError
@@ -25,6 +34,7 @@ app = Flask(__name__)
 # Reoriganize the verification codes dictionary
 # verification_codes = {}
 from config import Config
+
 app.config.from_object(Config)
 CORS(app)
 
@@ -37,11 +47,14 @@ mail = Mail(app)
 def generate_code():
     return str(random.randint(100000, 999999))
 
-@app.route('/test-db')
+
+@app.route("/test-db")
 def test_db():
     from database.models import User
+
     user = User.query.first()
     return f"第一个用户：{user.username if user else '暂无用户'}"
+
 
 @app.route("/")
 def index():
@@ -214,7 +227,8 @@ def send_code():
         return jsonify({"success": True, "message": "验证码已发送"})
     except Exception as e:
         print(f"邮件发送失败: {e}")
-        return jsonify({'success': False, 'message': '发送失败，请重试'})
+        return jsonify({"success": False, "message": "发送失败，请重试"})
+
 
 # Logout
 @app.route("/logout")
@@ -222,169 +236,180 @@ def logout():
     session.clear()
     return render_template("login.html")
 
-@app.route('/api/users', methods=['GET'])
+
+@app.route("/api/users", methods=["GET"])
 def get_users():
     USER_FILE = "static/user.json"
     try:
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
         return jsonify(users)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 # 新增用户
-@app.route('/api/users', methods=['POST'])
+@app.route("/api/users", methods=["POST"])
 def add_users():
     USER_FILE = "static/user.json"
     data = request.get_json()
     # 验证必填字段
-    required_fields = ['username', 'email', 'password']
+    required_fields = ["username", "email", "password"]
     for field in required_fields:
         if field not in data:
-            return jsonify({'success': False, 'message': f'Missing field: {field}'})
-    
+            return jsonify({"success": False, "message": f"Missing field: {field}"})
+
     try:
         # 读取现有用户
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
-        
+
         # 检查用户名是否已存在
         for user in users:
-            if user['username'] == data['username']:
-                return jsonify({'success': False, 'message': 'Username already exists'})
-        
+            if user["username"] == data["username"]:
+                return jsonify({"success": False, "message": "Username already exists"})
+
         # 创建新用户
         new_user = {
-            'username': data['username'],
-            'email': data['email'],
-            'password': data['password']
+            "username": data["username"],
+            "email": data["email"],
+            "password": data["password"],
         }
-        
+
         # 添加到用户列表
         users.append(new_user)
         print(new_user)
-        
+
         # 保存回文件
         with open(USER_FILE, "w", encoding="utf-8") as file:
             json.dump(users, file, ensure_ascii=False, indent=4)
-        
-        return jsonify({'success': True, 'message': 'User added successfully'})
-    
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/users', methods=['DELETE'])
+        return jsonify({"success": True, "message": "User added successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+
+@app.route("/api/users", methods=["DELETE"])
 def delete_user():
     USER_FILE = "static/user.json"
     username = request.get_json()
     try:
         # 读取用户文件
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
-        
+
         # 查找要删除的用户
-        user_index = next((i for i, user in enumerate(users) if user['username'] == username), None)
-        
+        user_index = next(
+            (i for i, user in enumerate(users) if user["username"] == username), None
+        )
+
         if user_index is not None:
             # 删除用户
             deleted_user = users.pop(user_index)
-            
+
             # 保存更新后的用户列表
             with open(USER_FILE, "w", encoding="utf-8") as file:
                 json.dump(users, file, ensure_ascii=False, indent=4)
-            
-            return jsonify({
-                'message': f'用户 "{username}" 已成功删除',
-                'deleted_user': deleted_user
-            })
+
+            return jsonify(
+                {"message": f'用户 "{username}" 已成功删除', "deleted_user": deleted_user}
+            )
         else:
-            return jsonify({'error': f'未找到用户名 "{username}"'}), 404
-    
+            return jsonify({"error": f'未找到用户名 "{username}"'}), 404
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-@app.route('/api/admin', methods=['GET'])
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin", methods=["GET"])
 def get_admin():
     USER_FILE = "static/admin.json"
     try:
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
         return jsonify(users)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 # 新增用户
-@app.route('/api/admin', methods=['POST'])
+@app.route("/api/admin", methods=["POST"])
 def add_admin():
     USER_FILE = "static/admin.json"
     data = request.get_json()
     # 验证必填字段
-    required_fields = ['adminname', 'email', 'password']
+    required_fields = ["adminname", "email", "password"]
     for field in required_fields:
         if field not in data:
-            return jsonify({'success': False, 'message': f'Missing field: {field}'})
-    
+            return jsonify({"success": False, "message": f"Missing field: {field}"})
+
     try:
         # 读取现有用户
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
-        
+
         # 检查用户名是否已存在
         for user in users:
-            if user['adminname'] == data['adminname']:
-                return jsonify({'success': False, 'message': 'Adminname already exists'})
-        
+            if user["adminname"] == data["adminname"]:
+                return jsonify(
+                    {"success": False, "message": "Adminname already exists"}
+                )
+
         # 创建新用户
         new_user = {
-            'adminname': data['adminname'],
-            'email': data['email'],
-            'password': data['password']
+            "adminname": data["adminname"],
+            "email": data["email"],
+            "password": data["password"],
         }
-        
+
         # 添加到用户列表
         users.append(new_user)
         print(new_user)
-        
+
         # 保存回文件
         with open(USER_FILE, "w", encoding="utf-8") as file:
             json.dump(users, file, ensure_ascii=False, indent=4)
-        
-        return jsonify({'success': True, 'message': 'Admin added successfully'})
-    
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
 
-@app.route('/api/admin', methods=['DELETE'])
+        return jsonify({"success": True, "message": "Admin added successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
+
+
+@app.route("/api/admin", methods=["DELETE"])
 def delete_admin():
     USER_FILE = "static/admin.json"
     adminname = request.get_json()
     try:
         # 读取用户文件
-        with open(USER_FILE, 'r') as f:
+        with open(USER_FILE, "r") as f:
             users = json.load(f)
-        
+
         # 查找要删除的用户
-        user_index = next((i for i, user in enumerate(users) if user['adminname'] == adminname), None)
-        
+        user_index = next(
+            (i for i, user in enumerate(users) if user["adminname"] == adminname), None
+        )
+
         if user_index is not None:
             # 删除用户
             deleted_user = users.pop(user_index)
-            
+
             # 保存更新后的用户列表
             with open(USER_FILE, "w", encoding="utf-8") as file:
                 json.dump(users, file, ensure_ascii=False, indent=4)
-            
-            return jsonify({
-                'message': f'管理员 "{adminname}" 已成功删除',
-                'deleted_user': deleted_user
-            })
+
+            return jsonify(
+                {"message": f'管理员 "{adminname}" 已成功删除', "deleted_user": deleted_user}
+            )
         else:
-            return jsonify({'error': f'未找到管理员名 "{adminname}"'}), 404
-    
+            return jsonify({"error": f'未找到管理员名 "{adminname}"'}), 404
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-    
-@app.route('/user_list')
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/user_list")
 def user_list():
     return render_template("用户列表.html")
 
@@ -412,7 +437,10 @@ def warning():
 @app.route("/api/charts/growth")
 def plot():
     try:
-        img_io = plot_average_by_species()
+        metric = request.args.get('metric', 'Height(cm)').strip()
+
+        # 将metric传递给绘图函数
+        img_io = plot_average_by_species(metric)
         img_io.seek(0)
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
