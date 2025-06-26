@@ -550,7 +550,7 @@ def get_warnings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/sensors", methods=['DELETE'])
+@app.route("/api/warnings", methods=['DELETE'])
 def delete_warnings():
     id = request.get_json()
     try:
