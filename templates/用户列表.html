@@ -27,7 +27,6 @@
           </li>
           <li class="menu-list"><a href=""><i class="fa fa-desktop"></i> <span>机器管理</span></a>
             <ul class="child-list">
-              <li><a href="{{ url_for('computer_list') }}"> 机器列表</a></li>
               <li><a href="{{ url_for('sensor_list') }}">传感器列表</a></li>
               <li><a href="{{ url_for('warning') }}">预警设置</a></li>
             </ul>
@@ -191,7 +190,7 @@
             // 中间页码按钮
             for (let i = 1; i <= data.pages; i++) {
               const li = document.createElement('li');
-              li.className = (i === data.current_page) ? 'active' : '';
+              li.className = (!data.pages || data.current_page >= data.pages) ? 'disabled' : '';
               li.innerHTML = `<a href="#">${i}</a>`;
               li.addEventListener('click', function () {
                 loadUsers(i, perPage);

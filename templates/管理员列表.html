@@ -27,7 +27,6 @@
           </li>
           <li class="menu-list"><a href=""><i class="fa fa-desktop"></i> <span>机器管理</span></a>
             <ul class="child-list">
-              <li><a href="{{ url_for('computer_list') }}"> 机器列表</a></li>
               <li><a href="{{ url_for('sensor_list') }}">传感器列表</a></li>
               <li><a href="{{ url_for('warning') }}">预警设置</a></li>
             </ul>
@@ -201,7 +200,7 @@
 
             // 下一页按钮
             const nextLi = document.createElement('li');
-            nextLi.className = data.current_page === data.pages ? 'disabled' : '';
+            nextLi.className = (!data.pages || data.current_page >= data.pages) ? 'disabled' : '';
             nextLi.innerHTML = `<a href="#" aria-label="Next"><span aria-hidden="true">»</span></a>`;
             nextLi.addEventListener('click', function () {
               if (data.current_page < data.pages) loadUsers(data.current_page + 1, perPage);
