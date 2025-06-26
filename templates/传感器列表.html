@@ -11,6 +11,7 @@
   <link href="{{ url_for('static', filename = 'css/default-theme.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/style.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/bootstrap-reset.css') }}" rel="stylesheet">
+  <link rel="icon" href="/static/sea.png" type="image/x-icon">
 </head>
 
 <body class="sticky-header">
@@ -92,8 +93,8 @@
                         </li>
                         <li class="col-xs-12"> <span>能力：</span> <input type="text" class="form-control" name="capacity">
                         </li>
-                        <li class="col-xs-12"> 
-                          <span>状态：</span> 
+                        <li class="col-xs-12">
+                          <span>状态：</span>
                           <select class="form-control" name="status">
                             <option value="正常" selected>正常</option>
                             <option value="故障">故障</option>
@@ -109,8 +110,8 @@
                         </li>
                         <li class="col-xs-12"> <span>价格：</span> <input type="text" class="form-control" name="price">
                         </li>
-                        <li class="col-xs-12"> <span>更新时间：</span> <input type="datetime-local" step="1" class="form-control"
-                            name="update_time">
+                        <li class="col-xs-12"> <span>更新时间：</span> <input type="datetime-local" step="1"
+                            class="form-control" name="update_time">
                         </li>
                         </li>
                       </ul>
@@ -324,7 +325,7 @@
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('发生错误，请重试'+error);
+              alert('发生错误，请重试' + error);
             });
         });
 

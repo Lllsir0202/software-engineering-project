@@ -11,6 +11,7 @@
   <link href="{{ url_for('static', filename = 'css/default-theme.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/style.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/bootstrap-reset.css') }}" rel="stylesheet">
+  <link rel="icon" href="/static/sea.png" type="image/x-icon">
 </head>
 
 <body class="sticky-header">
@@ -102,7 +103,45 @@
               </div>
             </div>
 
-
+            <!-- Modal -->
+            <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog"
+              aria-labelledby="editWarningLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <form id="edit-warning-form">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="editWarningLabel">编辑预警设置</h4>
+                    </div>
+                    <div class="modal-body">
+                      <input type="hidden" id="edit-warning-id">
+                      <div class="form-group">
+                        <label for="edit-metric">指标名称</label>
+                        <input type="text" class="form-control" id="edit-metric" readonly>
+                      </div>
+                      <div class="form-group">
+                        <label for="edit-min-value">最小值</label>
+                        <input type="number" step="any" class="form-control" id="edit-min-value">
+                      </div>
+                      <div class="form-group">
+                        <label for="edit-max-value">最大值</label>
+                        <input type="number" step="any" class="form-control" id="edit-max-value">
+                      </div>
+                      <div class="form-group">
+                        <label for="edit-enabled">是否启用</label>
+                        <select class="form-control" id="edit-enabled">
+                          <option value="1">启用</option>
+                          <option value="0">禁用</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                      <button type="button" class="btn btn-primary" id="save-warning-btn">保存修改</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -110,11 +149,13 @@
     </div>
   </section>
 
+
   <script src="{{ url_for('static', filename = 'js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'js/scripts.js') }}"></script>
   <script src="{{ url_for('static', filename = 'laydate/laydate.js') }}"></script>
 
+  let originalWarningData = {};
   <!-- Here to do other renderitions -->
   <script>
     window.addEventListener('DOMContentLoaded', function () {
@@ -135,9 +176,9 @@
           <td>${warning.metric}</td>
           <td>${warning.min_value}</td>
           <td>${warning.max_value}</td>
-          <td>${warning.enabled ? "启用": "禁用"}</td>
+          <td>${warning.enabled ? "启用" : "禁用"}</td>
           <td>
-              <button class="btn btn-primary set-btn" data-id="${warning.id}" >设置</button>
+              <button class="btn btn-primary set-btn" data-id="${warning.id}">设置</button>
               <button class="btn btn-danger delete-btn" data-id="${warning.id}">删除</button>
           </td>`;
               tbody.appendChild(tr);
@@ -209,7 +250,97 @@
           });
         });
 
+        // Used to read the warning data when the "设置" button is clicked
+        document.querySelectorAll('.set-btn').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = parseInt(this.getAttribute('data-id'));
+
+            // 清空之前的输入框内容
+            document.getElementById('edit-warning-id').value = '';
+            document.getElementById('edit-metric').value = '';
+            document.getElementById('edit-min-value').value = '';
+            document.getElementById('edit-max-value').value = '';
+            document.getElementById('edit-enabled').value = '1';
+            document.getElementById('save-warning-btn').disabled = true;
+            // 发请求获取该 warning 的详细数据
+            fetch(`/api/warning`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(id)
+            })
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('edit-warning-id').value = data.id;
+                document.getElementById('edit-metric').value = data.metric;
+                document.getElementById('edit-min-value').value = data.min_value;
+                document.getElementById('edit-max-value').value = data.max_value;
+                document.getElementById('edit-enabled').value = data.enabled ? '1' : '0';
+
+                // 保存原始数据以便后续比较
+                originalWarningData = {
+                  id: data.id,
+                  metric: data.metric,
+                  min_value: data.min_value,
+                  max_value: data.max_value,
+                  enabled: data.enabled ? 1 : 0
+                };
+                document.getElementById('save-warning-btn').disabled = false;
+                // Only success to show the modal if data is fetched successfully
+                $('#editWarningModal').modal('show');
+              })
+              .catch(error => {
+                console.error('获取预警数据失败:', error);
+                alert('获取预警数据失败，请稍后重试。');
+              });
+          });
+
+        });
+
       }
+
+      document.getElementById('save-warning-btn').addEventListener('click', function () {
+        const currentData = {
+          id: parseInt(document.getElementById('edit-warning-id').value),
+          metric: document.getElementById('edit-metric').value.trim(),
+          min_value: parseFloat(document.getElementById('edit-min-value').value),
+          max_value: parseFloat(document.getElementById('edit-max-value').value),
+          enabled: document.getElementById('edit-enabled').value === '1' ? 1 : 0
+        };
+        // 判断是否发生变化
+        const changed = Object.keys(currentData).some(key => currentData[key] !== originalWarningData[key]);
+
+        if (!changed) {
+          alert("没有检测到任何更改。");
+          return;
+        }
+
+        // 发请求写入数据库
+        fetch('/api/warning/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentData)
+        })
+          .then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              alert("更新成功！");
+              location.reload();
+            } else {
+              console.error('Error:', result.error);
+              alert("更新失败");
+            }
+          });
+      });
+
+      // Enter to save
+      document.getElementById('editWarningModal').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // 阻止默认行为（比如关闭模态框或提交表单）
+          document.getElementById('save-warning-btn').click(); // 触发保存按钮
+        }
+      });
+
+
     })
   </script>
 
