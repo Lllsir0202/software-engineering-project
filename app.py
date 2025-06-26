@@ -82,6 +82,12 @@ def admin_page():
 def homepage():
     return render_template("homepage.html")
 
+# In homepage it is used to show the information
+# @app.route("/api/dashboard/summary")
+# def summary():
+#     # First is sensors
+#     sensors_count = Sensor.query.count()
+#     # Then is warnings
 
 
 
@@ -551,6 +557,7 @@ def update_warning():
             return jsonify({"success": False, "error": "预警不存在"})
 
         # 更新字段
+        warning.sensor_id = data["sensor_id"]
         warning.metric = data["metric"]
         warning.min_value = data["min_value"]
         warning.max_value = data["max_value"]
@@ -561,6 +568,23 @@ def update_warning():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+# Used to create a specific warning
+@app.route("/api/warning/create", methods=['POST'])
+def create_warning():
+    try:
+        data = request.get_json()
+        new_warning = WarningConfig(
+            sensor_id=data['sensor_id'],
+            metric=data['metric'],
+            min_value=data['min_value'],
+            max_value=data['max_value'],
+            enabled=data['enabled']
+        )
+        db.session.add(new_warning)
+        db.session.commit()
+        return jsonify({"success": True, "id": new_warning.id})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 @app.route("/api/warnings", methods=['GET'])
 def get_warnings():
