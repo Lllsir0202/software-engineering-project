@@ -1,84 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>数据可视化平台</title>
+    <title>数据中心 - 水质管理</title>
     <link rel="icon" href="/templates/icon.png" type="image/x-icon">
     <!-- 样式表 -->
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" rel="stylesheet">
     <style>
-        /* 图表容器样式 */
-        .video-container {
-            min-height: 500px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        :root {
+            --primary-color: #2c7be5;
+            --secondary-color: #00d97e;
+            --water-blue: #1e88e5;
+            --fish-orange: #ff9800;
+            --dark-bg: #1b2a4e;
+            --light-bg: #f9fafd;
         }
 
-        .weather-container {
-            min-height: 500px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #344050;
         }
 
-        /* 天气信息样式 */
-        .weather-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
+        /* 导航栏样式 */
 
-        .weather-info-item {
-            margin: 10px 0;
-            font-size: 1.1rem;
-        }
 
-        .chart-container {
-            position: relative;
-            min-height: 400px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #6c757d;
-            font-size: 1.2rem;
-            z-index: 10;
-        }
-
-        .chart-error {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #dc3545;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .chart-img {
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .chart-img.loaded {
-            opacity: 1;
-        }
-
-        /* 用户菜单样式 */
         .user-menu {
             display: flex;
             align-items: center;
@@ -105,34 +54,271 @@
             text-decoration: none;
         }
 
-        /* 天气描述样式 */
-        .weather-description {
-            color: #495057;
-            font-weight: 400;
-            margin-top: -10px;
-            font-style: italic;
+        /* 主内容区域 */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
         }
 
-        /* 地点信息样式 */
-        .location-info {
-            background-color: rgba(0, 0, 0, 0.05);
-            padding: 5px;
-            border-radius: 4px;
+        /* 侧边栏样式 */
+        .sidebar-left {
+            width: 250px;
+            background: var(--dark-bg);
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .sidebar-left-info {
+            padding: 20px 0;
+        }
+
+        .side-navigation {
+            padding: 0;
+            margin: 0;
+        }
+
+        .side-navigation li {
+            list-style: none;
+        }
+
+        .side-navigation > li > a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .side-navigation > li > a:hover,
+        .side-navigation > li > a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .side-navigation > li > a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .child-list {
+            padding: 0;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .child-list li a {
+            display: block;
+            padding: 10px 20px 10px 50px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .child-list li a:hover,
+        .child-list li a.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* 内容区域样式 */
+        .content-wrapper {
+            flex: 1;
+            padding: 25px;
+        }
+
+        .page-head {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .page-head h3 {
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+
+        .panel {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-body {
+            padding: 25px;
+        }
+
+        .search-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-box .form-control {
+            background-color: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            color: #344050;
+            font-weight: 600;
+            padding: 12px 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 8px 16px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a68d1;
+            border-color: #1a68d1;
+        }
+
+        .water-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-good {
+            background-color: rgba(0, 217, 126, 0.15);
+            color: #00d97e;
+        }
+
+        .status-warning {
+            background-color: rgba(255, 152, 0, 0.15);
+            color: #ff9800;
+        }
+
+        .status-danger {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-card i {
+            font-size: 36px;
             margin-bottom: 15px;
         }
 
-        /* 天气信息卡片样式调整 */
-        #weather-info {
-            animation: fadeIn 0.5s;
+        .stats-card.water i {
+            color: var(--water-blue);
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+        .stats-card.fish i {
+            color: var(--fish-orange);
+        }
+
+        .stats-card .value {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .stats-card .label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .parameter-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .parameter-card .progress {
+            height: 10px;
+            margin: 10px 0;
+        }
+
+        .fish-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar-left {
+                width: 70px;
             }
 
-            to {
-                opacity: 1;
+            .sidebar-left .brand-name,
+            .sidebar-left .child-list,
+            .sidebar-left .menu-list span {
+                display: none;
+            }
+
+            .sidebar-left .side-navigation > li > a {
+                text-align: center;
+                padding: 15px 10px;
+            }
+
+            .sidebar-left .side-navigation > li > a i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar-left {
+                width: 100%;
+                height: auto;
+            }
+
+            .content-wrapper {
+                padding: 15px;
             }
         }
     </style>
@@ -141,7 +327,7 @@
 <body>
     <!-- 导航栏 -->
     <header data-block-type="headers" data-id="1">
-        <div class="container" style="background-color: #e3f2fd;">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
             <nav class="navbar navbar-expand-md no-gutters">
                 <div class="col-2 text-left">
                     <!-- <a href="/"> -->
@@ -152,7 +338,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
                         <ul class="navbar-nav">
                             <li class="nav-item active">
                                 <a class="nav-link" href="/homepage">首页</a>
@@ -180,358 +366,333 @@
         </div>
     </header>
 
-    <!-- 主内容区 -->
-    <main class="container-fluid py-4">
-        <div class="container">
-            <div class="row">
-                <!-- 视频展示区域 (左侧) -->
-                <div class="col-lg-8 mb-4">
-                    <div class="video-container">
-                        <div class="chart-loading">
-                            <i class="fa fa-spinner fa-spin"></i> 正在连接视频流...
-                        </div>
-                        <!-- 视频展示接口预留位置 -->
-                        <div id="video-stream" style="height: 100%">
-                            <!-- 后端视频流将嵌入此处 -->
+    <!-- 主内容区域 -->
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar-left">
+            <div class="sidebar-left-info">
+                <div class="search-field"></div>
+                <ul class="nav nav-pills nav-stacked side-navigation">
+                    <li>
+                        <a href="/datacenter"><i class="fa fa-tint"></i> <span>水质管理</span></a>
+                    </li>
+                    <li>
+                        <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
+                    </li>
+                    <li >
+                        <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="content-wrapper">
+            <!-- 搜索区域 -->
+            <div class="search-box">
+                <div class="form1">
+                    <ul class="row">
+                        <li class="col-md-3 col-sm-6">
+                            <span>监测点名称：</span>
+                            <input type="text" class="form-control" placeholder="输入监测点名称">
+                        </li>
+                        <li class="col-md-3 col-sm-6">
+                            <span>位置区域：</span>
+                            <select class="form-control">
+                                <option>全部区域</option>
+                                <option>A区鱼塘</option>
+                                <option>B区鱼塘</option>
+                                <option>C区鱼塘</option>
+                            </select>
+                        </li>
+                        <li class="col-md-3 col-sm-6">
+                            <span>水质状态：</span>
+                            <select class="form-control">
+                                <option>全部状态</option>
+                                <option>正常</option>
+                                <option>预警</option>
+                                <option>异常</option>
+                            </select>
+                        </li>
+                        <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
+                            <a href="#" class="btn btn-primary w-100">搜索</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="clearfix m-b-20">
+                <div class="pull-left">
+                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWaterPointModal">
+                        <i class="fa fa-plus"></i> 添加监测点
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        <i class="fa fa-file-excel-o"></i> 导出数据
+                    </a>
+                </div>
+                <div class="pull-right">
+                    <div class="input-group" style="width: 300px;">
+                        <input type="text" class="form-control" placeholder="搜索监测点...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fa fa-search"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 天气信息区域 (右侧) -->
-                <div class="col-lg-4 mb-4">
-                    <div class="weather-container">
-                        <div class="chart-loading">
-                            <i class="fa fa-spinner fa-spin"></i> 获取天气信息...
-                        </div>
-                        <!-- 天气信息接口预留位置 -->
-                        <!-- 在天气信息接口预留位置内，修改HTML结构 -->
-                        <div id="weather-info" style="display: none;">
-                            <div class="text-center">
-                                <i class="fa fa-sun-o weather-icon text-warning"></i>
-                                <h3 class="location">这里是数据中心</h3>
-                                <h4 class="weather-description mb-3">--</h4>
+            <!-- 数据表格 -->
+            <div class="panel">
+                <div class="panel-body">
+                    <table class="table m-t-20">
+                        <thead>
+                            <tr>
+                                <th>监测点ID</th>
+                                <th>监测点名称</th>
+                                <th>位置区域</th>
+                                <th>PH值</th>
+                                <th>溶解氧(mg/L)</th>
+                                <th>氨氮(mg/L)</th>
+                                <th>温度(℃)</th>
+                                <th>水质状态</th>
+                                <th>最后更新</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>WP001</td>
+                                <td>A区主鱼塘</td>
+                                <td>A区</td>
+                                <td>7.2</td>
+                                <td>6.8</td>
+                                <td>0.12</td>
+                                <td>24.5</td>
+                                <td><span class="water-status status-good">正常</span></td>
+                                <td>2023-06-10 14:25</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>WP002</td>
+                                <td>B区东侧</td>
+                                <td>B区</td>
+                                <td>6.8</td>
+                                <td>5.2</td>
+                                <td>0.35</td>
+                                <td>26.8</td>
+                                <td><span class="water-status status-warning">预警</span></td>
+                                <td>2023-06-10 13:45</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>WP003</td>
+                                <td>C区深水区</td>
+                                <td>C区</td>
+                                <td>7.5</td>
+                                <td>7.1</td>
+                                <td>0.08</td>
+                                <td>23.9</td>
+                                <td><span class="water-status status-good">正常</span></td>
+                                <td>2023-06-10 12:30</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>WP004</td>
+                                <td>A区浅水区</td>
+                                <td>A区</td>
+                                <td>5.9</td>
+                                <td>4.1</td>
+                                <td>0.85</td>
+                                <td>28.3</td>
+                                <td><span class="water-status status-danger">异常</span></td>
+                                <td>2023-06-10 11:15</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>WP005</td>
+                                <td>B区西侧</td>
+                                <td>B区</td>
+                                <td>7.0</td>
+                                <td>6.0</td>
+                                <td>0.25</td>
+                                <td>25.2</td>
+                                <td><span class="water-status status-warning">预警</span></td>
+                                <td>2023-06-10 10:40</td>
+                                <td>
+                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
-                                <!-- 添加位置信息 -->
-                                <div class="location-info weather-info-item">
-                                    <i class="fa fa-map-marker"></i>
-                                    地点：<span class="value">北京市</span>
-                                </div>
-
-                                <div class="temperature weather-info-item">
-                                    <i class="fa fa-thermometer"></i>
-                                    当前气温：<span class="value">--</span>℃
-                                </div>
-
-                                <div class="apparent-temp weather-info-item">
-                                    <i class="fa fa-thermometer-half"></i>
-                                    体感温度：<span class="value">--</span>℃
-                                </div>
-
-                                <div class="humidity weather-info-item">
-                                    <i class="fa fa-tint"></i>
-                                    湿度：<span class="value">--</span>%
-                                </div>
-
-                                <div class="wind weather-info-item">
-                                    <i class="fa fa-leaf"></i>
-                                    风速：<span class="value">--</span>km/h
-                                </div>
-
-                                <!-- 添加降水量信息 -->
-                                <div class="precipitation weather-info-item">
-                                    <i class="fa fa-umbrella"></i>
-                                    降水量：<span class="value">--</span>mm
-                                </div>
-
-                                <div class="update-time weather-info-item">
-                                    <i class="fa fa-clock-o"></i>
-                                    更新于：<span id="weather-update-time">--</span>
-                                </div>
+                    <!-- 分页 -->
+                    <div class="page clearfix">
+                        <div class="pull-left">共 24 条记录 第 1 / 3 页</div>
+                        <div class="pull-right">
+                            <nav aria-label="..." class="pull-left">
+                                <ul class="pagination">
+                                    <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                                </ul>
+                            </nav>
+                            <div class="pull-left p-r-20 p-l-20">
+                                <select class="form-control">
+                                    <option>10条每页</option>
+                                    <option>20条每页</option>
+                                    <option>50条每页</option>
+                                </select>
+                            </div>
+                            <div class="pull-left">跳至
+                                <input type="text" value="1" class="form-control" style="width: 60px; display: inline-block;">
+                                页
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- 保留时间戳 -->
-            <div class="row">
-                <div class="col text-center text-muted">
-                    系统状态更新：<span id="update-time"></span>
+    <!-- 添加监测点模态框 -->
+    <div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog" aria-labelledby="addWaterPointModalLabel">
+        <div class="modal-dialog" role="document" style="width: 500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="addWaterPointModalLabel">添加水质监测点</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form1 form2">
+                        <ul class="row">
+                            <li class="col-xs-12">
+                                <span>监测点名称：</span>
+                                <input type="text" class="form-control" placeholder="输入监测点名称">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>位置区域：</span>
+                                <select class="form-control">
+                                    <option>A区鱼塘</option>
+                                    <option>B区鱼塘</option>
+                                    <option>C区鱼塘</option>
+                                </select>
+                            </li>
+                            <li class="col-xs-12">
+                                <span>详细位置：</span>
+                                <input type="text" class="form-control" placeholder="输入详细位置">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>监测设备ID：</span>
+                                <input type="text" class="form-control" placeholder="输入设备ID">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>负责人：</span>
+                                <input type="text" class="form-control" placeholder="输入负责人姓名">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">添加</button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- 脚本 -->
+    <!-- 编辑模态框 -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+        <div class="modal-dialog" role="document" style="width: 500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="editModalLabel">编辑监测点信息</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form1 form2">
+                        <ul class="row">
+                            <li class="col-xs-12">
+                                <span>监测点名称：</span>
+                                <input type="text" class="form-control" value="A区主鱼塘">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>位置区域：</span>
+                                <select class="form-control">
+                                    <option selected>A区鱼塘</option>
+                                    <option>B区鱼塘</option>
+                                    <option>C区鱼塘</option>
+                                </select>
+                            </li>
+                            <li class="col-xs-12">
+                                <span>详细位置：</span>
+                                <input type="text" class="form-control" value="A区中心位置">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>水质状态：</span>
+                                <select class="form-control">
+                                    <option>正常</option>
+                                    <option>预警</option>
+                                    <option selected>异常</option>
+                                </select>
+                            </li>
+                            <li class="col-xs-12">
+                                <span>备注信息：</span>
+                                <textarea class="form-control" rows="3" placeholder="输入备注信息">该区域最近出现异常，需要重点关注</textarea>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
     <script>
-        // 图表加载器
-        class ChartLoader {
-            constructor() {
-                this.charts = document.querySelectorAll('.chart-img');
-                this.init();
-            }
 
-            init() {
-                this.updateTimestamp();
-                this.loadCharts();
-                this.setupAutoRefresh();
-            }
 
-            loadCharts() {
-                this.charts.forEach(chart => {
-                    const container = chart.parentElement;
-                    const src = chart.dataset.src;
+        // 侧边栏菜单交互
+        $(document).ready(function() {
+            $('.menu-list > a').click(function(e) {
+                e.preventDefault();
+                const childList = $(this).siblings('.child-list');
 
-                    const img = new Image();
-                    img.className = 'chart-img img-fluid';
-                    img.alt = chart.alt;
-
-                    img.onload = () => {
-                        chart.replaceWith(img);
-                        img.classList.add('loaded');
-                        container.querySelector('.chart-loading').style.display = 'none';
-                    };
-
-                    img.onerror = () => {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'chart-error';
-                        errorDiv.innerHTML = `
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <p>图表加载失败</p>
-                            <button class="btn btn-sm btn-outline-secondary"
-                                    onclick="location.reload()">重试</button>
-                        `;
-                        container.querySelector('.chart-loading').remove();
-                        container.appendChild(errorDiv);
-                    };
-
-                    img.src = `${src}?t=${new Date().getTime()}`;
-                });
-            }
-
-            updateTimestamp() {
-                const options = {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                };
-                document.getElementById('update-time').textContent =
-                    new Date().toLocaleString('zh-CN', options);
-            }
-
-            setupAutoRefresh() {
-                setInterval(() => {
-                    this.updateTimestamp();
-                    this.loadCharts();
-                }, 300);
-            }
-        }
-
-        // 初始化图表加载
-        document.addEventListener('DOMContentLoaded', () => {
-            new ChartLoader();
-
-            // 退出确认
-            document.querySelector('.logout-link').addEventListener('click', function (e) {
-                if (!confirm('确定要退出系统吗？')) {
-                    e.preventDefault();
+                if (childList.is(':visible')) {
+                    childList.slideUp();
+                } else {
+                    $('.child-list').slideUp();
+                    childList.slideDown();
                 }
             });
-        });
 
-        // deal with video stream and weather
-        // 视频流处理类
-        class VideoStream {
-            constructor() {
-                this.videoContainer = document.getElementById('video-stream');
-                this.loadingElement = document.querySelector('.video-container .chart-loading');
-                this.init();
-            }
-
-            init() {
-                // 创建视频元素
-                const video = document.createElement('video');
-                video.style.width = '100%';
-                video.style.height = '100%';
-                video.controls = true;
-                video.autoplay = true;
-                video.muted = true; // 大多数浏览器要求自动播放时静音
-
-                // 设置视频源（使用示例视频文件）
-                const source = document.createElement('source');
-                source.src = '/static/demo.mp4'; // 替换为您的视频路径
-                source.type = 'video/mp4';
-                video.appendChild(source);
-
-                // 视频加载事件
-                video.onloadeddata = () => {
-                    this.loadingElement.style.display = 'none';
-                };
-
-                video.onerror = () => {
-                    this.showError('视频加载失败，请检查网络连接');
-                };
-
-                this.videoContainer.appendChild(video);
-            }
-
-            showError(message) {
-                this.loadingElement.style.display = 'none';
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'chart-error';
-                errorDiv.innerHTML = `
-            <i class="fa fa-exclamation-triangle"></i>
-            <p>${message}</p>
-            <button class="btn btn-sm btn-outline-secondary"
-                    onclick="new VideoStream()">重试</button>
-        `;
-                this.videoContainer.innerHTML = '';
-                this.videoContainer.appendChild(errorDiv);
-            }
-        }
-
-        // 天气信息处理类
-        class WeatherInfo {
-            constructor() {
-                this.weatherContainer = document.getElementById('weather-info');
-                this.loadingElement = document.querySelector('.weather-container .chart-loading');
-                this.init();
-            }
-
-            init() {
-                // 获取天气数据并定期更新
-                this.fetchWeatherData();
-                setInterval(() => this.fetchWeatherData(), 60000); // 每分钟更新一次
-            }
-
-            fetchWeatherData() {
-                // 使用fetch API请求天气数据
-                fetch('/api/weather')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('数据请求失败');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        this.updateWeatherUI(data);
-                    })
-                    .catch(error => {
-                        console.error('获取天气数据错误:', error);
-                        // 使用模拟数据
-                        this.updateWeatherUI({
-                            temperature: '23.5',
-                            humidity: "65.0",
-                            wind_speed: "3.2",
-                            precipitation: "0.0",
-                            apparent_temperature: "24.2",
-                            weather_description: "晴天",
-                            condition: 'sunny',
-                            location: "北京市",
-                            timestamp: new Date().toLocaleString('zh-CN')
-                        });
-                    });
-            }
-
-            updateWeatherUI(data) {
-                console.log("接收到的天气数据:", data); // 调试用
-
-                // 隐藏加载动画
-                this.loadingElement.style.display = 'none';
-
-                // 显示天气信息容器
-                this.weatherContainer.style.display = 'block';
-
-                // 更新各项指标
-                const temperatureElement = document.querySelector('.temperature .value');
-                const humidityElement = document.querySelector('.humidity .value');
-                const windElement = document.querySelector('.wind .value');
-                const updateTimeElement = document.getElementById('weather-update-time');
-
-                // 获取新添加的元素
-                const locationElement = document.querySelector('.location');
-                const weatherDescElement = document.querySelector('.weather-description');
-                const apparentTempElement = document.querySelector('.apparent-temp .value');
-                const precipitationElement = document.querySelector('.precipitation .value');
-                const locationInfoElement = document.querySelector('.location-info .value');
-
-                // 设置数据
-                temperatureElement.textContent = data.temperature || '--';
-                humidityElement.textContent = data.humidity || '--';
-                windElement.textContent = data.wind_speed || '--';
-
-                // 设置新添加的数据
-                if (data.weather_description) {
-                    weatherDescElement.textContent = data.weather_description;
-                }
-
-                if (data.apparent_temperature) {
-                    apparentTempElement.textContent = data.apparent_temperature;
-                }
-
-                if (data.precipitation) {
-                    precipitationElement.textContent = data.precipitation;
-                }
-
-                // 设置地点 - 如果后端未提供，使用默认值
-                locationInfoElement.textContent = data.location || "北京市";
-
-                // 设置更新时间
-                updateTimeElement.textContent = data.timestamp || new Date().toLocaleString('zh-CN');
-
-                // 更新图标
-                this.updateWeatherIcon(data.condition);
-
-                // 根据天气状况设置页面标题
-                if (data.weather_description) {
-                    document.title = `数据可视化平台 - ${data.weather_description}`;
-                }
-            }
-
-            updateWeatherIcon(condition) {
-                const iconElement = document.querySelector('.weather-icon');
-                // 移除所有类
-                iconElement.className = 'weather-icon';
-
-                // 根据条件设置图标和颜色
-                switch (condition) {
-                    case 'sunny':
-                        iconElement.classList.add('fa', 'fa-sun-o', 'text-warning');
-                        break;
-                    case 'cloudy':
-                        iconElement.classList.add('fa', 'fa-cloud', 'text-secondary');
-                        break;
-                    case 'rain':
-                        iconElement.classList.add('fa', 'fa-tint', 'text-primary');
-                        break;
-                    case 'alert':
-                        iconElement.classList.add('fa', 'fa-exclamation-triangle', 'text-danger');
-                        break;
-                    default:
-                        iconElement.classList.add('fa', 'fa-tint', 'text-info');
-                }
-            }
-        }
-
-        // 修改现有的DOMContentLoaded处理程序，添加新功能初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            new ChartLoader();
-            new VideoStream(); // 初始化视频流
-            new WeatherInfo();  // 初始化天气信息
-
-            // 退出确认
-            document.querySelector('.logout-link').addEventListener('click', function (e) {
-                if (!confirm('确定要退出系统吗？')) {
-                    e.preventDefault();
-                }
-            });
+            // 模拟数据加载
+            setTimeout(function() {
+                $('.stats-card').addClass('loaded');
+            }, 500);
         });
     </script>
 </body>
-
 </html>

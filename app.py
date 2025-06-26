@@ -83,9 +83,21 @@ def homepage():
     return render_template("homepage.html")
 
 
+
+
 @app.route("/datacenter/", methods=["GET"])
 def datacenter():
     return render_template("datacenter.html")
+
+
+@app.route("/data-fish/", methods=["GET"])
+def data_fish():
+    return render_template("datacenter_fish.html")
+
+
+@app.route("/data-analysis/", methods=["GET"])
+def data_analysis():
+    return render_template("datacenter_analysis.html")
 
 
 @app.route("/dashboard", methods=["GET"])
@@ -108,7 +120,7 @@ def login_as_user(username, password_input):
 def login():
     username = request.form.get("login-username")
     password = request.form.get("login-password")
-    
+
     user = login_as_user(username, password)
     if user:
         # Reach here means login is successful
@@ -130,7 +142,7 @@ def login_as_admin(adminname, password):
 def login_admin():
     adminname = request.form.get("login-adminname")
     password = request.form.get("login-password")
-     
+
     admin = login_as_admin(adminname, password)
     if admin:
         return jsonify({"success": True, "redirect": url_for("admin_page")})
@@ -152,7 +164,7 @@ def login_by_email():
         # Find the user by email
         if User.query.filter_by(email=email).first() is None:
             return jsonify({"success": False, "message": "用户数据不存在"})
-        
+
         user = User.query.filter_by(email=email).first()
         # Store user information in session
         session["username"] = user.username
@@ -181,7 +193,7 @@ def add_user():
     # Check if the email is already taken
     if User.query.filter_by(email=email).first():
         return jsonify({"success": False, "message": "邮箱已被注册"})
-    
+
     new_user = User(
         username = username,
         email = email,
@@ -468,7 +480,7 @@ def add_sensors():
         # 检查是否被创建了
         if Sensor.query.filter_by(id=data["id"]).first():
             return jsonify({"success": False, "message": "id已被使用"})
-        
+
         new_sensor = Sensor(
             id = data["id"],
             name = data["name"],
