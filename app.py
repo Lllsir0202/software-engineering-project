@@ -521,6 +521,47 @@ def sensor_list():
 def warning():
     return render_template("预警设置.html")
 
+# Just used to get a specific warning by id
+@app.route("/api/warning", methods=['POST'])
+def get_warning():
+    try:
+        id = request.get_json()
+        query = WarningConfig.query.filter_by(id=id).first()
+        if query is None:
+            return jsonify({"error": "未找到指定预警"}), 404
+        warning = {
+            "id": query.id,
+            "sensor_id": query.sensor_id,
+            "metric": query.metric,
+            "min_value": query.min_value,
+            "max_value": query.max_value,
+            "enabled": query.enabled
+        }
+        return jsonify(warning)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Used to modify a specific warning
+@app.route("/api/warning/update", methods=['POST'])
+def update_warning():
+    try:
+        data = request.get_json()
+        warning = WarningConfig.query.get(data["id"])
+        if not warning:
+            return jsonify({"success": False, "error": "预警不存在"})
+
+        # 更新字段
+        warning.metric = data["metric"]
+        warning.min_value = data["min_value"]
+        warning.max_value = data["max_value"]
+        warning.enabled = data["enabled"]
+
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
 @app.route("/api/warnings", methods=['GET'])
 def get_warnings():
     try:
