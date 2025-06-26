@@ -419,11 +419,6 @@ def user_list():
 def admin_list():
     return render_template("管理员列表.html")
 
-
-@app.route("/computer_list")
-def computer_list():
-    return render_template("机器列表.html")
-
 @app.route("/api/sensors", methods=['GET'])
 def get_sensors():
     try:
@@ -507,21 +502,41 @@ def delete_sensors():
 
 @app.route("/sensor_list")
 def sensor_list():
-    page = request.args.get("page", default=1, type=int)
-    per_page = 10
-
-    pagination = Sensor.query.order_by(Sensor.id.desc()).paginate(page=page, per_page=per_page)
-    sensors = pagination.items
-    total = pagination.total
-    pages = pagination.pages
-
-    return render_template("传感器列表.html", sensors=sensors, page=page, total=total, pages=pages)
-
+    return render_template("传感器列表.html")
 
 
 @app.route("/warning")
 def warning():
     return render_template("预警设置.html")
+
+@app.route("/api/warnings", methods=['GET'])
+def get_warnings():
+    try:
+        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
+
+        query = WarningConfig.query.order_by(WarningConfig.sensor_id.asc())
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        warnings = [
+            {
+                "id": warning.id,
+                "sensor_id": warning.sensor_id,
+                "metric": warning.metric,
+                "min_value": warning.min_value,
+                "max_value": warning.max_value,
+                "enabled": warning.enabled
+            }
+            for warning in pagination.items
+        ]
+
+        return jsonify({
+            "warnings": warnings,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/charts/growth")

@@ -30,5 +30,5 @@ def import_sensors(json_path):
 
 if __name__ == "__main__":
     with app.app_context():
-        import_sensors("../data/sensors.json")
+        import_sensors("../examples/sensors.json")
         print("Sensors imported successfully.")
