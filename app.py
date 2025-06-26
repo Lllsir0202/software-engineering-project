@@ -83,11 +83,42 @@ def homepage():
     return render_template("homepage.html")
 
 # In homepage it is used to show the information
-# @app.route("/api/dashboard/summary")
-# def summary():
-#     # First is sensors
-#     sensors_count = Sensor.query.count()
-#     # Then is warnings
+@app.route("/api/dashboard/summary")
+def summary():
+    try:
+        # 总监测点数量
+        sensors_count = Sensor.query.count()
+
+        # 今日预警数量初始化
+        warning_count = 0
+
+        # 遍历每个预警配置项
+        warning_configs = WarningConfig.query.filter_by(enabled=1).all()
+
+        for config in warning_configs:
+            latest_data = Sensor.query.filter_by(id=config.sensor_id).first()
+            if latest_data:
+                # print(f"Checking sensor {config.sensor_id} with metric {config.metric}")
+                current_value = latest_data.capacity
+                if current_value < config.min_value or current_value > config.max_value:
+                    warning_count += 1
+
+        # print(f"今日预警数量: {warning_count}")
+        # 正常运行率（例如，你可以计算未报警的 / 总设备数）
+        normal_percent = 100.0
+        normal_num = Sensor.query.filter_by(status='正常').count()
+        if sensors_count > 0:
+            normal_percent = round(normal_num / sensors_count * 100, 1)
+        # print(f"传感器总数: {sensors_count}, 预警数量: {warning_count}, 正常运行率: {normal_percent}%")
+        return jsonify({
+            "sensors_count": sensors_count,
+            "warning_count": warning_count,
+            "normal_percent": normal_percent
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+    
 
 
 
