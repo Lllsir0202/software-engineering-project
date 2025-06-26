@@ -285,6 +285,7 @@
             if (data.success) {
               alert('用户添加成功');
               $('#myModal2').modal('hide');
+              loadUsers()
             } else {
               alert('添加失败: ' + data.error);
             }

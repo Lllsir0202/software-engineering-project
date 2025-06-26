@@ -43,17 +43,6 @@ class WarningConfig(db.Model):
 
     sensor = db.relationship('Sensor', backref='warning_configs')
 
-class SensorData(db.Model):
-    __tablename__ = 'sensor_data'
-
-    id = db.Column(db.Integer, primary_key=True)
-    sensor_id = db.Column(db.Integer, db.ForeignKey('sensors.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, index=True)
-    metric = db.Column(db.String(64), nullable=False)
-    value = db.Column(db.Float)
-
-    sensor = db.relationship('Sensor', backref='data_points')
-
 class WaterQuality(db.Model):
     __tablename__ = 'water_quality'
 

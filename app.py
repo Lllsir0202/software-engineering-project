@@ -424,10 +424,99 @@ def admin_list():
 def computer_list():
     return render_template("机器列表.html")
 
+@app.route("/api/sensors", methods=['GET'])
+def get_sensors():
+    try:
+        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
+
+        query = Sensor.query.order_by(Sensor.id.asc())
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        sensors = [
+            {
+                "id": sensor.id,
+                "name": sensor.name,
+                "capacity": sensor.capacity,
+                "status": sensor.status,
+                "farm": sensor.farm,
+                "test": sensor.test,
+                "count": sensor.count,
+                "price": sensor.price,
+                "update_time": sensor.update_time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for sensor in pagination.items
+        ]
+
+        return jsonify({
+            "sensors": sensors,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/sensors", methods=['POST'])
+def add_sensors():
+    data = request.get_json()
+    # print(data)
+    # 验证必填字段
+    required_fields = ["id", "name", "capacity", "status", "farm", "test", "count", "price", "update_time"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"success": False, "message": f"Missing field: {field}"})
+    try:
+        # 检查是否被创建了
+        if Sensor.query.filter_by(id=data["id"]).first():
+            return jsonify({"success": False, "message": "id已被使用"})
+        
+        new_sensor = Sensor(
+            id = data["id"],
+            name = data["name"],
+            capacity = data["capacity"],
+            status = data["status"],
+            farm = data["farm"],
+            test = data["test"],
+            count = data["count"],
+            price = data["price"],
+            update_time = datetime.strptime(data["update_time"], "%Y-%m-%d %H:%M:%S")
+        )
+        db.session.add(new_sensor)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Sensor added successfully"})
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route("/api/sensors", methods=['DELETE'])
+def delete_sensors():
+    sensorid = request.get_json()
+    try:
+        deleted_sensor = Sensor.query.filter_by(id=sensorid).first()
+        if deleted_sensor is None:
+            return jsonify({"success": False, "error": f'未找到传感器id "{sensorid}"'}), 404
+        # 找到后
+        db.session.delete(deleted_sensor)
+        db.session.commit()
+        return jsonify(
+            {"success": True, "message": f'传感器id "{sensorid}" 已成功删除'}
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route("/sensor_list")
 def sensor_list():
-    return render_template("传感器列表.html")
+    page = request.args.get("page", default=1, type=int)
+    per_page = 10
+
+    pagination = Sensor.query.order_by(Sensor.id.desc()).paginate(page=page, per_page=per_page)
+    sensors = pagination.items
+    total = pagination.total
+    pages = pagination.pages
+
+    return render_template("传感器列表.html", sensors=sensors, page=page, total=total, pages=pages)
+
 
 
 @app.route("/warning")
