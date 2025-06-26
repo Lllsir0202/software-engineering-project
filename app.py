@@ -48,11 +48,9 @@ def generate_code():
     return str(random.randint(100000, 999999))
 
 # Used for test
-
 # @app.route("/test-db")
 # def test_db():
 #     from database.models import User
-
 #     user = User.query.first()
 #     return f"第一个用户：{user.username if user else '暂无用户'}"
 
@@ -83,11 +81,50 @@ def homepage():
     return render_template("homepage.html")
 
 
+# In homepage it is used to show the information
+@app.route("/api/dashboard/summary")
+def summary():
+    try:
+        # 总监测点数量
+        sensors_count = Sensor.query.count()
+
+        # 今日预警数量初始化
+        warning_count = 0
+
+        # 遍历每个预警配置项
+        warning_configs = WarningConfig.query.filter_by(enabled=1).all()
+
+        for config in warning_configs:
+            latest_data = Sensor.query.filter_by(id=config.sensor_id).first()
+            if latest_data:
+                # print(f"Checking sensor {config.sensor_id} with metric {config.metric}")
+                current_value = latest_data.capacity
+                if current_value < config.min_value or current_value > config.max_value:
+                    warning_count += 1
+
+        # print(f"今日预警数量: {warning_count}")
+        # 正常运行率（例如，你可以计算未报警的 / 总设备数）
+        normal_percent = 100.0
+        normal_num = Sensor.query.filter_by(status='正常').count()
+        if sensors_count > 0:
+            normal_percent = round(normal_num / sensors_count * 100, 1)
+        # print(f"传感器总数: {sensors_count}, 预警数量: {warning_count}, 正常运行率: {normal_percent}%")
+        return jsonify({
+            "sensors_count": sensors_count,
+            "warning_count": warning_count,
+            "normal_percent": normal_percent
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+
 
 
 @app.route("/datacenter/", methods=["GET"])
 def datacenter():
     return render_template("datacenter.html")
+
 
 
 @app.route("/data-fish/", methods=["GET"])
@@ -105,6 +142,7 @@ def dashboard():
     return render_template("dashboard.html")
 
 
+
 @app.route("/visualization")
 def visualization():
     return render_template("visualization.html")
@@ -115,6 +153,7 @@ def login_as_user(username, password_input):
     if user and user.check_password(password_input):
         return user
     return None
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -521,6 +560,67 @@ def sensor_list():
 def warning():
     return render_template("预警设置.html")
 
+
+# Just used to get a specific warning by id
+@app.route("/api/warning", methods=['POST'])
+def get_warning():
+    try:
+        id = request.get_json()
+        query = WarningConfig.query.filter_by(id=id).first()
+        if query is None:
+            return jsonify({"error": "未找到指定预警"}), 404
+        warning = {
+            "id": query.id,
+            "sensor_id": query.sensor_id,
+            "metric": query.metric,
+            "min_value": query.min_value,
+            "max_value": query.max_value,
+            "enabled": query.enabled
+        }
+        return jsonify(warning)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Used to modify a specific warning
+@app.route("/api/warning/update", methods=['POST'])
+def update_warning():
+    try:
+        data = request.get_json()
+        warning = WarningConfig.query.get(data["id"])
+        if not warning:
+            return jsonify({"success": False, "error": "预警不存在"})
+
+        # 更新字段
+        warning.sensor_id = data["sensor_id"]
+        warning.metric = data["metric"]
+        warning.min_value = data["min_value"]
+        warning.max_value = data["max_value"]
+        warning.enabled = data["enabled"]
+
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+# Used to create a specific warning
+@app.route("/api/warning/create", methods=['POST'])
+def create_warning():
+    try:
+        data = request.get_json()
+        new_warning = WarningConfig(
+            sensor_id=data['sensor_id'],
+            metric=data['metric'],
+            min_value=data['min_value'],
+            max_value=data['max_value'],
+            enabled=data['enabled']
+        )
+        db.session.add(new_warning)
+        db.session.commit()
+        return jsonify({"success": True, "id": new_warning.id})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+
 @app.route("/api/warnings", methods=['GET'])
 def get_warnings():
     try:
@@ -551,6 +651,23 @@ def get_warnings():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/warnings", methods=['DELETE'])
+def delete_warnings():
+    id = request.get_json()
+    try:
+        deleted_warning = WarningConfig.query.filter_by(id=id).first()
+        if deleted_warning is None:
+            return jsonify({"success": False, "error": f'未找到预警 "{id}"'}), 404
+        # 找到后
+        db.session.delete(deleted_warning)
+        db.session.commit()
+        return jsonify(
+            {"success": True, "message": f'指定预警已成功删除'}
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route("/api/charts/growth")
 def plot():
     try:
@@ -568,7 +685,7 @@ def plot():
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
-
+     
 @app.route("/api/weather", methods=["GET"])
 def get_weather():
     """获取当前天气信息"""

@@ -11,6 +11,9 @@
   <link href="{{ url_for('static', filename = 'css/default-theme.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/style.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/bootstrap-reset.css') }}" rel="stylesheet">
+
+  <link rel="icon" href="/static/sea.png" type="image/x-icon">
+
 </head>
 
 <body class="sticky-header">
@@ -49,7 +52,7 @@
             <ul class="notification-menu">
               <li> <a href="javascript:;" class="btn btn-default  dropdown-toggle"> <i class="fa  fa-cogs"></i>账号设置 </a>
               </li>
-              <li> <a href="/homepage" class="btn btn-default  dropdown-toggle"> <i class="fa fa-sign-out"></i>退出登录 </a>
+              <li> <a href="/homepage" class="btn btn-default  dropdown-toggle"> <i class="fa fa-sign-out"></i>退出界面 </a>
               </li>
             </ul>
           </div>
@@ -90,10 +93,10 @@
                         <li class="col-xs-12"> <span>ID：</span><input type="text" class="form-control" name="id"></li>
                         <li class="col-xs-12"> <span>名称：</span> <input type="text" class="form-control" name="name">
                         </li>
-                        <li class="col-xs-12"> <span>能力：</span> <input type="text" class="form-control" name="capacity">
+                        <li class="col-xs-12"> <span>测量结果：</span> <input type="text" class="form-control" name="capacity">
                         </li>
-                        <li class="col-xs-12"> 
-                          <span>状态：</span> 
+                        <li class="col-xs-12">
+                          <span>状态：</span>
                           <select class="form-control" name="status">
                             <option value="正常" selected>正常</option>
                             <option value="故障">故障</option>
@@ -109,8 +112,8 @@
                         </li>
                         <li class="col-xs-12"> <span>价格：</span> <input type="text" class="form-control" name="price">
                         </li>
-                        <li class="col-xs-12"> <span>更新时间：</span> <input type="datetime-local" step="1" class="form-control"
-                            name="update_time">
+                        <li class="col-xs-12"> <span>更新时间：</span> <input type="datetime-local" step="1"
+                            class="form-control" name="update_time">
                         </li>
                         </li>
                       </ul>
@@ -130,7 +133,7 @@
                 <tr>
                   <th title="传感器的ID">ID</th>
                   <th title="传感器的名称">名称</th>
-                  <th title="传感器的测量能力">能力</th>
+                  <th title="传感器的测量结果">测量结果</th>
                   <th title="当前运行状态">状态</th>
                   <th title="所属的牧场名称">牧场</th>
                   <th title="检测的项目类型">检测</th>
@@ -275,7 +278,7 @@
           // 获取表单数据
           const id = parseInt(document.querySelector('input[name="id"]').value);
           const name = document.querySelector('input[name="name"]').value;
-          const capacity = parseInt(document.querySelector('input[name="capacity"]').value);
+          const capacity = parseFloat(document.querySelector('input[name="capacity"]').value);
           const status = document.querySelector('select[name="status"]').value;
           const farm = document.querySelector('input[name="farm"]').value;
           const test = document.querySelector('input[name="test"]').value;
@@ -324,7 +327,7 @@
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('发生错误，请重试'+error);
+              alert('发生错误，请重试' + error);
             });
         });
 

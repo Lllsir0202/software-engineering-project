@@ -11,6 +11,7 @@
   <link href="{{ url_for('static', filename = 'css/default-theme.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/style.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename = 'css/bootstrap-reset.css') }}" rel="stylesheet">
+  <link rel="icon" href="/static/sea.png" type="image/x-icon">
 </head>
 
 <body class="sticky-header">
@@ -49,7 +50,7 @@
             <ul class="notification-menu">
               <li> <a href="javascript:;" class="btn btn-default  dropdown-toggle"> <i class="fa  fa-cogs"></i>账号设置 </a>
               </li>
-              <li> <a href="/homepage" class="btn btn-default  dropdown-toggle"> <i class="fa fa-sign-out"></i>退出登录 </a>
+              <li> <a href="/homepage" class="btn btn-default  dropdown-toggle"> <i class="fa fa-sign-out"></i>退出界面 </a>
               </li>
             </ul>
           </div>
@@ -65,7 +66,15 @@
       <div class="wrapper">
         <div class="panel">
           <div class="panel-body">
-            <div class="table-responsive">
+            <div class="clearfix">
+              <div class="pull-left">
+                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">添加预警</a>
+              </div>
+
+              <div class="pull-right"></div>
+            </div>
+
+            <table class="table m-t-20">
               <table class="table table-bordered table-hover text-center">
                 <thead>
                   <tr>
@@ -81,34 +90,75 @@
                   <!-- 动态添加每行 -->
                 </tbody>
               </table>
-            </div>
-
-            <div class="page clearfix">
-              <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
-              <div class="pull-right">
-                <nav aria-label="..." class="pull-left">
-                  <ul class="pagination" id="pagination-bar">
-                  </ul>
-                </nav>
-                <div class="pull-left p-r-20  p-l-20">
-                  <select class="form-control" id="per-page-selector">
-                    <option value="10">10条每页</option>
-                    <option value="20">20条每页</option>
-                    <option value="50">50条每页</option>
-                  </select>
-                </div>第
-                <input type="text" id="goto-page-input" class="form-control" value="1">页
-                <button id="goto-page-btn" class="btn btn-default">跳转</button>
-              </div>
-            </div>
-
-
 
           </div>
+
+          <div class="page clearfix">
+            <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
+            <div class="pull-right">
+              <nav aria-label="..." class="pull-left">
+                <ul class="pagination" id="pagination-bar">
+                </ul>
+              </nav>
+              <div class="pull-left p-r-20  p-l-20">
+                <select class="form-control" id="per-page-selector">
+                  <option value="10">10条每页</option>
+                  <option value="20">20条每页</option>
+                  <option value="50">50条每页</option>
+                </select>
+              </div>第
+              <input type="text" id="goto-page-input" class="form-control" value="1">页
+              <button id="goto-page-btn" class="btn btn-default">跳转</button>
+            </div>
+          </div>
+
+          <!-- Modal -->
+          <div class="modal fade" id="editWarningModal" tabindex="-1" role="dialog" aria-labelledby="editWarningLabel">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <form id="edit-warning-form">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="editWarningLabel">编辑预警设置</h4>
+                  </div>
+                  <div class="modal-body">
+                    <label for="edit-warning-id">传感器ID</label>
+                    <input type="number" id="edit-warning-id">
+                    <div class="form-group">
+                      <label for="edit-metric">指标名称</label>
+                      <input type="text" class="form-control" id="edit-metric">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-min-value">最小值</label>
+                      <input type="number" step="any" class="form-control" id="edit-min-value">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-max-value">最大值</label>
+                      <input type="number" step="any" class="form-control" id="edit-max-value">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit-enabled">是否启用</label>
+                      <select class="form-control" id="edit-enabled">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-warning-btn" data-mode="edit"
+                      data-id="-1">保存修改</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
+    </div>
   </section>
+
 
   <script src="{{ url_for('static', filename = 'js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename = 'js/echarts.min.js') }}"></script>
@@ -117,6 +167,8 @@
 
   <!-- Here to do other renderitions -->
   <script>
+
+    let originalWarningData = {};
     window.addEventListener('DOMContentLoaded', function () {
       const tbody = document.getElementById('warning-table-body');
       loadWarnings(1, 10);  // 默认加载第1页，每页10条
@@ -135,10 +187,10 @@
           <td>${warning.metric}</td>
           <td>${warning.min_value}</td>
           <td>${warning.max_value}</td>
-          <td>${warning.enabled ? "启用": "禁用"}</td>
+          <td>${warning.enabled ? "启用" : "禁用"}</td>
           <td>
-              <button class="btn btn-primary set-btn" data-sensorid="${warning.sensor_id}">设置</button>
-              <button class="btn btn-danger delete-btn" data-sensorid="${warning.sensor_id}">删除</button>
+              <button class="btn btn-primary set-btn" data-id="${warning.id}">设置</button>
+              <button class="btn btn-danger delete-btn" data-id="${warning.id}">删除</button>
           </td>`;
               tbody.appendChild(tr);
             });
@@ -188,85 +240,148 @@
       function attachEventListeners() {
         document.querySelectorAll('.delete-btn').forEach(btn => {
           btn.addEventListener('click', function () {
-            const sensorid = this.getAttribute('data-sensorid');
-            if (confirm(`确定要删除传感器 "${sensorid}" 吗？`)) {
-              fetch('/api/sensors', {
+            const id = this.getAttribute('data-id');
+            document.getElementById('save-warning-btn').setAttribute('data-id', id);
+
+            if (confirm(`确定要删除该预警吗？`)) {
+              fetch('/api/warnings', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(sensorid)
+                body: JSON.stringify(id)
               })
                 .then(res => res.json())
                 .then(data => {
                   if (data.success) {
                     alert(data.message);
-                    loadSensors();  // 重新加载
+                    loadWarnings();  // 重新加载
                   } else {
                     alert('删除失败: ' + data.error);
                   }
                 })
-                .catch(error => alert('删除传感器时出错:' + data.error));
+                .catch(error => alert('删除预警时出错:' + data.error));
             }
           });
         });
 
-        document.getElementById('addSensorBtn').addEventListener('click', function () {
-          // 获取表单数据
-          const id = parseInt(document.querySelector('input[name="id"]').value);
-          const name = document.querySelector('input[name="name"]').value;
-          const capacity = parseInt(document.querySelector('input[name="capacity"]').value);
-          const status = document.querySelector('select[name="status"]').value;
-          const farm = document.querySelector('input[name="farm"]').value;
-          const test = document.querySelector('input[name="test"]').value;
-          const count = parseInt(document.querySelector('input[name="count"]').value);
-          const price = parseFloat(document.querySelector('input[name="price"]').value);
-          const rawUpdateTime = document.querySelector('input[name="update_time"]').value;
-          const update_time = rawUpdateTime.replace('T', ' ');
-          console.log(update_time)
+        // Used to read the warning data when the "设置" button is clicked
+        document.querySelectorAll('.set-btn').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const id = parseInt(this.getAttribute('data-id'));
+            document.getElementById('save-warning-btn').setAttribute('data-id', id);
 
-          // 验证数据
-          if (!id || !name || !capacity || !status || !farm || !test || !count || !price || !update_time) {
-            alert('请填写所有字段');
-            return;
-          }
+            // 清空之前的输入框内容
+            document.getElementById('edit-warning-id').value = '';
+            document.getElementById('edit-metric').value = '';
+            document.getElementById('edit-min-value').value = '';
+            document.getElementById('edit-max-value').value = '';
+            document.getElementById('edit-enabled').value = '1';
+            // document.getElementById('save-warning-btn').disabled = true;
 
-          // 准备数据
-          const SensorData = {
-            id: id,
-            name: name,
-            capacity: capacity,
-            status: status,
-            farm: farm,
-            test: test,
-            count: count,
-            price: price,
-            update_time: update_time
-          };
+            document.getElementById('save-warning-btn').setAttribute('data-mode', 'edit');
 
-          // 发送请求
-          fetch('/api/sensors', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(SensorData)
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                alert('传感器添加成功');
-                $('#myModal2').modal('hide');
-                loadSensors()
-              } else {
-                alert('添加失败: ' + data.message);
-              }
+            // 发请求获取该 warning 的详细数据
+            fetch(`/api/warning`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(id)
             })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('发生错误，请重试'+error);
-            });
+              .then(response => response.json())
+              .then(data => {
+                document.getElementById('edit-warning-id').value = data.sensor_id;
+                document.getElementById('edit-metric').value = data.metric;
+                document.getElementById('edit-min-value').value = data.min_value;
+                document.getElementById('edit-max-value').value = data.max_value;
+                document.getElementById('edit-enabled').value = data.enabled ? '1' : '0';
+
+                // 保存原始数据以便后续比较
+                originalWarningData = {
+                  id: data.id,
+                  metric: data.metric,
+                  min_value: data.min_value,
+                  max_value: data.max_value,
+                  enabled: data.enabled ? 1 : 0
+                };
+                // document.getElementById('save-warning-btn').disabled = false;
+                // Only success to show the modal if data is fetched successfully
+                $('#editWarningModal').modal('show');
+              })
+              .catch(error => {
+                console.error('获取预警数据失败:', error);
+                alert('获取预警数据失败，请稍后重试。');
+              });
+          });
+
         });
 
       }
+
+      document.getElementById('save-warning-btn').addEventListener('click', function () {
+        const mode = this.getAttribute('data-mode');
+        const currentData = {
+          id: parseInt(this.getAttribute('data-id')),
+          sensor_id: parseInt(document.getElementById('edit-warning-id').value),
+          metric: document.getElementById('edit-metric').value.trim(),
+          min_value: parseFloat(document.getElementById('edit-min-value').value),
+          max_value: parseFloat(document.getElementById('edit-max-value').value),
+          enabled: document.getElementById('edit-enabled').value === '1' ? 1 : 0
+        };
+        // 判断是否发生变化
+        const changed = Object.keys(currentData).some(key => currentData[key] !== originalWarningData[key]);
+
+        if (!changed) {
+          alert("没有检测到任何更改。");
+          return;
+        }
+
+        const url = mode === 'create' ? '/api/warning/create' : '/api/warning/update';
+
+        // 发请求写入数据库
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(currentData)
+        })
+          .then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              alert("更新成功！");
+              $('#editWarningModal').modal('hide'); // 关闭模态框
+              loadWarnings();
+            } else {
+              // console.error('Error:', result.error);
+              alert("更新失败,可能是使用了未添加的传感器");
+              $('#editWarningModal').modal('hide'); // 关闭模态框
+            }
+          });
+      });
+
+      // Enter to save
+      document.getElementById('editWarningModal').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // 阻止默认行为（比如关闭模态框或提交表单）
+          document.getElementById('save-warning-btn').click(); // 触发保存按钮
+        }
+      });
+
+      document.querySelectorAll('[data-target="#myModal2"]').forEach(btn => {
+        btn.addEventListener('click', function () {
+          // 清空表单内容
+          document.getElementById('edit-warning-id').value = '';
+          document.getElementById('edit-metric').value = '';
+          document.getElementById('edit-min-value').value = '';
+          document.getElementById('edit-max-value').value = '';
+          document.getElementById('edit-enabled').value = '1';
+
+          // 修改模态框标题
+          document.getElementById('editWarningLabel').innerText = '添加预警设置';
+
+          // 标记为“添加模式”
+          document.getElementById('save-warning-btn').setAttribute('data-mode', 'create');
+
+          $('#editWarningModal').modal('show');
+        });
+      });
+
     })
   </script>
 

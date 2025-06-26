@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="/templates/icon.png" type="image/x-icon">
+    <link rel="icon" href="/static/icon.png" type="image/x-icon">
 
     <title>数据可视化平台</title>
 
@@ -247,6 +247,7 @@
                 margin-top: 5px;
             }
         }
+
     </style>
 </head>
 
@@ -335,6 +336,7 @@
                     <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="growth">
                         <i class="fa fa-download"></i> 导出
                     </button>
+
                     <div class="chart-loading" id="growth-loading">
                         <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
                     </div>
@@ -364,6 +366,7 @@
                     <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="water_quality">
                         <i class="fa fa-download"></i> 导出
                     </button>
+
                     <div class="chart-loading">
                         <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
                     </div>
@@ -594,6 +597,7 @@
                 exportChart(chartId);
             });
         });
+
 
         // 初始加载图表
         updateGrowthChart();

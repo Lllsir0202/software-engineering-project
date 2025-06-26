@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>智慧渔场监测系统 - 首页</title>
-    <link rel="icon" href="/templates/icon.png" type="image/x-icon">
+    <link rel="icon" href="/static/icon.png" type="image/x-icon">
 
     <!-- 样式表 -->
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
@@ -113,15 +113,15 @@
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-primary text-white p-4">
                         <h5><i class="fa fa-tachometer system-status-icon"></i> 总监测点</h5>
-                        <div class="display-4 mt-2">32</div>
+                        <div id="sensor-summary" class="display-4 mt-2">--</div>
                         <small>已部署智能传感设备</small>
                     </div>
                 </div>
 
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-success text-white p-4">
-                        <h5><i class="fa fa-check-circle system-status-icon"></i> 今日警报</h5>
-                        <div class="display-4 mt-2">2</div>
+                        <h5><i class="fa fa-check-circle system-status-icon"></i> 当前警报</h5>
+                        <div id="alert-summary" class="display-4 mt-2">--</div>
                         <small>异常事件报告</small>
                     </div>
                 </div>
@@ -129,8 +129,8 @@
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-info text-white p-4">
                         <h5><i class="fa fa-clock-o system-status-icon"></i> 正常运行</h5>
-                        <div class="display-4 mt-2">98.7%</div>
-                        <small>本月设备可用率</small>
+                        <div id="uptime-summary" class="display-4 mt-2">--</div>
+                        <small>设备可用率</small>
                     </div>
                 </div>
             </div>
@@ -252,6 +252,42 @@
 
         updateUptime();
         setInterval(updateUptime, 1000);
+    </script>
+
+
+    <!-- Here is used to get from database and add in homepage -->
+    <script>
+        fetch("/api/dashboard/summary")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("sensor-summary").textContent = data["sensors_count"];
+                document.getElementById("alert-summary").textContent = data["warning_count"];
+                document.getElementById("uptime-summary").textContent = data["normal_percent"] + "%";
+
+                // 警报数量动态变色逻辑
+                const alertCard = document.querySelector("#alert-summary").closest(".summary-card");
+
+                if (data["warning_count"] >= 5) {
+                    // 若警报数量大于等于5，变为红色
+                    alertCard.classList.remove("bg-success");
+                    alertCard.classList.add("bg-danger");
+                } else if (data["warning_count"] > 0) {
+                    // 若有警报但不多，使用黄色
+                    alertCard.classList.remove("bg-success");
+                    alertCard.classList.add("bg-warning");
+                } else {
+                    // 无警报保持绿色
+                    alertCard.classList.remove("bg-danger", "bg-warning");
+                    alertCard.classList.add("bg-success");
+                }
+            })
+            .catch(error => {
+                console.error("获取数据失败:", error);
+                document.getElementById("sensor-summary").textContent = "加载失败";
+                document.getElementById("alert-summary").textContent = "加载失败";
+                document.getElementById("uptime-summary").textContent = "加载失败";
+            });
+
     </script>
 
 </body>
