@@ -113,7 +113,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-primary text-white p-4">
                         <h5><i class="fa fa-tachometer system-status-icon"></i> 总监测点</h5>
-                        <div class="display-4 mt-2">32</div>
+                        <div id="sensor-summary" class="display-4 mt-2">--</div>
                         <small>已部署智能传感设备</small>
                     </div>
                 </div>
@@ -121,7 +121,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-success text-white p-4">
                         <h5><i class="fa fa-check-circle system-status-icon"></i> 今日警报</h5>
-                        <div class="display-4 mt-2">2</div>
+                        <div id="alert-summary" class="display-4 mt-2">--</div>
                         <small>异常事件报告</small>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                 <div class="col-md-4 mb-3">
                     <div class="summary-card bg-info text-white p-4">
                         <h5><i class="fa fa-clock-o system-status-icon"></i> 正常运行</h5>
-                        <div class="display-4 mt-2">98.7%</div>
+                        <div id="uptime-summary" class="display-4 mt-2">--</div>
                         <small>本月设备可用率</small>
                     </div>
                 </div>
@@ -252,6 +252,18 @@
 
         updateUptime();
         setInterval(updateUptime, 1000);
+    </script>
+
+    <!-- Here is used to get from database and add in homepage -->
+    <script>
+        fetch("/api/dashboard/summary")
+            .then(Response => response.json())
+            .then(data => {
+                document.getElementById("sensor-summary").textContent = data.total_sensors;
+                document.getElementById("alert-summary").textContent = data.today_alerts;
+                document.getElementById("uptime-summary").textContent = data.uptime_percent + "%";
+            });
+
     </script>
 
 </body>

@@ -82,6 +82,12 @@ def admin_page():
 def homepage():
     return render_template("homepage.html")
 
+# In homepage it is used to show the information
+# @app.route("/api/dashboard/summary")
+# def summary():
+#     # First is sensors
+#     sensors_count = Sensor.query.count()
+#     # Then is warnings
 
 
 

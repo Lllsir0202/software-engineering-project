@@ -9,7 +9,7 @@ class Sensor(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    capacity = db.Column(db.Integer)
+    capacity = db.Column(db.Float)
     status = db.Column(db.String(20), default='正常')
     farm = db.Column(db.String(64))
     test = db.Column(db.String(64))
