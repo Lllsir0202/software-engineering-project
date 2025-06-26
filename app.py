@@ -538,6 +538,22 @@ def get_warnings():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/sensors", methods=['DELETE'])
+def delete_warnings():
+    id = request.get_json()
+    try:
+        deleted_warning = WarningConfig.query.filter_by(id=id).first()
+        if deleted_warning is None:
+            return jsonify({"success": False, "error": f'未找到预警 "{id}"'}), 404
+        # 找到后
+        db.session.delete(deleted_warning)
+        db.session.commit()
+        return jsonify(
+            {"success": True, "message": f'指定预警已成功删除'}
+        )
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 @app.route("/api/charts/growth")
 def plot():

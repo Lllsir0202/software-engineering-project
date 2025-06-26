@@ -137,8 +137,8 @@
           <td>${warning.max_value}</td>
           <td>${warning.enabled ? "启用": "禁用"}</td>
           <td>
-              <button class="btn btn-primary set-btn" data-sensorid="${warning.sensor_id}">设置</button>
-              <button class="btn btn-danger delete-btn" data-sensorid="${warning.sensor_id}">删除</button>
+              <button class="btn btn-primary set-btn" data-id="${warning.id}" >设置</button>
+              <button class="btn btn-danger delete-btn" data-id="${warning.id}">删除</button>
           </td>`;
               tbody.appendChild(tr);
             });
@@ -188,12 +188,12 @@
       function attachEventListeners() {
         document.querySelectorAll('.delete-btn').forEach(btn => {
           btn.addEventListener('click', function () {
-            const sensorid = this.getAttribute('data-sensorid');
-            if (confirm(`确定要删除传感器 "${sensorid}" 吗？`)) {
-              fetch('/api/sensors', {
+            const id = this.getAttribute('data-id');
+            if (confirm(`确定要删除该预警吗？`)) {
+              fetch('/api/warnings', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(sensorid)
+                body: JSON.stringify(id)
               })
                 .then(res => res.json())
                 .then(data => {
@@ -204,66 +204,9 @@
                     alert('删除失败: ' + data.error);
                   }
                 })
-                .catch(error => alert('删除传感器时出错:' + data.error));
+                .catch(error => alert('删除预警时出错:' + data.error));
             }
           });
-        });
-
-        document.getElementById('addSensorBtn').addEventListener('click', function () {
-          // 获取表单数据
-          const id = parseInt(document.querySelector('input[name="id"]').value);
-          const name = document.querySelector('input[name="name"]').value;
-          const capacity = parseInt(document.querySelector('input[name="capacity"]').value);
-          const status = document.querySelector('select[name="status"]').value;
-          const farm = document.querySelector('input[name="farm"]').value;
-          const test = document.querySelector('input[name="test"]').value;
-          const count = parseInt(document.querySelector('input[name="count"]').value);
-          const price = parseFloat(document.querySelector('input[name="price"]').value);
-          const rawUpdateTime = document.querySelector('input[name="update_time"]').value;
-          const update_time = rawUpdateTime.replace('T', ' ');
-          console.log(update_time)
-
-          // 验证数据
-          if (!id || !name || !capacity || !status || !farm || !test || !count || !price || !update_time) {
-            alert('请填写所有字段');
-            return;
-          }
-
-          // 准备数据
-          const SensorData = {
-            id: id,
-            name: name,
-            capacity: capacity,
-            status: status,
-            farm: farm,
-            test: test,
-            count: count,
-            price: price,
-            update_time: update_time
-          };
-
-          // 发送请求
-          fetch('/api/sensors', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(SensorData)
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                alert('传感器添加成功');
-                $('#myModal2').modal('hide');
-                loadSensors()
-              } else {
-                alert('添加失败: ' + data.message);
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('发生错误，请重试'+error);
-            });
         });
 
       }
