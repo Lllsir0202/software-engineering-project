@@ -76,21 +76,6 @@
               <div class="pull-right"></div>
             </div>
 
-            <div class="form1 searchbox">
-              <ul class="row">
-                <li class="col-xs-2"> <span>所属牧场：</span><input type="text" class="form-control"></li>
-                <li class="col-xs-2"> <span>名称：</span><input type="text" class="form-control"></li>
-                <li class="col-xs-2"> <span>更新时间：</span><input type="text" class="form-control" id="test1"></li>
-                <li class="col-xs-2"> <span>状态：</span>
-                  <select class="form-control">
-                    <option>故障</option>
-                    <option>禁用</option>
-                  </select>
-                </li>
-                <li class="col-xs-2" style="padding-left: 0"> <a href="#" class="btn btn-primary">搜索</a> </li>
-              </ul>
-            </div>
-
             <!-- Modal -->
             <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2">
               <div class="modal-dialog" role="document" style="width: 500px;">
@@ -106,10 +91,16 @@
                         <li class="col-xs-12"> <span>ID：</span><input type="text" class="form-control" name="id"></li>
                         <li class="col-xs-12"> <span>名称：</span> <input type="text" class="form-control" name="name">
                         </li>
-                        <li class="col-xs-12"> <span>能力：</span> <input type="text" class="form-control"
-                            name="capacity">
+                        <li class="col-xs-12"> <span>能力：</span> <input type="text" class="form-control" name="capacity">
                         </li>
-                        <li class="col-xs-12"> <span>状态：</span> <input type="text" class="form-control" name="status">
+                        <li class="col-xs-12"> 
+                          <span>状态：</span> 
+                          <select class="form-control" name="status">
+                            <option value="正常" selected>正常</option>
+                            <option value="故障">故障</option>
+                            <option value="维护中">维护中</option>
+                            <option value="禁用">禁用</option>
+                          </select>
                         </li>
                         <li class="col-xs-12"> <span>牧场：</span> <input type="text" class="form-control" name="farm">
                         </li>
@@ -119,7 +110,7 @@
                         </li>
                         <li class="col-xs-12"> <span>价格：</span> <input type="text" class="form-control" name="price">
                         </li>
-                        <li class="col-xs-12"> <span>更新时间：</span> <input type="text" class="form-control"
+                        <li class="col-xs-12"> <span>更新时间：</span> <input type="datetime-local" step="1" class="form-control"
                             name="update_time">
                         </li>
                         </li>
@@ -286,12 +277,14 @@
           const id = parseInt(document.querySelector('input[name="id"]').value);
           const name = document.querySelector('input[name="name"]').value;
           const capacity = parseInt(document.querySelector('input[name="capacity"]').value);
-          const status = document.querySelector('input[name="status"]').value;
+          const status = document.querySelector('select[name="status"]').value;
           const farm = document.querySelector('input[name="farm"]').value;
           const test = document.querySelector('input[name="test"]').value;
           const count = parseInt(document.querySelector('input[name="count"]').value);
           const price = parseFloat(document.querySelector('input[name="price"]').value);
-          const update_time = document.querySelector('input[name="update_time"]').value;
+          const rawUpdateTime = document.querySelector('input[name="update_time"]').value;
+          const update_time = rawUpdateTime.replace('T', ' ');
+          console.log(update_time)
 
           // 验证数据
           if (!id || !name || !capacity || !status || !farm || !test || !count || !price || !update_time) {
@@ -327,12 +320,12 @@
                 $('#myModal2').modal('hide');
                 loadSensors()
               } else {
-                alert('添加失败: ' + data.error);
+                alert('添加失败: ' + data.message);
               }
             })
             .catch(error => {
               console.error('Error:', error);
-              alert('发生错误，请重试');
+              alert('发生错误，请重试'+error);
             });
         });
 

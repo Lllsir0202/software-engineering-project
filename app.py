@@ -459,6 +459,7 @@ def get_sensors():
 @app.route("/api/sensors", methods=['POST'])
 def add_sensors():
     data = request.get_json()
+    # print(data)
     # 验证必填字段
     required_fields = ["id", "name", "capacity", "status", "farm", "test", "count", "price", "update_time"]
     for field in required_fields:
@@ -478,7 +479,7 @@ def add_sensors():
             test = data["test"],
             count = data["count"],
             price = data["price"],
-            update_time = data["update_time"]
+            update_time = datetime.strptime(data["update_time"], "%Y-%m-%d %H:%M:%S")
         )
         db.session.add(new_sensor)
         db.session.commit()
