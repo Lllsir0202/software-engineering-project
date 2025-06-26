@@ -1,0 +1,58 @@
+[
+    {
+      "id": 1,
+      "name": "温湿度传感器A1",
+      "capacity": 100,
+      "status": "正常",
+      "farm": "南海一号牧场",
+      "test": "温湿度监测",
+      "count": 10,
+      "price": 120.5,
+      "update_time": "2025-06-25T10:00:00"
+    },
+    {
+      "id": 2,
+      "name": "水质监测传感器B2",
+      "capacity": 80,
+      "status": "故障",
+      "farm": "北海智能牧场",
+      "test": "PH值监测",
+      "count": 5,
+      "price": 350.75,
+      "update_time": "2025-06-24T16:30:00"
+    },
+    {
+      "id": 3,
+      "name": "溶氧传感器C3",
+      "capacity": 150,
+      "status": "正常",
+      "farm": "东海生态牧场",
+      "test": "溶解氧监测",
+      "count": 8,
+      "price": 280.0,
+      "update_time": "2025-06-23T08:20:00"
+    },
+    {
+      "id": 4,
+      "name": "氨氮监测传感器D4",
+      "capacity": 60,
+      "status": "正常",
+      "farm": "智慧渔业实验场",
+      "test": "氨氮浓度监测",
+      "count": 12,
+      "price": 310.2,
+      "update_time": "2025-06-22T14:10:00"
+    },
+    {
+      "id": 5,
+      "name": "风速传感器E5",
+      "capacity": 90,
+      "status": "维护中",
+      "farm": "南海一号牧场",
+      "test": "风速风向监测",
+      "count": 6,
+      "price": 150.0,
+      "update_time": "2025-06-25T11:45:00"
+    }
+  ]
+  

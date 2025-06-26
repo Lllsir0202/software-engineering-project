@@ -4,3 +4,6 @@ __pycache__
 *.pyc
 data
 *.cache.sqlite
+# In reality, we should not send these file to the repository
+# config.py
+.env
