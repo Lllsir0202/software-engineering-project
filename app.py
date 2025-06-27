@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 import pytz
 import re
 import base64
+import io
 
 from plot_utils import plot_average_by_species
 from waterQualityUtils import draw_metrics
@@ -959,11 +960,24 @@ def water_quality_chart():
 
 # Here is some routes used in datacenter
 @app.route("/api/waterquality/list")
-def get_waterqualities():
+def get_waterquality():
     page = int(request.args.get("page", 1))
     per_page = int(request.args.get("per_page", 10))
+    # 接收筛选参数（如有）
+    site_name = request.args.get("site_name")
+    basin = request.args.get("basin")
+    status = request.args.get("status")
 
-    query = WaterQuality.query.order_by(WaterQuality.monitor_time.desc())
+    # 查询数据
+    query = WaterQuality.query
+    if site_name:
+        query = query.filter(WaterQuality.site_name.like(f"%{site_name}%"))
+    if basin and basin != "全部区域":
+        query = query.filter(WaterQuality.basin == basin)
+    if status and status != "全部状态":
+        query = query.filter(WaterQuality.site_status == status)
+
+    query = query.order_by(WaterQuality.monitor_time.desc())
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     records = pagination.items
 
@@ -1000,6 +1014,56 @@ def get_waterqualities():
         "records": data
     })
 
+# This route is used to get export
+@app.route("/api/waterquality/export")
+def export_waterquality():
+    # 接收筛选参数（如有）
+    site_name = request.args.get("site_name")
+    basin = request.args.get("basin")
+    status = request.args.get("status")
+
+    # 查询数据
+    query = WaterQuality.query
+    if site_name:
+        query = query.filter(WaterQuality.site_name.like(f"%{site_name}%"))
+    if basin and basin != "全部区域":
+        query = query.filter(WaterQuality.basin == basin)
+    if status and status != "全部状态":
+        query = query.filter(WaterQuality.site_status == status)
+
+    records = query.all()
+
+    # 转换为 DataFrame
+    df = pd.DataFrame([{
+        "省份": r.province or "--",
+        "流域": r.basin or "--",
+        "监测点名称": r.site_name or "--",
+        "监测时间": r.monitor_time.strftime("%Y-%m-%d %H:%M") if r.monitor_time else "--",
+        "水质等级": r.water_quality_level or "--",
+        "温度(℃)": r.temperature if r.temperature is not None else "--",
+        "PH": r.ph if r.ph is not None else "--",
+        "溶解氧": r.dissolved_oxygen if r.dissolved_oxygen is not None else "--",
+        "电导率": r.conductivity if r.conductivity is not None else "--",
+        "浊度": r.turbidity if r.turbidity is not None else "--",
+        "高锰酸盐指数": r.cod_mn if r.cod_mn is not None else "--",
+        "氨氮": r.ammonia_nitrogen if r.ammonia_nitrogen is not None else "--",
+        "总磷": r.total_phosphorus if r.total_phosphorus is not None else "--",
+        "总氮": r.total_nitrogen if r.total_nitrogen is not None else "--",
+        "叶绿素": r.chlorophyll if r.chlorophyll is not None else "--",
+        "藻密度": r.algae_density or "--",
+        "站点状态": r.site_status or "--"
+    } for r in records])
+
+    # 写入 BytesIO 缓冲区
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="水质数据")
+    output.seek(0)
+
+    return send_file(output,
+                     as_attachment=True,
+                     download_name="水质监测数据.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
 if __name__ == "__main__":
