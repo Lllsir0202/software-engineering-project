@@ -7,6 +7,7 @@ from PIL import Image
 import sys
 import torch.nn.functional as F
 import json
+import random
 
 k = 512
 m = 23
@@ -84,6 +85,15 @@ def load_and_preprocess(image_path):
     image = Image.open(image_path).convert('RGB')
     return transform(image).unsqueeze(0)  # 添加batch维度
 
+def generate_fish_length(class_name):
+    # 加载体长范围数据
+    with open('./recognition_src/fish_length_ranges.json') as f:
+        length_ranges = json.load(f)
+    
+    min_length, max_length = length_ranges[class_name]
+    # 生成范围内的随机体长（厘米）
+    return random.randint(min_length, max_length)
+
 def inference():
     # 参数解析
     image_path = "./recognition_src/fish.png"
@@ -137,6 +147,8 @@ def inference():
     if class_idx in idx_to_class:
         class_name = idx_to_class[class_idx]
         print(f"Predicted class index: {class_name}")
+        predicted_length = generate_fish_length(class_name)
+        print(f"Predicted length: {predicted_length} cm")
 
 if __name__ == '__main__':
     inference()
