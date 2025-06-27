@@ -228,7 +228,9 @@
 
         /* 响应式调整 */
         @media (max-width: 768px) {
-            .metric-selector, .date-selector {
+
+            .metric-selector,
+            .date-selector {
                 padding: 15px;
             }
 
@@ -252,46 +254,46 @@
 </head>
 
 <body>
-<!-- 导航栏 -->
-<header data-block-type="headers" data-id="1">
-    <div class="container-fluid" style="background-color: #e3f2fd;">
-        <nav class="navbar navbar-expand-md no-gutters">
-            <div class="col-2 text-left">
-                <!-- <a href="/"> -->
-                <img height="40" alt="数据平台" class="custom-logo">
-                <!-- </a> -->
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/homepage">首页</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
-                    </ul>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <!-- <a href="/"> -->
+                    <img height="40" alt="数据平台" class="custom-logo">
+                    <!-- </a> -->
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/homepage">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
+                        </ul>
+                    </div>
 
-                <!-- 用户状态区域 -->
-                <div class="user-menu">
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
                         <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
                             {{ session.get('username', '游客') }}
                         </span>
-                    <a href="/logout" class="logout-link">
-                        <i class="fa fa-sign-out"></i>
-                        退出
-                    </a>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </div>
-</header>
+            </nav>
+        </div>
+    </header>
 
 <!-- 主内容区 -->
 <main class="container-fluid py-5">
@@ -303,33 +305,43 @@
                     <p class="text-muted">实时数据更新：<span id="update-time"></span></p>
                 </div>
             </div>
+    <!-- 主内容区 -->
+    <main class="container-fluid py-5">
+        <section class="chart-section">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col text-center">
+                        <h1 class="display-4">数据可视化</h1>
+                        <p class="text-muted">实时数据更新：<span id="update-time"></span></p>
+                    </div>
+                </div>
 
-            <!-- 图表行1 -->
+                <!-- 图表行1 -->
 
-            <div class="row">
-                <!-- 鱼类数据图保持不变 -->
-                <div class="col-lg-6 chart-container">
-                    <!-- 指标选择器 -->
-                    <div class="metric-selector">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <label class="form-label"><i class="fas fa-chart-line me-2"></i>选择分析指标:</label>
-                                <select id="metric-select" class="form-select">
-                                    <option value="Height(cm)">高度 (cm)</option>
-                                    <option value="Weight(g)">重量 (g)</option>
-                                    <option value="Length1(cm)">长度1 (cm)</option>
-                                    <option value="Length2(cm)">长度2 (cm)</option>
-                                    <option value="Length3(cm)">长度3 (cm)</option>
-                                    <option value="Width(cm)">宽度 (cm)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button id="update-growth" class="btn btn-update w-100">
-                                    <i class="fas fa-sync me-2"></i>更新图表
-                                </button>
+                <div class="row">
+                    <!-- 鱼类数据图保持不变 -->
+                    <div class="col-lg-6 chart-container">
+                        <!-- 指标选择器 -->
+                        <div class="metric-selector">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label class="form-label"><i class="fas fa-chart-line me-2"></i>选择分析指标:</label>
+                                    <select id="metric-select" class="form-select">
+                                        <option value="Height(cm)">高度 (cm)</option>
+                                        <option value="Weight(g)">重量 (g)</option>
+                                        <option value="Length1(cm)">长度1 (cm)</option>
+                                        <option value="Length2(cm)">长度2 (cm)</option>
+                                        <option value="Length3(cm)">长度3 (cm)</option>
+                                        <option value="Width(cm)">宽度 (cm)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button id="update-growth" class="btn btn-update w-100">
+                                        <i class="fas fa-sync me-2"></i>更新图表
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                     <img id="chart-growth" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="growth"
                          data-src="/api/charts/growth">

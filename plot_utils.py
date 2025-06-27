@@ -8,6 +8,7 @@ import re
 import json
 import pandas as pd
 
+
 plt.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
@@ -25,12 +26,10 @@ def get_valid_metrics():
     return valid_metrics
 
 
-def plot_average_by_species(metric='Height(cm)'):
+# Load data in app.py and then pass it to this function
+def plot_average_by_species(df, metric='Height(cm)'):
     if metric not in valid_metrics:
         raise ValueError(f"无效指标: {metric}")
-
-    # 加载数据
-    df = pd.read_csv("data/Fish.csv")
 
     # 计算每个物种的平均值和标准差
     grouped = df.groupby("Species").agg({metric: ["mean", "std"]}).reset_index()

@@ -82,7 +82,7 @@ def homepage():
 
 
 # In homepage it is used to show the information
-@app.route("/api/dashboard/summary")
+@app.route("/api/homepage/summary")
 def summary():
     try:
         # 总监测点数量
@@ -97,7 +97,7 @@ def summary():
         for config in warning_configs:
             latest_data = Sensor.query.filter_by(id=config.sensor_id).first()
             if latest_data:
-                # print(f"Checking sensor {config.sensor_id} with metric {config.metric}")
+                # print(f"Checking sensor {latest_data.name} {latest_data.capacity} with config {config.min_value} - {config.max_value}")
                 current_value = latest_data.capacity
                 if current_value < config.min_value or current_value > config.max_value:
                     warning_count += 1
@@ -117,7 +117,60 @@ def summary():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+# In homepage it is used to get the data to show the chart
+@app.route("/api/homepage/status_summary")
+def device_status_summary():
+    normal_count = Sensor.query.filter_by(status="正常").count()
+    warning_count = Sensor.query.filter_by(status="故障").count()
+    maintain_count = Sensor.query.filter_by(status="维护中").count()
 
+    return jsonify({
+        "labels": ["正常", "故障", "维护中"],
+        "data": [normal_count, warning_count, maintain_count]
+    })
+
+# In homepage it is used to get the water quality data to show the chart
+@app.route("/api/homepage/water_quality_trend")
+def water_quality_trend():
+    # 模拟从数据库中获取过去7天数据
+    days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    ph_values = [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8]  # 从数据库取
+    do_values = [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1]  # 从数据库取
+
+    return jsonify({
+        "labels": days,
+        "ph": ph_values,
+        "do": do_values
+    })
+
+# In homepage it is used to get the data of warnings
+@app.route("/api/homepage/warnings")
+def get_active_warnings():
+    active_configs = WarningConfig.query.filter_by(enabled=1).all()
+    warning_list = []
+    for config in active_configs:
+        sensor = Sensor.query.filter_by(id=config.sensor_id).first()
+        if not sensor:
+            continue
+
+        # 获取传感器当前的监测值
+        current_value = sensor.capacity
+        # print(f"Checking sensor {sensor.name} with current value {current_value}")
+        if current_value is None:
+            continue
+
+        # print(f"Checking sensor {sensor.name} with current value {current_value} against config min {config.min_value} and max {config.max_value}")
+        if current_value < config.min_value or current_value > config.max_value:
+            warning_list.append({
+                "sensor_name": sensor.name,
+                "capacity": current_value,
+                "test": sensor.test,
+                "min_value": config.min_value,
+                "max_value": config.max_value,
+                "status": sensor.status
+            })
+
+    return jsonify({"warnings": warning_list})
 
 
 
@@ -673,8 +726,26 @@ def plot():
     try:
         metric = request.args.get('metric', 'Height(cm)').strip()
 
+        # 例如前端传了 metric=Height(cm)，后端映射成 height
+        column_mapping = {
+            "Height(cm)": "height",
+            "Weight(g)": "weight",
+            "Length1(cm)": "length1",
+            "Length2(cm)": "length2",
+            "Length3(cm)": "length3",
+            "Width(cm)": "width"
+        }
+        actual_column = column_mapping[metric]
+
+        # 使用 ORM 查询 species + 你选的指标字段
+        results = db.session.query(FishProfile.species, getattr(FishProfile, actual_column)).all()
+
+        # 转成 DataFrame，列名为 ["species", metric]
+        df = pd.DataFrame(results, columns=["Species", metric])
+
+        # print(df)
         # 将metric传递给绘图函数
-        img_io = plot_average_by_species(metric)
+        img_io = plot_average_by_species(df, metric)
         img_io.seek(0)
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
@@ -694,6 +765,7 @@ def get_weather():
         cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
         openmeteo = openmeteo_requests.Client(session=retry_session)
+        
 
         # 设置请求参数 - 以北京为例
         url = "https://api.open-meteo.com/v1/forecast"
