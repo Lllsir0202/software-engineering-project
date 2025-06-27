@@ -65,7 +65,7 @@ def import_water_quality(file_path, year):
             total_phosphorus=extract_float(row[12]),
             total_nitrogen=extract_float(row[13]),
             chlorophyll=extract_float(row[14]),
-            algae_density=row[15] if row[15] != "--" else None,
+            algae_density=extract_float(row[15]),
             site_status=row[16]
         )
         db.session.add(record)
