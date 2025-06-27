@@ -50,7 +50,7 @@
             background: #fff;
             border-radius: 8px;
             padding: 1.5rem;
-            height: 350px;
+            height: 500px;
         }
     </style>
 </head>
@@ -199,34 +199,6 @@
     <script>
         // 图表初始化
         document.addEventListener('DOMContentLoaded', function () {
-            // 水质趋势图
-            new Chart(document.getElementById('water-quality-chart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-                    datasets: [{
-                        label: 'PH值',
-                        data: [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8],
-                        borderColor: '#4CAF50'
-                    }, {
-                        label: '溶解氧 (mg/L)',
-                        data: [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1],
-                        borderColor: '#2196F3'
-                    }]
-                }
-            });
-
-            // 设备状态饼图
-            new Chart(document.getElementById('device-status-chart').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: ['正常', '预警', '离线'],
-                    datasets: [{
-                        data: [85, 10, 5],
-                        backgroundColor: ['#4CAF50', '#FFC107', '#9E9E9E']
-                    }]
-                }
-            });
 
             // 退出确认
             document.querySelector('.logout-link').addEventListener('click', function (e) {
@@ -257,7 +229,7 @@
 
     <!-- Here is used to get from database and add in homepage -->
     <script>
-        fetch("/api/dashboard/summary")
+        fetch("/api/homepage/summary")
             .then(response => response.json())
             .then(data => {
                 document.getElementById("sensor-summary").textContent = data["sensors_count"];
@@ -289,6 +261,89 @@
             });
 
     </script>
+
+    <!-- Here is used to get data from database and then paint -->
+    <script>
+        fetch("/api/homepage/status_summary")
+            .then(response => response.json())
+            .then(result => {
+                // 创建图表
+                new Chart(document.getElementById('device-status-chart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: result.labels,
+                        datasets: [{
+                            data: result.data,
+                            backgroundColor: ['#4CAF50', '#FFC107', '#9E9E9E']
+                        }]
+                    }
+                });
+
+                // 隐藏加载提示
+                document.querySelector('#device-status-chart')
+                    .closest('.chart-container')
+                    .querySelector('.chart-loading')
+                    .style.display = "none";
+            })
+            .catch(error => {
+                console.error("设备状态数据加载失败:", error);
+                // 隐藏加载提示
+                document.querySelector('#device-status-chart')
+                    .closest('.chart-container')
+                    .querySelector('.chart-loading')
+                    .style.display = "none";
+                const ctx = document.getElementById('device-status-chart').getContext('2d');
+                ctx.font = "16px sans-serif";
+                ctx.fillText("设备状态数据加载失败", 50, 100);
+            });
+
+        fetch("/api/homepage/water_quality_trend")
+            .then(resp => resp.json())
+            .then(data => {
+                document.querySelector("#water-quality-chart").parentElement.querySelector(".chart-loading").style.display = "none";
+
+                new Chart(document.getElementById('water-quality-chart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'PH值',
+                                data: data.ph,
+                                borderColor: '#4CAF50',
+                                fill: false
+                            },
+                            {
+                                label: '溶解氧 (mg/L)',
+                                data: data.do,
+                                borderColor: '#2196F3',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                document.querySelector('#water-quality-chart')
+                    .closest('.chart-container')
+                    .querySelector('.chart-loading')
+                    .style.display = "none";
+            })
+            .catch(error => {
+                console.error("水质趋势图加载失败:", error);
+                document.querySelector('#water-quality-chart')
+                    .closest('.chart-container')
+                    .querySelector('.chart-loading')
+                    .style.display = "none";
+                const ctx = document.getElementById('water-quality-chart').getContext('2d');
+                ctx.font = "16px sans-serif";
+                ctx.fillText("水质数据加载失败", 50, 100);
+            });
+    </script>
+
 
 </body>
 

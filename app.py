@@ -82,7 +82,7 @@ def homepage():
 
 
 # In homepage it is used to show the information
-@app.route("/api/dashboard/summary")
+@app.route("/api/homepage/summary")
 def summary():
     try:
         # 总监测点数量
@@ -117,9 +117,31 @@ def summary():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+# In homepage it is used to get the data to show the chart
+@app.route("/api/homepage/status_summary")
+def device_status_summary():
+    normal_count = Sensor.query.filter_by(status="正常").count()
+    warning_count = Sensor.query.filter_by(status="故障").count()
+    maintain_count = Sensor.query.filter_by(status="维护中").count()
 
+    return jsonify({
+        "labels": ["正常", "故障", "维护中"],
+        "data": [normal_count, warning_count, maintain_count]
+    })
 
+# In homepage it is used to get the water quality data to show the chart
+@app.route("/api/homepage/water_quality_trend")
+def water_quality_trend():
+    # 模拟从数据库中获取过去7天数据
+    days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    ph_values = [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8]  # 从数据库取
+    do_values = [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1]  # 从数据库取
 
+    return jsonify({
+        "labels": days,
+        "ph": ph_values,
+        "do": do_values
+    })
 
 @app.route("/datacenter/", methods=["GET"])
 def datacenter():
