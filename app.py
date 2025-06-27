@@ -98,7 +98,7 @@ def summary():
         for config in warning_configs:
             latest_data = Sensor.query.filter_by(id=config.sensor_id).first()
             if latest_data:
-                # print(f"Checking sensor {config.sensor_id} with metric {config.metric}")
+                # print(f"Checking sensor {latest_data.name} {latest_data.capacity} with config {config.min_value} - {config.max_value}")
                 current_value = latest_data.capacity
                 if current_value < config.min_value or current_value > config.max_value:
                     warning_count += 1
@@ -143,6 +143,37 @@ def water_quality_trend():
         "ph": ph_values,
         "do": do_values
     })
+
+# In homepage it is used to get the data of warnings
+@app.route("/api/homepage/warnings")
+def get_active_warnings():
+    active_configs = WarningConfig.query.filter_by(enabled=1).all()
+    warning_list = []
+    for config in active_configs:
+        sensor = Sensor.query.filter_by(id=config.sensor_id).first()
+        if not sensor:
+            continue
+
+        # 获取传感器当前的监测值
+        current_value = sensor.capacity
+        # print(f"Checking sensor {sensor.name} with current value {current_value}")
+        if current_value is None:
+            continue
+
+        # print(f"Checking sensor {sensor.name} with current value {current_value} against config min {config.min_value} and max {config.max_value}")
+        if current_value < config.min_value or current_value > config.max_value:
+            warning_list.append({
+                "sensor_name": sensor.name,
+                "capacity": current_value,
+                "test": sensor.test,
+                "min_value": config.min_value,
+                "max_value": config.max_value,
+                "status": sensor.status
+            })
+
+    return jsonify({"warnings": warning_list})
+
+
 
 @app.route("/datacenter/", methods=["GET"])
 def datacenter():
@@ -711,6 +742,7 @@ def get_weather():
         cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
         openmeteo = openmeteo_requests.Client(session=retry_session)
+        
 
         # 设置请求参数 - 以北京为例
         url = "https://api.open-meteo.com/v1/forecast"
