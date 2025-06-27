@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,7 +82,7 @@
             list-style: none;
         }
 
-        .side-navigation > li > a {
+        .side-navigation>li>a {
             display: block;
             padding: 12px 20px;
             color: rgba(255, 255, 255, 0.8);
@@ -91,14 +92,14 @@
             border-left: 3px solid transparent;
         }
 
-        .side-navigation > li > a:hover,
-        .side-navigation > li > a.active {
+        .side-navigation>li>a:hover,
+        .side-navigation>li>a.active {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-left: 3px solid var(--primary-color);
         }
 
-        .side-navigation > li > a i {
+        .side-navigation>li>a i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
@@ -296,12 +297,12 @@
                 display: none;
             }
 
-            .sidebar-left .side-navigation > li > a {
+            .sidebar-left .side-navigation>li>a {
                 text-align: center;
                 padding: 15px 10px;
             }
 
-            .sidebar-left .side-navigation > li > a i {
+            .sidebar-left .side-navigation>li>a i {
                 margin-right: 0;
                 font-size: 20px;
             }
@@ -320,6 +321,42 @@
             .content-wrapper {
                 padding: 15px;
             }
+        }
+
+        .pagination {
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .table td,
+        .table th {
+            padding: 12px 8px !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .panel-body {
+            overflow-x: auto;
+        }
+
+        .page {
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .form-control {
+            height: 36px;
+            padding: 6px 12px;
         }
     </style>
 </head>
@@ -379,7 +416,7 @@
                     <li>
                         <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
                     </li>
-                    <li >
+                    <li>
                         <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
                     </li>
                 </ul>
@@ -425,21 +462,11 @@
             <div class="clearfix m-b-20">
                 <div class="pull-left">
                     <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWaterPointModal">
-                        <i class="fa fa-plus"></i> 添加监测点
+                        <i class="fa fa-plus"></i> 添加数据
                     </a>
                     <a href="#" class="btn btn-success">
                         <i class="fa fa-file-excel-o"></i> 导出数据
                     </a>
-                </div>
-                <div class="pull-right">
-                    <div class="input-group" style="width: 300px;">
-                        <input type="text" class="form-control" placeholder="搜索监测点...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -449,134 +476,98 @@
                     <table class="table m-t-20">
                         <thead>
                             <tr>
-                                <th>监测点ID</th>
-                                <th>监测点名称</th>
-                                <th>位置区域</th>
-                                <th>PH值</th>
-                                <th>溶解氧(mg/L)</th>
-                                <th>氨氮(mg/L)</th>
-                                <th>温度(℃)</th>
-                                <th>水质状态</th>
-                                <th>最后更新</th>
-                                <th>操作</th>
+                                <th title="监测点所在省份">省份</th>
+                                <th title="所属流域或区域，如黄河流域">流域</th>
+                                <th title="监测点名称">监测点名称</th>
+                                <th title="监测数据的记录时间">监测时间</th>
+                                <th title="水质等级评定，例如I类水、II类水等">水质等级</th>
+                                <th title="水体温度，单位为摄氏度">温度(℃)</th>
+                                <th title="水的酸碱度，6.5~8.5为正常">pH值</th>
+                                <th title="水中溶解氧含量，单位为mg/L">溶解氧(mg/L)</th>
+                                <th title="水体电导率，单位为μS/cm，用于反映离子浓度">电导率</th>
+                                <th title="水的浊度，单位为NTU">浊度(NTU)</th>
+                                <th title="高锰酸盐指数(CODMn)，反映有机污染物含量">CODMn(mg/L)</th>
+                                <th title="氨氮含量，用于评价生活污水或养殖排放">氨氮(mg/L)</th>
+                                <th title="总磷含量，反映营养盐污染状况">总磷(mg/L)</th>
+                                <th title="总氮含量，反映氮污染水平">总氮(mg/L)</th>
+                                <th title="水中叶绿素浓度，反映藻类繁殖程度">叶绿素(μg/L)</th>
+                                <th title="藻类密度，反映水体富营养化状况">藻类密度</th>
+                                <th title="监测点当前综合状态，例如正常/异常/预警">监测点状态</th>
+                                <th title="操作功能，如查看详情、编辑等">操作</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="waterPointTableBody">
                             <tr>
-                                <td>WP001</td>
-                                <td>A区主鱼塘</td>
-                                <td>A区</td>
-                                <td>7.2</td>
-                                <td>6.8</td>
-                                <td>0.12</td>
-                                <td>24.5</td>
-                                <td><span class="water-status status-good">正常</span></td>
-                                <td>2023-06-10 14:25</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
-                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>WP002</td>
-                                <td>B区东侧</td>
-                                <td>B区</td>
-                                <td>6.8</td>
-                                <td>5.2</td>
-                                <td>0.35</td>
-                                <td>26.8</td>
-                                <td><span class="water-status status-warning">预警</span></td>
-                                <td>2023-06-10 13:45</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
-                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>WP003</td>
-                                <td>C区深水区</td>
-                                <td>C区</td>
-                                <td>7.5</td>
-                                <td>7.1</td>
-                                <td>0.08</td>
-                                <td>23.9</td>
-                                <td><span class="water-status status-good">正常</span></td>
-                                <td>2023-06-10 12:30</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
-                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>WP004</td>
-                                <td>A区浅水区</td>
-                                <td>A区</td>
-                                <td>5.9</td>
-                                <td>4.1</td>
-                                <td>0.85</td>
-                                <td>28.3</td>
-                                <td><span class="water-status status-danger">异常</span></td>
-                                <td>2023-06-10 11:15</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
-                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>WP005</td>
-                                <td>B区西侧</td>
-                                <td>B区</td>
-                                <td>7.0</td>
-                                <td>6.0</td>
-                                <td>0.25</td>
-                                <td>25.2</td>
-                                <td><span class="water-status status-warning">预警</span></td>
-                                <td>2023-06-10 10:40</td>
-                                <td>
-                                    <a href="#" data-toggle="modal" data-target="#editModal" class="btn btn-sm btn-outline-primary">编辑</a>
-                                    <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                                </td>
                             </tr>
                         </tbody>
                     </table>
 
                     <!-- 分页 -->
-                    <div class="page clearfix">
-                        <div class="pull-left">共 24 条记录 第 1 / 3 页</div>
+                    <!-- <div class="page clearfix">
+                        <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
                         <div class="pull-right">
                             <nav aria-label="..." class="pull-left">
-                                <ul class="pagination">
-                                    <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+                                <ul class="pagination" id="pagination-bar">
                                 </ul>
                             </nav>
-                            <div class="pull-left p-r-20 p-l-20">
-                                <select class="form-control">
-                                    <option>10条每页</option>
-                                    <option>20条每页</option>
-                                    <option>50条每页</option>
+                            <div class="pull-left p-r-20  p-l-20">
+                                <select class="form-control" id="per-page-selector">
+                                    <option value="10">10条每页</option>
+                                    <option value="20">20条每页</option>
+                                    <option value="50">50条每页</option>
                                 </select>
-                            </div>
-                            <div class="pull-left">跳至
-                                <input type="text" value="1" class="form-control" style="width: 60px; display: inline-block;">
+                            </div>第
+                            <input type="text" id="goto-page-input" class="form-control" value="1">页
+                            <button id="goto-page-btn" class="btn btn-default">跳转</button>
+                        </div>
+                    </div> -->
+
+                    <!-- 分页 -->
+                    <div class="page clearfix mt-3"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
+
+                        <div class="pagination-wrapper" style="display: flex; align-items: center;">
+                            <!-- 分页条 -->
+                            <nav aria-label="分页导航">
+                                <ul class="pagination mb-0" id="pagination-bar">
+                                    <!-- JS 插入分页按钮 -->
+                                </ul>
+                            </nav>
+
+                            <!-- 每页条数选择 -->
+                            <select class="form-control form-control-sm ml-3" id="per-page-selector"
+                                style="width: auto;">
+                                <option value="10">10条/页</option>
+                                <option value="20">20条/页</option>
+                                <option value="50">50条/页</option>
+                            </select>
+
+                            <!-- 跳页 -->
+                            <div class="ml-3 d-flex align-items-center">
+                                跳至
+                                <input type="number" id="goto-page-input" class="form-control form-control-sm mx-2"
+                                    style="width: 60px;" min="1">
                                 页
+                                <button class="btn btn-sm btn-primary ml-2" id="goto-page-btn">跳转</button>
                             </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 添加监测点模态框 -->
-    <div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog" aria-labelledby="addWaterPointModalLabel">
+    <div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog"
+        aria-labelledby="addWaterPointModalLabel">
         <div class="modal-dialog" role="document" style="width: 500px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="pull-left" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="addWaterPointModalLabel">添加水质监测点</h4>
                 </div>
                 <div class="modal-body">
@@ -622,7 +613,8 @@
         <div class="modal-dialog" role="document" style="width: 500px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="editModalLabel">编辑监测点信息</h4>
                 </div>
                 <div class="modal-body">
@@ -675,8 +667,8 @@
 
 
         // 侧边栏菜单交互
-        $(document).ready(function() {
-            $('.menu-list > a').click(function(e) {
+        $(document).ready(function () {
+            $('.menu-list > a').click(function (e) {
                 e.preventDefault();
                 const childList = $(this).siblings('.child-list');
 
@@ -689,10 +681,152 @@
             });
 
             // 模拟数据加载
-            setTimeout(function() {
+            setTimeout(function () {
                 $('.stats-card').addClass('loaded');
             }, 500);
         });
     </script>
+
+    <!-- Used in pages -->
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const tbody = document.getElementById('waterPointTableBody');
+            loadWaterquality(1, 10);  // 默认加载第1页，每页10条
+            let current_perpage = 10; // 当前每页显示条数
+
+            function loadWaterquality(page = 1, perPage = 10) {
+                fetch(`/api/waterquality/list?page=${page}&per_page=${perPage}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.getElementById('waterPointTableBody');
+                        tbody.innerHTML = '';  // 清空旧数据
+
+                        data.records.forEach(record => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+          <td>${record.province}</td>
+          <td>${record.basin}</td>
+          <td>${record.site_name}</td>
+          <td>${record.monitor_time}</td>
+          <td>${record.water_quality_level}</td>
+          <td>${record.temperature}</td>
+          <td>${record.ph}</td>
+          <td>${record.dissolved_oxygen}</td>
+          <td>${record.conductivity}</td>
+          <td>${record.turbidity}</td>
+          <td>${record.cod_mn}</td>
+          <td>${record.ammonia_nitrogen}</td>
+          <td>${record.total_phosphorus}</td>
+          <td>${record.total_nitrogen}</td>
+          <td>${record.chlorophyll}</td>
+          <td>${record.algae_density}</td>
+          <td>${record.site_status}</td>
+          <td>`;
+                            tbody.appendChild(tr);
+                        });
+
+                        // 渲染总数
+                        document.getElementById('pagination-info').textContent =
+                            `共 ${data.total} 条记录 第 ${data.current_page} / ${data.pages} 页`;
+
+                        // 渲染分页按钮
+                        const paginationContainer = document.getElementById('pagination-bar');
+                        paginationContainer.innerHTML = '';
+
+                        // 上一页按钮
+                        const prevLi = document.createElement('li');
+                        prevLi.className = data.current_page === 1 ? 'disabled' : '';
+                        prevLi.innerHTML = `<a href="#" aria-label="Previous"><span aria-hidden="true">«</span></a>`;
+                        prevLi.addEventListener('click', function () {
+                            if (data.current_page > 1) loadWaterquality(data.current_page - 1, perPage);
+                        });
+                        paginationContainer.appendChild(prevLi);
+
+                        // 中间页码按钮
+                        const pageWindow = 2;
+                        const startPage = Math.max(1, data.current_page - pageWindow);
+                        const endPage = Math.min(data.pages, data.current_page + pageWindow);
+
+                        // 显示第一页
+                        if (startPage > 1) {
+                            const firstLi = document.createElement('li');
+                            firstLi.innerHTML = `<a href="#">1</a>`;
+                            firstLi.addEventListener('click', function () {
+                                loadWaterquality(1, perPage);
+                            });
+                            paginationContainer.appendChild(firstLi);
+
+                            if (startPage > 2) {
+                                const dotsLi = document.createElement('li');
+                                dotsLi.className = 'disabled';
+                                dotsLi.innerHTML = `<span>...</span>`;
+                                paginationContainer.appendChild(dotsLi);
+                            }
+                        }
+
+                        // 中间页码按钮
+                        for (let i = startPage; i <= endPage; i++) {
+                            const li = document.createElement('li');
+                            li.className = (i === data.current_page) ? 'active' : '';
+                            li.innerHTML = `<a href="#">${i}</a>`;
+                            li.addEventListener('click', function () {
+                                loadWaterquality(i, perPage);
+                            });
+                            paginationContainer.appendChild(li);
+                        }
+
+                        // 显示最后一页
+                        if (endPage < data.pages) {
+                            if (endPage < data.pages - 1) {
+                                const dotsLi = document.createElement('li');
+                                dotsLi.className = 'disabled';
+                                dotsLi.innerHTML = `<span>...</span>`;
+                                paginationContainer.appendChild(dotsLi);
+                            }
+
+                            const lastLi = document.createElement('li');
+                            lastLi.innerHTML = `<a href="#">${data.pages}</a>`;
+                            lastLi.addEventListener('click', function () {
+                                loadWaterquality(data.pages, perPage);
+                            });
+                            paginationContainer.appendChild(lastLi);
+                        }
+
+
+                        // 下一页按钮
+                        const nextLi = document.createElement('li');
+                        nextLi.className = (!data.pages || data.current_page >= data.pages) ? 'disabled' : '';
+                        nextLi.innerHTML = `<a href="#" aria-label="Next"><span aria-hidden="true">»</span></a>`;
+                        nextLi.addEventListener('click', function () {
+                            if (data.current_page < data.pages) loadWaterquality(data.current_page + 1, perPage);
+                        });
+                        paginationContainer.appendChild(nextLi);
+                        if(current_perpage == 10) {
+                            document.getElementById('per-page-selector').value = 10;
+                        } else if(current_perpage == 20) {
+                            document.getElementById('per-page-selector').value = 20;
+                        } else if(current_perpage == 50) {
+                            document.getElementById('per-page-selector').value = 50;
+                        }
+                        document.getElementById('goto-page-input').value = 1; // 更新跳转页输入框
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            document.getElementById('per-page-selector').addEventListener('change', function () {
+                const perPage = parseInt(this.value);
+                current_perpage = perPage;
+                loadWaterquality(1, current_perpage); // 重新加载第一页
+            });
+
+            document.getElementById('goto-page-btn').addEventListener('click', function () {
+                const page = parseInt(document.getElementById('goto-page-input').value);
+                console.log('跳转到第', page, '页');
+                loadWaterquality(page, current_perpage); // 加载指定页
+                document.getElementById('goto-page-input').value = 1; // 更新输入框
+            });
+        });
+    </script>
+
 </body>
+
 </html>
