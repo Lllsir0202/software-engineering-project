@@ -48,11 +48,9 @@ def generate_code():
     return str(random.randint(100000, 999999))
 
 # Used for test
-
 # @app.route("/test-db")
 # def test_db():
 #     from database.models import User
-
 #     user = User.query.first()
 #     return f"第一个用户：{user.username if user else '暂无用户'}"
 
@@ -81,6 +79,7 @@ def admin_page():
 @app.route("/homepage/")
 def homepage():
     return render_template("homepage.html")
+
 
 # In homepage it is used to show the information
 @app.route("/api/homepage/summary")
@@ -149,6 +148,7 @@ def datacenter():
     return render_template("datacenter.html")
 
 
+
 @app.route("/data-fish/", methods=["GET"])
 def data_fish():
     return render_template("datacenter_fish.html")
@@ -164,6 +164,7 @@ def dashboard():
     return render_template("dashboard.html")
 
 
+
 @app.route("/visualization")
 def visualization():
     return render_template("visualization.html")
@@ -174,6 +175,7 @@ def login_as_user(username, password_input):
     if user and user.check_password(password_input):
         return user
     return None
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -580,6 +582,7 @@ def sensor_list():
 def warning():
     return render_template("预警设置.html")
 
+
 # Just used to get a specific warning by id
 @app.route("/api/warning", methods=['POST'])
 def get_warning():
@@ -639,6 +642,7 @@ def create_warning():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+
 @app.route("/api/warnings", methods=['GET'])
 def get_warnings():
     try:
@@ -667,6 +671,7 @@ def get_warnings():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/warnings", methods=['DELETE'])
 def delete_warnings():
@@ -702,7 +707,7 @@ def plot():
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
-
+     
 @app.route("/api/weather", methods=["GET"])
 def get_weather():
     """获取当前天气信息"""

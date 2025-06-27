@@ -79,163 +79,175 @@
             text-decoration: none;
         }
 
+        /* 导出按钮样式 */
+        .export-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
 
+        .export-btn:hover {
+            opacity: 1;
+        }
 
+        /* 指标选择器美化 */
+        .metric-selector {
+            background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeff5;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-/* 指标选择器美化 */
-.metric-selector {
-    background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eaeff5;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+        .metric-selector:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.15);
+        }
 
-.metric-selector:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.15);
-}
+        .metric-selector label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1.05rem;
+        }
 
-.metric-selector label {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    display: block;
-    font-size: 1.05rem;
-}
+        .metric-selector .form-select {
+            background-color: white;
+            border: 1px solid #dce7f3;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            height: 46px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s ease;
+        }
 
-.metric-selector .form-select {
-    background-color: white;
-    border: 1px solid #dce7f3;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 0.95rem;
-    height: 46px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s ease;
-}
+        .metric-selector .form-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+            outline: none;
+        }
 
-.metric-selector .form-select:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
-    outline: none;
-}
+        .metric-selector .form-select option {
+            padding: 8px;
+        }
 
-.metric-selector .form-select option {
-    padding: 8px;
-}
+        .metric-selector .btn-update {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            height: 46px;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+        }
 
-.metric-selector .btn-update {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 0;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    height: 46px;
-    box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
-}
+        .metric-selector .btn-update:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(52, 152, 219, 0.4);
+        }
 
-.metric-selector .btn-update:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(52, 152, 219, 0.4);
-}
+        .metric-selector .btn-update:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
 
-.metric-selector .btn-update:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
-}
+        /* 日期选择器美化 */
+        .date-selector {
+            background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeff5;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-/* 日期选择器美化 */
-.date-selector {
-    background: linear-gradient(135deg, #f8f9fc 0%, #eef2f7 100%);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eaeff5;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+        .date-selector:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.15);
+        }
 
-.date-selector:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(46, 204, 113, 0.15);
-}
+        .date-selector label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1.05rem;
+        }
 
-.date-selector label {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 8px;
-    display: block;
-    font-size: 1.05rem;
-}
+        .date-selector .form-control {
+            background-color: white;
+            border: 1px solid #dce7f3;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            height: 46px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s ease;
+        }
 
-.date-selector .form-control {
-    background-color: white;
-    border: 1px solid #dce7f3;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 0.95rem;
-    height: 46px;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s ease;
-}
+        .date-selector .form-control:focus {
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
+            outline: none;
+        }
 
-.date-selector .form-control:focus {
-    border-color: #2ecc71;
-    box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
-    outline: none;
-}
+        .date-selector .btn-primary {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 0;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            height: 46px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
 
-.date-selector .btn-primary {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 0;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    height: 46px;
-    width: 100%;
-    box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
-}
+        .date-selector .btn-primary:hover {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(46, 204, 113, 0.4);
+        }
 
-.date-selector .btn-primary:hover {
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 10px rgba(46, 204, 113, 0.4);
-}
+        .date-selector .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
+        }
 
-.date-selector .btn-primary:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(46, 204, 113, 0.3);
-}
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .metric-selector, .date-selector {
+                padding: 15px;
+            }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
-    .metric-selector, .date-selector {
-        padding: 15px;
-    }
+            .metric-selector .col-md-8,
+            .metric-selector .col-md-4,
+            .date-selector .col-md-5,
+            .date-selector .col-md-2 {
+                margin-bottom: 10px;
+            }
 
-    .metric-selector .col-md-8,
-    .metric-selector .col-md-4,
-    .date-selector .col-md-5,
-    .date-selector .col-md-2 {
-        margin-bottom: 10px;
-    }
+            .date-selector .col-md-5 {
+                margin-bottom: 15px;
+            }
 
-    .date-selector .col-md-5 {
-        margin-bottom: 15px;
-    }
+            .date-selector .col-md-2 {
+                margin-top: 5px;
+            }
+        }
 
-    .date-selector .col-md-2 {
-        margin-top: 5px;
-    }
-}
     </style>
 </head>
 
@@ -321,6 +333,10 @@
 
                     <img id="chart-growth" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="growth"
                          data-src="/api/charts/growth">
+                    <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="growth">
+                        <i class="fa fa-download"></i> 导出
+                    </button>
+
                     <div class="chart-loading" id="growth-loading">
                         <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
                     </div>
@@ -340,13 +356,17 @@
                                 <input type="date" id="end-date" class="form-control">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button id="update-chart" class="btn btn-primary">更新</button>
+                                <button id="update-water" class="btn btn-primary">更新</button>
                             </div>
                         </div>
                     </div>
 
                     <img id="chart-water" class="chart-img img-fluid" alt="水质数据" data-chart-id="water_quality"
                          data-src="/api/charts/water_quality">
+                    <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="water_quality">
+                        <i class="fa fa-download"></i> 导出
+                    </button>
+
                     <div class="chart-loading">
                         <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
                     </div>
@@ -501,7 +521,7 @@
             const [to_year, to_month, to_day] = endDate.split('-');
 
             const img = document.getElementById('chart-water');
-            const loading = document.getElementById('water-loading');
+            const loading = document.querySelector('.chart-container:last-child .chart-loading');
 
             img.style.display = 'none';
             loading.style.display = 'block';
@@ -537,9 +557,47 @@
                 });
         }
 
+        // 导出图表函数
+        function exportChart(chartId) {
+            let img;
+            let fileName;
+
+            if (chartId === 'growth') {
+                img = document.getElementById('chart-growth');
+                const metric = document.getElementById('metric-select').value;
+                fileName = `鱼类数据_${metric}_${new Date().toISOString().slice(0,10)}.png`;
+            } else if (chartId === 'water_quality') {
+                img = document.getElementById('chart-water');
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                fileName = `水质数据_${startDate}_至_${endDate}.png`;
+            }
+
+            if (!img || !img.src) {
+                alert('图表尚未加载完成，无法导出');
+                return;
+            }
+
+            const a = document.createElement('a');
+            a.href = img.src;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
         // 绑定事件
         document.getElementById('update-growth').addEventListener('click', updateGrowthChart);
         document.getElementById('update-water').addEventListener('click', updateWaterChart);
+
+        // 绑定导出按钮事件
+        document.querySelectorAll('.export-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const chartId = this.getAttribute('data-chart-id');
+                exportChart(chartId);
+            });
+        });
+
 
         // 初始加载图表
         updateGrowthChart();
