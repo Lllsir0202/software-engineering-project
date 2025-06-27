@@ -90,6 +90,7 @@
                   <!-- 动态添加每行 -->
                 </tbody>
               </table>
+
           </div>
 
           <div class="page clearfix">
@@ -166,8 +167,8 @@
 
   <!-- Here to do other renderitions -->
   <script>
-    let originalWarningData = {};
 
+    let originalWarningData = {};
     window.addEventListener('DOMContentLoaded', function () {
       const tbody = document.getElementById('warning-table-body');
       loadWarnings(1, 10);  // 默认加载第1页，每页10条
@@ -380,7 +381,6 @@
           $('#editWarningModal').modal('show');
         });
       });
-
 
     })
   </script>
