@@ -957,5 +957,50 @@ def water_quality_chart():
         return jsonify({"status": "error", "message": f"内部服务器错误: {str(e)}"}), 500
 
 
+# Here is some routes used in datacenter
+@app.route("/api/waterquality/list")
+def get_waterqualities():
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 10))
+
+    query = WaterQuality.query.order_by(WaterQuality.monitor_time.desc())
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    records = pagination.items
+
+    def safe(value):
+        return value if value is not None else "--"
+
+    data = []
+    for r in records:
+        data.append({
+            "province": safe(r.province),
+            "basin": safe(r.basin),
+            "site_name": safe(r.site_name),
+            "monitor_time": r.monitor_time.strftime("%Y-%m-%d %H:%M") if r.monitor_time else "--",
+            "water_quality_level": safe(r.water_quality_level),
+            "temperature": safe(r.temperature),
+            "ph": safe(r.ph),
+            "dissolved_oxygen": safe(r.dissolved_oxygen),
+            "conductivity": safe(r.conductivity),
+            "turbidity": safe(r.turbidity),
+            "cod_mn": safe(r.cod_mn),
+            "ammonia_nitrogen": safe(r.ammonia_nitrogen),
+            "total_phosphorus": safe(r.total_phosphorus),
+            "total_nitrogen": safe(r.total_nitrogen),
+            "chlorophyll": safe(r.chlorophyll),
+            "algae_density": safe(r.algae_density),
+            "site_status": safe(r.site_status)
+        })
+    print(data)
+    return jsonify({
+        "status": "success",
+        "total": pagination.total,
+        "pages": pagination.pages,
+        "current_page": page,
+        "records": data
+    })
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
