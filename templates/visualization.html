@@ -228,7 +228,9 @@
 
         /* 响应式调整 */
         @media (max-width: 768px) {
-            .metric-selector, .date-selector {
+
+            .metric-selector,
+            .date-selector {
                 padding: 15px;
             }
 
@@ -247,363 +249,364 @@
                 margin-top: 5px;
             }
         }
-
     </style>
 </head>
 
 <body>
-<!-- 导航栏 -->
-<header data-block-type="headers" data-id="1">
-    <div class="container-fluid" style="background-color: #e3f2fd;">
-        <nav class="navbar navbar-expand-md no-gutters">
-            <div class="col-2 text-left">
-                <!-- <a href="/"> -->
-                <img height="40" alt="数据平台" class="custom-logo">
-                <!-- </a> -->
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/homepage">首页</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
-                    </ul>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <!-- <a href="/"> -->
+                    <img height="40" alt="数据平台" class="custom-logo">
+                    <!-- </a> -->
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/homepage">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
+                        </ul>
+                    </div>
 
-                <!-- 用户状态区域 -->
-                <div class="user-menu">
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
                         <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
                             {{ session.get('username', '游客') }}
                         </span>
-                    <a href="/logout" class="logout-link">
-                        <i class="fa fa-sign-out"></i>
-                        退出
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </div>
-</header>
-
-<!-- 主内容区 -->
-<main class="container-fluid py-5">
-    <section class="chart-section">
-        <div class="container">
-            <div class="row mb-4">
-                <div class="col text-center">
-                    <h1 class="display-4">数据可视化</h1>
-                    <p class="text-muted">实时数据更新：<span id="update-time"></span></p>
-                </div>
-            </div>
-
-            <!-- 图表行1 -->
-
-            <div class="row">
-                <!-- 鱼类数据图保持不变 -->
-                <div class="col-lg-6 chart-container">
-                    <!-- 指标选择器 -->
-                    <div class="metric-selector">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <label class="form-label"><i class="fas fa-chart-line me-2"></i>选择分析指标:</label>
-                                <select id="metric-select" class="form-select">
-                                    <option value="Height(cm)">高度 (cm)</option>
-                                    <option value="Weight(g)">重量 (g)</option>
-                                    <option value="Length1(cm)">长度1 (cm)</option>
-                                    <option value="Length2(cm)">长度2 (cm)</option>
-                                    <option value="Length3(cm)">长度3 (cm)</option>
-                                    <option value="Width(cm)">宽度 (cm)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button id="update-growth" class="btn btn-update w-100">
-                                    <i class="fas fa-sync me-2"></i>更新图表
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <img id="chart-growth" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="growth"
-                         data-src="/api/charts/growth">
-                    <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="growth">
-                        <i class="fa fa-download"></i> 导出
-                    </button>
-
-                    <div class="chart-loading" id="growth-loading">
-                        <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
                     </div>
                 </div>
-
-                <!-- 水质数据图添加日期选择器 -->
-                <div class="col-lg-6 chart-container">
-                    <!-- 日期选择器区域 -->
-                    <div class="date-selector mb-3">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <label>起始日期:</label>
-                                <input type="date" id="start-date" class="form-control">
-                            </div>
-                            <div class="col-md-5">
-                                <label>终止日期:</label>
-                                <input type="date" id="end-date" class="form-control">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button id="update-water" class="btn btn-primary">更新</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <img id="chart-water" class="chart-img img-fluid" alt="水质数据" data-chart-id="water_quality"
-                         data-src="/api/charts/water_quality">
-                    <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="water_quality">
-                        <i class="fa fa-download"></i> 导出
-                    </button>
-
-                    <div class="chart-loading">
-                        <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
-                    </div>
-                </div>
-            </div>
-
-            <!--            &lt;!&ndash; 图表行2 &ndash;&gt;-->
-            <!--            <div class="row mt-4">-->
-            <!--                <div class="col-12 chart-container">-->
-            <!--                    <img id="chart-realtime" class="chart-img img-fluid" alt="视频展示" data-chart-id="realtime"-->
-            <!--                         data-src="/api/charts/realtime">-->
-            <!--                    <div class="chart-loading">-->
-            <!--                        <i class="fa fa-spinner fa-spin"></i> 加载实时数据...-->
-            <!--                    </div>-->
-            <!--                </div>-->
-            <!--            </div>-->
+            </nav>
         </div>
-    </section>
-</main>
+    </header>
 
-<!-- 脚本 -->
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
-<script>
-    class ChartLoader {
-        constructor() {
-            this.charts = document.querySelectorAll('.chart-img');
-            this.init();
-        }
+    <!-- 主内容区 -->
+    <main class="container-fluid py-5">
+        <section class="chart-section">
+            <div class="container">
+                <div class="row mb-4">
+                    <div class="col text-center">
+                        <h1 class="display-4">数据可视化</h1>
+                        <p class="text-muted">实时数据更新：<span id="update-time"></span></p>
+                    </div>
+                </div>
 
-        init() {
-            this.updateTimestamp();
-            this.loadCharts();
-            this.setupAutoRefresh();
-        }
+                <!-- 图表行1 -->
 
-        async loadCharts() {
-            for (const chart of this.charts) {
-                const container = chart.parentElement;
-                const src = chart.dataset.src;
-                const chartId = chart.dataset.chartId;
+                <div class="row">
+                    <!-- 鱼类数据图保持不变 -->
+                    <div class="col-lg-6 chart-container">
+                        <!-- 指标选择器 -->
+                        <div class="metric-selector">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label class="form-label"><i class="fas fa-chart-line me-2"></i>选择分析指标:</label>
+                                    <select id="metric-select" class="form-select">
+                                        <option value="Height(cm)">高度 (cm)</option>
+                                        <option value="Weight(g)">重量 (g)</option>
+                                        <option value="Length1(cm)">长度1 (cm)</option>
+                                        <option value="Length2(cm)">长度2 (cm)</option>
+                                        <option value="Length3(cm)">长度3 (cm)</option>
+                                        <option value="Width(cm)">宽度 (cm)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button id="update-growth" class="btn btn-update w-100">
+                                        <i class="fas fa-sync me-2"></i>更新图表
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-                // 显示加载中
-                chart.classList.remove('loaded');
-                container.querySelector('.chart-loading').style.display = 'block';
+                        <img id="chart-growth" class="chart-img img-fluid" alt="鱼类数据" data-chart-id="growth"
+                            data-src="/api/charts/growth">
+                        <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="growth">
+                            <i class="fa fa-download"></i> 导出
+                        </button>
 
-                try {
-                    const response = await fetch(`${src}?t=${new Date().getTime()}`);
-                    const data = await response.json();
+                        <div class="chart-loading" id="growth-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
+                        </div>
+                    </div>
 
-                    if (data.status === "success") {
-                        chart.src = data.image;  // base64 图片
-                        chart.onload = () => {
-                            chart.classList.add('loaded');
-                            container.querySelector('.chart-loading').style.display = 'none';
-                        };
-                    } else {
-                        throw new Error(data.message || "图表加载失败");
-                    }
-                } catch (error) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'chart-error';
-                    errorDiv.innerHTML = `
+                    <!-- 水质数据图添加日期选择器 -->
+                    <div class="col-lg-6 chart-container">
+                        <!-- 日期选择器区域 -->
+                        <div class="date-selector mb-3">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label>起始日期:</label>
+                                    <input type="date" id="start-date" class="form-control">
+                                </div>
+                                <div class="col-md-5">
+                                    <label>终止日期:</label>
+                                    <input type="date" id="end-date" class="form-control">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button id="update-water" class="btn btn-primary">更新</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <img id="chart-water" class="chart-img img-fluid" alt="水质数据" data-chart-id="water_quality"
+                            data-src="/api/charts/water_quality">
+                        <button class="btn btn-sm btn-outline-secondary export-btn" data-chart-id="water_quality">
+                            <i class="fa fa-download"></i> 导出
+                        </button>
+
+                        <div class="chart-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
+                        </div>
+                    </div>
+                </div>
+
+                <!--            &lt;!&ndash; 图表行2 &ndash;&gt;-->
+                <!--            <div class="row mt-4">-->
+                <!--                <div class="col-12 chart-container">-->
+                <!--                    <img id="chart-realtime" class="chart-img img-fluid" alt="视频展示" data-chart-id="realtime"-->
+                <!--                         data-src="/api/charts/realtime">-->
+                <!--                    <div class="chart-loading">-->
+                <!--                        <i class="fa fa-spinner fa-spin"></i> 加载实时数据...-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+            </div>
+        </section>
+    </main>
+
+    <!-- 脚本 -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class ChartLoader {
+            constructor() {
+                this.charts = document.querySelectorAll('.chart-img');
+                this.init();
+            }
+
+            init() {
+                this.updateTimestamp();
+                this.loadCharts();
+                this.setupAutoRefresh();
+            }
+
+            async loadCharts() {
+                for (const chart of this.charts) {
+                    const container = chart.parentElement;
+                    const src = chart.dataset.src;
+                    const chartId = chart.dataset.chartId;
+
+                    // 显示加载中
+                    chart.classList.remove('loaded');
+                    container.querySelector('.chart-loading').style.display = 'block';
+
+                    try {
+                        const response = await fetch(`${src}?t=${new Date().getTime()}`);
+                        const data = await response.json();
+
+                        if (data.status === "success") {
+                            chart.src = data.image;  // base64 图片
+                            chart.onload = () => {
+                                chart.classList.add('loaded');
+                                container.querySelector('.chart-loading').style.display = 'none';
+                            };
+                        } else {
+                            throw new Error(data.message || "图表加载失败");
+                        }
+                    } catch (error) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'chart-error';
+                        errorDiv.innerHTML = `
                 <i class="fa fa-exclamation-triangle"></i>
                 <p>图表加载失败：${error.message}</p>
                 <button class="btn btn-sm btn-outline-secondary"
                         onclick="location.reload()">重试</button>
             `;
-                    container.querySelector('.chart-loading')?.remove();
-                    container.appendChild(errorDiv);
+                        container.querySelector('.chart-loading')?.remove();
+                        container.appendChild(errorDiv);
+                    }
                 }
             }
-        }
 
-        updateTimestamp() {
-            const options = {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            document.getElementById('update-time').textContent =
-                new Date().toLocaleString('zh-CN', options);
-        }
-
-        setupAutoRefresh() {
-            setInterval(() => {
-                this.updateTimestamp();
-                this.loadCharts();
-            }, 60000);  // 每分钟刷新
-        }
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        new ChartLoader();
-    });
-
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 设置默认日期
-        const today = new Date();
-        const defaultStart = '2020-05-08';
-        const defaultEnd = '2020-05-31';
-
-        document.getElementById('start-date').value = defaultStart;
-        document.getElementById('end-date').value = defaultEnd;
-
-        // 鱼类图表更新函数
-        function updateGrowthChart() {
-            const metric = document.getElementById('metric-select').value;
-            const img = document.getElementById('chart-growth');
-            const loading = document.getElementById('growth-loading');
-
-            img.style.display = 'none';
-            loading.style.display = 'block';
-
-            const baseUrl = '/api/charts/growth';
-            const params = new URLSearchParams({ metric });
-
-            fetch(`${baseUrl}?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        img.src = data.image;
-                        img.style.display = 'block';
-                    } else {
-                        throw new Error(data.message || '图表加载失败');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert(`更新鱼类图表失败: ${error.message}`);
-                })
-                .finally(() => {
-                    loading.style.display = 'none';
-                });
-        }
-
-        // 水质图表更新函数
-        function updateWaterChart() {
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-
-            if (!startDate || !endDate || startDate > endDate) {
-                alert("请选择有效的日期范围");
-                return;
+            updateTimestamp() {
+                const options = {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                };
+                document.getElementById('update-time').textContent =
+                    new Date().toLocaleString('zh-CN', options);
             }
 
-            const [from_year, from_month, from_day] = startDate.split('-');
-            const [to_year, to_month, to_day] = endDate.split('-');
-
-            const img = document.getElementById('chart-water');
-            const loading = document.querySelector('.chart-container:last-child .chart-loading');
-
-            img.style.display = 'none';
-            loading.style.display = 'block';
-
-            const baseUrl = '/api/charts/water_quality';
-            const params = new URLSearchParams({
-                from_year,
-                from_month,
-                from_day,
-                to_year,
-                to_month,
-                to_day,
-                position: '鼓楼外大街',
-                metrics: '水温'
-            });
-
-            fetch(`${baseUrl}?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        img.src = data.image;
-                        img.style.display = 'block';
-                    } else {
-                        throw new Error(data.message || '图表加载失败');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert(`更新水质图表失败: ${error.message}`);
-                })
-                .finally(() => {
-                    loading.style.display = 'none';
-                });
-        }
-
-        // 导出图表函数
-        function exportChart(chartId) {
-            let img;
-            let fileName;
-
-            if (chartId === 'growth') {
-                img = document.getElementById('chart-growth');
-                const metric = document.getElementById('metric-select').value;
-                fileName = `鱼类数据_${metric}_${new Date().toISOString().slice(0,10)}.png`;
-            } else if (chartId === 'water_quality') {
-                img = document.getElementById('chart-water');
-                const startDate = document.getElementById('start-date').value;
-                const endDate = document.getElementById('end-date').value;
-                fileName = `水质数据_${startDate}_至_${endDate}.png`;
+            setupAutoRefresh() {
+                setInterval(() => {
+                    this.updateTimestamp();
+                    this.loadCharts();
+                }, 60000);  // 每分钟刷新
             }
-
-            if (!img || !img.src) {
-                alert('图表尚未加载完成，无法导出');
-                return;
-            }
-
-            const a = document.createElement('a');
-            a.href = img.src;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
-
-        // 绑定事件
-        document.getElementById('update-growth').addEventListener('click', updateGrowthChart);
-        document.getElementById('update-water').addEventListener('click', updateWaterChart);
-
-        // 绑定导出按钮事件
-        document.querySelectorAll('.export-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const chartId = this.getAttribute('data-chart-id');
-                exportChart(chartId);
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChartLoader();
         });
 
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 设置默认日期
+            const today = new Date();
+            const defaultStart = '2020-05-08';
+            const defaultEnd = '2020-05-31';
 
-        // 初始加载图表
-        updateGrowthChart();
-        updateWaterChart();
-    });
-</script>
+            document.getElementById('start-date').value = defaultStart;
+            document.getElementById('end-date').value = defaultEnd;
+
+            // 鱼类图表更新函数
+            function updateGrowthChart() {
+                const metric = document.getElementById('metric-select').value;
+                const img = document.getElementById('chart-growth');
+                const loading = document.getElementById('growth-loading');
+
+                img.classList.remove('loaded');
+                loading.style.display = 'block';
+
+                const url = `/api/charts/growth?metric=${encodeURIComponent(metric)}&t=${Date.now()}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('图表数据:', data);
+                        if (data.status === 'success') {
+                            img.onload = () => {
+                                img.classList.add('loaded');
+                                loading.style.display = 'none';
+                                img.style.display = 'block';
+                            };
+                            img.src = data.image;
+                        } else {
+                            throw new Error(data.message || '图表加载失败');
+                        }
+                    })
+                    .catch(err => {
+                        loading.style.display = 'none';
+                        alert("图表更新失败：" + err.message);
+                    });
+            }
+
+
+            // 水质图表更新函数
+            function updateWaterChart() {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+
+                if (!startDate || !endDate || startDate > endDate) {
+                    alert("请选择有效的日期范围");
+                    return;
+                }
+
+                const [from_year, from_month, from_day] = startDate.split('-');
+                const [to_year, to_month, to_day] = endDate.split('-');
+
+                const img = document.getElementById('chart-water');
+                const loading = document.querySelector('.chart-container:last-child .chart-loading');
+
+                img.style.display = 'none';
+                loading.style.display = 'block';
+
+                const baseUrl = '/api/charts/water_quality';
+                const params = new URLSearchParams({
+                    from_year,
+                    from_month,
+                    from_day,
+                    to_year,
+                    to_month,
+                    to_day,
+                    position: '鼓楼外大街',
+                    metrics: '水温'
+                });
+
+                fetch(`${baseUrl}?${params}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            img.src = data.image;
+                            img.style.display = 'block';
+                        } else {
+                            throw new Error(data.message || '图表加载失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert(`更新水质图表失败: ${error.message}`);
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
+            }
+
+            // 导出图表函数
+            function exportChart(chartId) {
+                let img;
+                let fileName;
+
+                if (chartId === 'growth') {
+                    img = document.getElementById('chart-growth');
+                    const metric = document.getElementById('metric-select').value;
+                    fileName = `鱼类数据_${metric}_${new Date().toISOString().slice(0, 10)}.png`;
+                } else if (chartId === 'water_quality') {
+                    img = document.getElementById('chart-water');
+                    const startDate = document.getElementById('start-date').value;
+                    const endDate = document.getElementById('end-date').value;
+                    fileName = `水质数据_${startDate}_至_${endDate}.png`;
+                }
+
+                if (!img || !img.src) {
+                    alert('图表尚未加载完成，无法导出');
+                    return;
+                }
+
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            // 绑定事件
+            document.getElementById('update-growth').addEventListener('click', updateGrowthChart);
+            document.getElementById('update-water').addEventListener('click', updateWaterChart);
+
+            // 绑定导出按钮事件
+            document.querySelectorAll('.export-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const chartId = this.getAttribute('data-chart-id');
+                    exportChart(chartId);
+                });
+            });
+
+
+            // 初始加载图表
+            updateGrowthChart();
+            updateWaterChart();
+        });
+    </script>
 </body>
 
 </html>

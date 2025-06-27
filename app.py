@@ -726,8 +726,26 @@ def plot():
     try:
         metric = request.args.get('metric', 'Height(cm)').strip()
 
+        # 例如前端传了 metric=Height(cm)，后端映射成 height
+        column_mapping = {
+            "Height(cm)": "height",
+            "Weight(g)": "weight",
+            "Length1(cm)": "length1",
+            "Length2(cm)": "length2",
+            "Length3(cm)": "length3",
+            "Width(cm)": "width"
+        }
+        actual_column = column_mapping[metric]
+
+        # 使用 ORM 查询 species + 你选的指标字段
+        results = db.session.query(FishProfile.species, getattr(FishProfile, actual_column)).all()
+
+        # 转成 DataFrame，列名为 ["species", metric]
+        df = pd.DataFrame(results, columns=["Species", metric])
+
+        # print(df)
         # 将metric传递给绘图函数
-        img_io = plot_average_by_species(metric)
+        img_io = plot_average_by_species(df, metric)
         img_io.seek(0)
         img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
