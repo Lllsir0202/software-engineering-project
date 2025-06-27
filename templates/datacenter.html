@@ -503,7 +503,7 @@
                     </table>
 
                     <!-- 分页 -->
-                    <div class="page clearfix">
+                    <!-- <div class="page clearfix">
                         <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
                         <div class="pull-right">
                             <nav aria-label="..." class="pull-left">
@@ -520,7 +520,41 @@
                             <input type="text" id="goto-page-input" class="form-control" value="1">页
                             <button id="goto-page-btn" class="btn btn-default">跳转</button>
                         </div>
+                    </div> -->
+
+                    <!-- 分页 -->
+                    <div class="page clearfix mt-3"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
+
+                        <div class="pagination-wrapper" style="display: flex; align-items: center;">
+                            <!-- 分页条 -->
+                            <nav aria-label="分页导航">
+                                <ul class="pagination mb-0" id="pagination-bar">
+                                    <!-- JS 插入分页按钮 -->
+                                </ul>
+                            </nav>
+
+                            <!-- 每页条数选择 -->
+                            <select class="form-control form-control-sm ml-3" id="per-page-selector"
+                                style="width: auto;">
+                                <option value="10">10条/页</option>
+                                <option value="20">20条/页</option>
+                                <option value="50">50条/页</option>
+                            </select>
+
+                            <!-- 跳页 -->
+                            <div class="ml-3 d-flex align-items-center">
+                                跳至
+                                <input type="number" id="goto-page-input" class="form-control form-control-sm mx-2"
+                                    style="width: 60px;" min="1">
+                                页
+                                <button class="btn btn-sm btn-primary ml-2" id="goto-page-btn">跳转</button>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -767,6 +801,14 @@
                             if (data.current_page < data.pages) loadWaterquality(data.current_page + 1, perPage);
                         });
                         paginationContainer.appendChild(nextLi);
+                        if(current_perpage == 10) {
+                            document.getElementById('per-page-selector').value = 10;
+                        } else if(current_perpage == 20) {
+                            document.getElementById('per-page-selector').value = 20;
+                        } else if(current_perpage == 50) {
+                            document.getElementById('per-page-selector').value = 50;
+                        }
+                        document.getElementById('goto-page-input').value = 1; // 更新跳转页输入框
                     })
                     .catch(error => console.error('Error:', error));
             }
@@ -780,6 +822,7 @@
                 const page = parseInt(document.getElementById('goto-page-input').value);
                 console.log('跳转到第', page, '页');
                 loadWaterquality(page, current_perpage); // 加载指定页
+                document.getElementById('goto-page-input').value = 1; // 更新输入框
             });
         });
     </script>
