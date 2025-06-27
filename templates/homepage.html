@@ -30,16 +30,24 @@
             transform: translateY(-5px);
         }
 
-        .quick-action-btn {
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
+.quick-action-container {
+    padding: 10px; /* 为阴影留出空间 */
+}
 
-        .quick-action-btn:hover {
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
+.quick-action-btn {
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8f9fa; /* 使用 Bootstrap 的 bg-light 颜色 */
+    display: block; /* 使a标签填充容器 */
+    position: relative; /* 为z-index做准备 */
+}
+
+.quick-action-btn:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* 确保悬停时阴影显示在最上层 */
+}
 
         .system-status-icon {
             font-size: 2.5rem;
@@ -68,7 +76,7 @@
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="collapse navbar-collapse" id="navbarNav2">
                     <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
                         <ul class="navbar-nav">
                             <li class="nav-item active">
@@ -137,26 +145,26 @@
 
             <!-- 快速操作 -->
             <div class="row mb-4">
-                <div class="col-md-3 col-6 mb-3">
-                    <a href="/dashboard" class="quick-action-btn bg-light">
+                <div class="col-md-3 col-6 mb-3 quick-action-container">
+                    <a href="/dashboard" class="quick-action-btn">
                         <i class="fa fa-video-camera fa-2x text-primary"></i>
                         <div class="mt-2">实时监控</div>
                     </a>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
-                    <a href="/visualization" class="quick-action-btn bg-light">
+                <div class="col-md-3 col-6 mb-3 quick-action-container">
+                    <a href="/visualization" class="quick-action-btn">
                         <i class="fa fa-line-chart fa-2x text-success"></i>
                         <div class="mt-2">生产报表</div>
                     </a>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
-                    <a href="#" class="quick-action-btn bg-light">
+                <div class="col-md-3 col-6 mb-3 quick-action-container">
+                    <a href="#" class="quick-action-btn">
                         <i class="fa fa-bell fa-2x text-danger"></i>
                         <div class="mt-2">警报中心</div>
                     </a>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
-                    <a href="#" class="quick-action-btn bg-light">
+                <div class="col-md-3 col-6 mb-3 quick-action-container">
+                    <a href="#" class="quick-action-btn">
                         <i class="fa fa-cog fa-2x text-warning"></i>
                         <div class="mt-2">系统设置</div>
                     </a>
