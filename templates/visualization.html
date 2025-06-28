@@ -162,7 +162,8 @@
             font-size: 0.95rem;
         }
 
-        .form-select, .form-control {
+        .form-select,
+        .form-control {
             background-color: white;
             border: 1px solid #dce7f3;
             border-radius: 8px;
@@ -173,7 +174,8 @@
             transition: border-color 0.3s ease;
         }
 
-        .form-select:focus, .form-control:focus {
+        .form-select:focus,
+        .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
             outline: none;
@@ -213,7 +215,8 @@
         }
 
         /* 加载和错误状态 */
-        .chart-loading, .chart-error {
+        .chart-loading,
+        .chart-error {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -320,499 +323,500 @@
 </head>
 
 <body>
-<!-- 导航栏 -->
-<header data-block-type="headers" data-id="1">
-    <div class="container-fluid" style="background-color: #e3f2fd;">
-        <nav class="navbar navbar-expand-md no-gutters">
-            <div class="col-2 text-left">
-                <img height="40" alt="数据平台" class="custom-logo">
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/homepage">首页</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
-                    </ul>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <img height="40" alt="数据平台" class="custom-logo">
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav2">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/homepage">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
+                            <li class="nav-item active"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
+                        </ul>
+                    </div>
 
-                <!-- 用户状态区域 -->
-                <div class="user-menu">
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
                         <span class="user-name" title="当前用户：admin">
                             <i class="fa fa-user-circle-o"></i>
                             admin
                         </span>
-                    <a href="/logout" class="logout-link">
-                        <i class="fa fa-sign-out"></i>
-                        退出
-                    </a>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> 数据可视化平台</h1>
+            <p class="update-time">数据更新时间: <span id="update-time">2023年12月15日 14:30:25</span></p>
+        </div>
+
+        <div class="row">
+            <!-- 鱼类数据图卡片 -->
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-fish"></i> 鱼类生长数据</h3>
+                        <button class="btn btn-light export-btn" data-chart-id="growth">
+                            <i class="fa fa-download"></i> 导出
+                        </button>
+                    </div>
+
+                    <div class="chart-container">
+                        <img id="chart-growth" class="chart-img" alt="鱼类数据" data-chart-id="growth"
+                            data-src="/api/charts/growth">
+
+                        <div class="chart-loading" id="growth-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
+                        </div>
+                    </div>
+
+                    <div class="control-panel">
+                        <div class="control-row">
+                            <label class="control-label"><i class="fas fa-chart-bar"></i> 选择分析指标</label>
+                            <select id="metric-select" class="form-select">
+                                <option value="Height(cm)">高度 (cm)</option>
+                                <option value="Weight(g)">重量 (g)</option>
+                                <option value="Length1(cm)">长度1 (cm)</option>
+                                <option value="Length2(cm)">长度2 (cm)</option>
+                                <option value="Length3(cm)">长度3 (cm)</option>
+                                <option value="Width(cm)">宽度 (cm)</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <button id="update-growth" class="btn-action">
+                                    更新图表
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </div>
-</header>
 
-<!-- 主内容区 -->
-<main class="container">
-    <div class="page-header">
-        <h1><i class="fas fa-chart-line"></i> 数据可视化平台</h1>
-        <p class="update-time">数据更新时间: <span id="update-time">2023年12月15日 14:30:25</span></p>
-    </div>
-
-    <div class="row">
-        <!-- 鱼类数据图卡片 -->
-        <div class="col-lg-6">
-            <div class="chart-card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fish"></i> 鱼类生长数据</h3>
-                    <button class="btn btn-light export-btn" data-chart-id="growth">
-                        <i class="fa fa-download"></i> 导出
-                    </button>
-                </div>
-
-                <div class="chart-container">
-                    <img id="chart-growth" class="chart-img" alt="鱼类数据" data-chart-id="growth"
-                         data-src="/api/charts/growth">
-
-                    <div class="chart-loading" id="growth-loading">
-                        <i class="fa fa-spinner fa-spin"></i> 加载鱼类数据图...
+            <!-- 水质数据图卡片 -->
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-tint"></i> 水质监测数据</h3>
+                        <button class="btn btn-light export-btn" data-chart-id="water_quality">
+                            <i class="fa fa-download"></i> 导出
+                        </button>
                     </div>
-                </div>
 
-                <div class="control-panel">
-                    <div class="control-row">
-                        <label class="control-label"><i class="fas fa-chart-bar"></i> 选择分析指标</label>
-                        <select id="metric-select" class="form-select">
-                            <option value="Height(cm)">高度 (cm)</option>
-                            <option value="Weight(g)">重量 (g)</option>
-                            <option value="Length1(cm)">长度1 (cm)</option>
-                            <option value="Length2(cm)">长度2 (cm)</option>
-                            <option value="Length3(cm)">长度3 (cm)</option>
-                            <option value="Width(cm)">宽度 (cm)</option>
-                        </select>
+                    <div class="chart-container">
+                        <img id="chart-water" class="chart-img" alt="水质数据" data-chart-id="water_quality"
+                            data-src="/api/charts/water_quality">
+
+                        <div class="chart-loading">
+                            <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <button id="update-growth" class="btn-action">
-                                更新图表
-                            </button>
+
+                    <div class="control-panel">
+                        <div class="row control-row">
+                            <div class="col-md-6">
+                                <label class="control-label"><i class="fas fa-map-marker-alt"></i> 监测位置</label>
+                                <select id="position-select" class="form-select">
+                                    <option value="沿河城">沿河城监测点</option>
+                                    <option value="古北口">古北口监测点</option>
+                                    <option value="三岔口">三岔口监测点</option>
+                                    <option value="果河桥">果河桥监测点</option>
+                                    <option value="岗南水库">岗南水库监测点</option>
+                                    <option value="八号桥">八号桥监测点</option>
+                                    <option value="河津大桥">河津大桥监测点</option>
+                                    <option value="万家寨水库">万家寨水库监测点</option>
+                                    <option value="画匠营子">画匠营子监测点</option>
+                                    <option value="海勃湾">海勃湾监测点</option>
+                                    <option value="黑山头">黑山头监测点</option>
+                                    <option value="大伙房水库">大伙房水库监测点</option>
+                                    <option value="江桥">江桥监测点</option>
+                                    <option value="辽河公园">辽河公园监测点</option>
+                                    <option value="汤河水库">汤河水库监测点</option>
+                                    <option value="盘锦兴安(兴安)">盘锦兴安(兴安)监测点</option>
+                                    <option value="珠尔山">珠尔山监测点</option>
+                                    <option value="松花江村">松花江村监测点</option>
+                                    <option value="白沙滩">白沙滩监测点</option>
+                                    <option value="圈河">圈河监测点</option>
+                                    <option value="肇源">肇源监测点</option>
+                                    <option value="乌苏镇">乌苏镇监测点</option>
+                                    <option value="同江">同江监测点</option>
+                                    <option value="黑河下(黑河)">黑河下(黑河)监测点</option>
+                                    <option value="急水港桥">急水港桥监测点</option>
+                                    <option value="林山">林山监测点</option>
+                                    <option value="沙渚">沙渚监测点</option>
+                                    <option value="小红圈">小红圈监测点</option>
+                                    <option value="李集桥">李集桥监测点</option>
+                                    <option value="艾山西大桥">艾山西大桥监测点</option>
+                                    <option value="兰山嘴(老)">兰山嘴(老)监测点</option>
+                                    <option value="西山">西山监测点</option>
+                                    <option value="大兴桥">大兴桥监测点</option>
+                                    <option value="淮河大桥">淮河大桥监测点</option>
+                                    <option value="三江营">三江营监测点</option>
+                                    <option value="大屈">大屈监测点</option>
+                                    <option value="街口(鸠坑口)">街口(鸠坑口)监测点</option>
+                                    <option value="斜路港">斜路港监测点</option>
+                                    <option value="王江泾">王江泾监测点</option>
+                                    <option value="新港口(新塘港)">新港口(新塘港)监测点</option>
+                                    <option value="湖滨(老)">湖滨(老)监测点</option>
+                                    <option value="裕溪口(老)">裕溪口(老)监测点</option>
+                                    <option value="蚌埠闸上(蚌埠闸)">蚌埠闸上(蚌埠闸)监测点</option>
+                                    <option value="石头埠(老)">石头埠(老)监测点</option>
+                                    <option value="小王桥">小王桥监测点</option>
+                                    <option value="皖河口">皖河口监测点</option>
+                                    <option value="小柳巷">小柳巷监测点</option>
+                                    <option value="张大桥">张大桥监测点</option>
+                                    <option value="王家坝">王家坝监测点</option>
+                                    <option value="界首七渡口(七渡口)">界首七渡口(七渡口)监测点</option>
+                                    <option value="许庄(徐庄)">许庄(徐庄)监测点</option>
+                                    <option value="杨庄">杨庄监测点</option>
+                                    <option value="泗县公路桥">泗县公路桥监测点</option>
+                                    <option value="颜集">颜集监测点</option>
+                                    <option value="白岩潭">白岩潭监测点</option>
+                                    <option value="滁槎">滁槎监测点</option>
+                                    <option value="姚港(河西水厂)">姚港(河西水厂)监测点</option>
+                                    <option value="蛤蟆石">蛤蟆石监测点</option>
+                                    <option value="泺口">泺口监测点</option>
+                                    <option value="台儿庄大桥">台儿庄大桥监测点</option>
+                                    <option value="清泉寺">清泉寺监测点</option>
+                                    <option value="重坊桥">重坊桥监测点</option>
+                                    <option value="捷庄(涝沟桥)">捷庄(涝沟桥)监测点</option>
+                                    <option value="秤勾湾(秤钩湾)">秤勾湾(秤钩湾)监测点</option>
+                                    <option value="陶岔">陶岔监测点</option>
+                                    <option value="黄口">黄口监测点</option>
+                                    <option value="蒋集">蒋集监测点</option>
+                                    <option value="淮滨水文站(淮滨)">淮滨水文站(淮滨)监测点</option>
+                                    <option value="沈丘闸">沈丘闸监测点</option>
+                                    <option value="鹿邑付桥(鹿邑付桥闸)">鹿邑付桥(鹿邑付桥闸)监测点</option>
+                                    <option value="新蔡班台(班台)">新蔡班台(班台)监测点</option>
+                                    <option value="小浪底水库(小浪底)">小浪底水库(小浪底)监测点</option>
+                                    <option value="宗关">宗关监测点</option>
+                                    <option value="坝上中(胡家岭)">坝上中(胡家岭)监测点</option>
+                                    <option value="南津关">南津关监测点</option>
+                                    <option value="新港">新港监测点</option>
+                                    <option value="岳阳楼">岳阳楼监测点</option>
+                                    <option value="城陵矶">城陵矶监测点</option>
+                                    <option value="七星岗">七星岗监测点</option>
+                                    <option value="横栏">横栏监测点</option>
+                                    <option value="老口">老口监测点</option>
+                                    <option value="阳朔">阳朔监测点</option>
+                                    <option value="界首">界首监测点</option>
+                                    <option value="石嘴">石嘴监测点</option>
+                                    <option value="平而关">平而关监测点</option>
+                                    <option value="朱沱">朱沱监测点</option>
+                                    <option value="龙洞">龙洞监测点</option>
+                                    <option value="沱江大桥(沱江二桥)">沱江大桥(沱江二桥)监测点</option>
+                                    <option value="清风峡">清风峡监测点</option>
+                                    <option value="岷江大桥">岷江大桥监测点</option>
+                                    <option value="凉姜沟">凉姜沟监测点</option>
+                                    <option value="西苑隧道">西苑隧道监测点</option>
+                                    <option value="观音山">观音山监测点</option>
+                                    <option value="河口县医院(河口)">河口县医院(河口)监测点</option>
+                                    <option value="橄榄坝">橄榄坝监测点</option>
+                                    <option value="潼关吊桥">潼关吊桥监测点</option>
+                                    <option value="新城桥">新城桥监测点</option>
+                                    <option value="中卫下河沿(新墩)">中卫下河沿(新墩)监测点</option>
+                                    <option value="八间房漫水桥">八间房漫水桥监测点</option>
+                                    <option value="息县大埠口">息县大埠口监测点</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="control-label"><i class="fas fa-vial"></i> 水质指标</label>
+                                <select id="water-metric-select" class="form-select">
+                                    <option value="水温">水温</option>
+                                    <option value="pH">pH</option>
+                                    <option value="溶解氧">溶解氧</option>
+                                    <option value="电导率">电导率</option>
+                                    <option value="浊度">浊度</option>
+                                    <option value="高锰酸盐指数">高锰酸盐指数</option>
+                                    <option value="氨氮">氨氮</option>
+                                    <option value="总磷">总磷</option>
+                                    <option value="总氮">总氮</option>
+                                    <option value="叶绿素">叶绿素</option>
+                                    <option value="藻密度">水藻密度</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row control-row">
+                            <div class="col-md-5">
+                                <label class="control-label"><i class="far fa-calendar-alt"></i> 起始日期</label>
+                                <input type="date" id="start-date" class="form-control" value="2023-11-01">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="control-label"><i class="far fa-calendar-alt"></i> 终止日期</label>
+                                <input type="date" id="end-date" class="form-control" value="2023-12-15">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button id="update-water" class="btn-action btn-update"><i class="fas fa-sync me-2"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </main>
 
-        <!-- 水质数据图卡片 -->
-        <div class="col-lg-6">
-            <div class="chart-card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-tint"></i> 水质监测数据</h3>
-                    <button class="btn btn-light export-btn" data-chart-id="water_quality">
-                        <i class="fa fa-download"></i> 导出
-                    </button>
-                </div>
+    <!-- 脚本 -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class ChartLoader {
+            constructor() {
+                this.charts = document.querySelectorAll('.chart-img');
+                this.init();
+            }
 
-                <div class="chart-container">
-                    <img id="chart-water" class="chart-img" alt="水质数据" data-chart-id="water_quality"
-                         data-src="/api/charts/water_quality">
+            init() {
+                this.updateTimestamp();
+                this.loadCharts();
+                this.setupAutoRefresh();
+            }
 
-                    <div class="chart-loading">
-                        <i class="fa fa-spinner fa-spin"></i> 加载水质趋势图...
-                    </div>
-                </div>
+            async loadCharts() {
+                for (const chart of this.charts) {
+                    const container = chart.parentElement;
+                    const src = chart.dataset.src;
+                    const chartId = chart.dataset.chartId;
 
-                <div class="control-panel">
-                    <div class="row control-row">
-                        <div class="col-md-6">
-                            <label class="control-label"><i class="fas fa-map-marker-alt"></i> 监测位置</label>
-                            <select id="position-select" class="form-select">
-                                <option value="沿河城">沿河城监测点</option>
-                                <option value="古北口">古北口监测点</option>
-                                <option value="三岔口">三岔口监测点</option>
-                                <option value="果河桥">果河桥监测点</option>
-                                <option value="岗南水库">岗南水库监测点</option>
-                                <option value="八号桥">八号桥监测点</option>
-                                <option value="河津大桥">河津大桥监测点</option>
-                                <option value="万家寨水库">万家寨水库监测点</option>
-                                <option value="画匠营子">画匠营子监测点</option>
-                                <option value="海勃湾">海勃湾监测点</option>
-                                <option value="黑山头">黑山头监测点</option>
-                                <option value="大伙房水库">大伙房水库监测点</option>
-                                <option value="江桥">江桥监测点</option>
-                                <option value="辽河公园">辽河公园监测点</option>
-                                <option value="汤河水库">汤河水库监测点</option>
-                                <option value="盘锦兴安(兴安)">盘锦兴安(兴安)监测点</option>
-                                <option value="珠尔山">珠尔山监测点</option>
-                                <option value="松花江村">松花江村监测点</option>
-                                <option value="白沙滩">白沙滩监测点</option>
-                                <option value="圈河">圈河监测点</option>
-                                <option value="肇源">肇源监测点</option>
-                                <option value="乌苏镇">乌苏镇监测点</option>
-                                <option value="同江">同江监测点</option>
-                                <option value="黑河下(黑河)">黑河下(黑河)监测点</option>
-                                <option value="急水港桥">急水港桥监测点</option>
-                                <option value="林山">林山监测点</option>
-                                <option value="沙渚">沙渚监测点</option>
-                                <option value="小红圈">小红圈监测点</option>
-                                <option value="李集桥">李集桥监测点</option>
-                                <option value="艾山西大桥">艾山西大桥监测点</option>
-                                <option value="兰山嘴(老)">兰山嘴(老)监测点</option>
-                                <option value="西山">西山监测点</option>
-                                <option value="大兴桥">大兴桥监测点</option>
-                                <option value="淮河大桥">淮河大桥监测点</option>
-                                <option value="三江营">三江营监测点</option>
-                                <option value="大屈">大屈监测点</option>
-                                <option value="街口(鸠坑口)">街口(鸠坑口)监测点</option>
-                                <option value="斜路港">斜路港监测点</option>
-                                <option value="王江泾">王江泾监测点</option>
-                                <option value="新港口(新塘港)">新港口(新塘港)监测点</option>
-                                <option value="湖滨(老)">湖滨(老)监测点</option>
-                                <option value="裕溪口(老)">裕溪口(老)监测点</option>
-                                <option value="蚌埠闸上(蚌埠闸)">蚌埠闸上(蚌埠闸)监测点</option>
-                                <option value="石头埠(老)">石头埠(老)监测点</option>
-                                <option value="小王桥">小王桥监测点</option>
-                                <option value="皖河口">皖河口监测点</option>
-                                <option value="小柳巷">小柳巷监测点</option>
-                                <option value="张大桥">张大桥监测点</option>
-                                <option value="王家坝">王家坝监测点</option>
-                                <option value="界首七渡口(七渡口)">界首七渡口(七渡口)监测点</option>
-                                <option value="许庄(徐庄)">许庄(徐庄)监测点</option>
-                                <option value="杨庄">杨庄监测点</option>
-                                <option value="泗县公路桥">泗县公路桥监测点</option>
-                                <option value="颜集">颜集监测点</option>
-                                <option value="白岩潭">白岩潭监测点</option>
-                                <option value="滁槎">滁槎监测点</option>
-                                <option value="姚港(河西水厂)">姚港(河西水厂)监测点</option>
-                                <option value="蛤蟆石">蛤蟆石监测点</option>
-                                <option value="泺口">泺口监测点</option>
-                                <option value="台儿庄大桥">台儿庄大桥监测点</option>
-                                <option value="清泉寺">清泉寺监测点</option>
-                                <option value="重坊桥">重坊桥监测点</option>
-                                <option value="捷庄(涝沟桥)">捷庄(涝沟桥)监测点</option>
-                                <option value="秤勾湾(秤钩湾)">秤勾湾(秤钩湾)监测点</option>
-                                <option value="陶岔">陶岔监测点</option>
-                                <option value="黄口">黄口监测点</option>
-                                <option value="蒋集">蒋集监测点</option>
-                                <option value="淮滨水文站(淮滨)">淮滨水文站(淮滨)监测点</option>
-                                <option value="沈丘闸">沈丘闸监测点</option>
-                                <option value="鹿邑付桥(鹿邑付桥闸)">鹿邑付桥(鹿邑付桥闸)监测点</option>
-                                <option value="新蔡班台(班台)">新蔡班台(班台)监测点</option>
-                                <option value="小浪底水库(小浪底)">小浪底水库(小浪底)监测点</option>
-                                <option value="宗关">宗关监测点</option>
-                                <option value="坝上中(胡家岭)">坝上中(胡家岭)监测点</option>
-                                <option value="南津关">南津关监测点</option>
-                                <option value="新港">新港监测点</option>
-                                <option value="岳阳楼">岳阳楼监测点</option>
-                                <option value="城陵矶">城陵矶监测点</option>
-                                <option value="七星岗">七星岗监测点</option>
-                                <option value="横栏">横栏监测点</option>
-                                <option value="老口">老口监测点</option>
-                                <option value="阳朔">阳朔监测点</option>
-                                <option value="界首">界首监测点</option>
-                                <option value="石嘴">石嘴监测点</option>
-                                <option value="平而关">平而关监测点</option>
-                                <option value="朱沱">朱沱监测点</option>
-                                <option value="龙洞">龙洞监测点</option>
-                                <option value="沱江大桥(沱江二桥)">沱江大桥(沱江二桥)监测点</option>
-                                <option value="清风峡">清风峡监测点</option>
-                                <option value="岷江大桥">岷江大桥监测点</option>
-                                <option value="凉姜沟">凉姜沟监测点</option>
-                                <option value="西苑隧道">西苑隧道监测点</option>
-                                <option value="观音山">观音山监测点</option>
-                                <option value="河口县医院(河口)">河口县医院(河口)监测点</option>
-                                <option value="橄榄坝">橄榄坝监测点</option>
-                                <option value="潼关吊桥">潼关吊桥监测点</option>
-                                <option value="新城桥">新城桥监测点</option>
-                                <option value="中卫下河沿(新墩)">中卫下河沿(新墩)监测点</option>
-                                <option value="八间房漫水桥">八间房漫水桥监测点</option>
-                                <option value="息县大埠口">息县大埠口监测点</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="control-label"><i class="fas fa-vial"></i> 水质指标</label>
-                            <select id="water-metric-select" class="form-select">
-                                <option value="水温">水温</option>
-                                <option value="pH">pH</option>
-                                <option value="溶解氧">溶解氧</option>
-                                <option value="电导率">电导率</option>
-                                <option value="浊度">浊度</option>
-                                <option value="高锰酸盐指数">高锰酸盐指数</option>
-                                <option value="氨氮">氨氮</option>
-                                <option value="总磷">总磷</option>
-                                <option value="总氮">总氮</option>
-                                <option value="叶绿素">叶绿素</option>
-                                <option value="藻密度">水藻密度</option>
-                            </select>
-                        </div>
-                    </div>
+                    // 显示加载中
+                    chart.classList.remove('loaded');
+                    container.querySelector('.chart-loading').style.display = 'block';
 
-                    <div class="row control-row">
-                        <div class="col-md-5">
-                            <label class="control-label"><i class="far fa-calendar-alt"></i> 起始日期</label>
-                            <input type="date" id="start-date" class="form-control" value="2023-11-01">
-                        </div>
-                        <div class="col-md-5">
-                            <label class="control-label"><i class="far fa-calendar-alt"></i> 终止日期</label>
-                            <input type="date" id="end-date" class="form-control" value="2023-12-15">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button id="update-water" class="btn-action btn-update"><i class="fas fa-sync me-2"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
+                    try {
+                        // 模拟加载延迟
+                        await new Promise(resolve => setTimeout(resolve, 800));
 
-<!-- 脚本 -->
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
-<script>
-    class ChartLoader {
-        constructor() {
-            this.charts = document.querySelectorAll('.chart-img');
-            this.init();
-        }
+                        // 使用占位图代替真实API调用
+                        const placeholder = chartId === 'growth' ?
+                            'https://via.placeholder.com/600x400/3498db/ffffff?text=鱼类生长数据图表' :
+                            'https://via.placeholder.com/600x400/2ecc71/ffffff?text=水质监测数据图表';
 
-        init() {
-            this.updateTimestamp();
-            this.loadCharts();
-            this.setupAutoRefresh();
-        }
-
-        async loadCharts() {
-            for (const chart of this.charts) {
-                const container = chart.parentElement;
-                const src = chart.dataset.src;
-                const chartId = chart.dataset.chartId;
-
-                // 显示加载中
-                chart.classList.remove('loaded');
-                container.querySelector('.chart-loading').style.display = 'block';
-
-                try {
-                    // 模拟加载延迟
-                    await new Promise(resolve => setTimeout(resolve, 800));
-
-                    // 使用占位图代替真实API调用
-                    const placeholder = chartId === 'growth' ?
-                        'https://via.placeholder.com/600x400/3498db/ffffff?text=鱼类生长数据图表' :
-                        'https://via.placeholder.com/600x400/2ecc71/ffffff?text=水质监测数据图表';
-
-                    chart.src = placeholder;
-                    chart.onload = () => {
-                        chart.classList.add('loaded');
-                        container.querySelector('.chart-loading').style.display = 'none';
-                    };
-
-                    // 真实环境中使用以下代码
-                    const response = await fetch(`${src}?t=${new Date().getTime()}`);
-                    const data = await response.json();
-
-                    if (data.status === "success") {
-                        chart.src = data.image;
+                        chart.src = placeholder;
                         chart.onload = () => {
                             chart.classList.add('loaded');
                             container.querySelector('.chart-loading').style.display = 'none';
                         };
-                    } else {
-                        throw new Error(data.message || "图表加载失败");
-                    }
 
-                } catch (error) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'chart-error';
-                    errorDiv.innerHTML = `
+                        // 真实环境中使用以下代码
+                        const response = await fetch(`${src}?t=${new Date().getTime()}`);
+                        const data = await response.json();
+
+                        if (data.status === "success") {
+                            chart.src = data.image;
+                            chart.onload = () => {
+                                chart.classList.add('loaded');
+                                container.querySelector('.chart-loading').style.display = 'none';
+                            };
+                        } else {
+                            throw new Error(data.message || "图表加载失败");
+                        }
+
+                    } catch (error) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'chart-error';
+                        errorDiv.innerHTML = `
                         <i class="fa fa-exclamation-triangle"></i>
                         <p>图表加载失败：${error.message}</p>
                         <button class="btn btn-sm btn-outline-secondary mt-2"
                                 onclick="location.reload()">重试</button>
                     `;
-                    container.querySelector('.chart-loading')?.remove();
-                    container.appendChild(errorDiv);
+                        container.querySelector('.chart-loading')?.remove();
+                        container.appendChild(errorDiv);
+                    }
                 }
+            }
+
+            updateTimestamp() {
+                const now = new Date();
+                const formattedDate = now.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('update-time').textContent = formattedDate;
+            }
+
+            setupAutoRefresh() {
+                setInterval(() => {
+                    if (document.getElementById('auto-refresh').checked) {
+                        this.updateTimestamp();
+                        this.loadCharts();
+                    }
+                }, 30000);  // 每30秒刷新
             }
         }
 
-        updateTimestamp() {
-            const now = new Date();
-            const formattedDate = now.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('update-time').textContent = formattedDate;
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // 初始化图表加载器
+            const chartLoader = new ChartLoader();
 
-        setupAutoRefresh() {
-            setInterval(() => {
-                if (document.getElementById('auto-refresh').checked) {
-                    this.updateTimestamp();
-                    this.loadCharts();
-                }
-            }, 30000);  // 每30秒刷新
-        }
-    }
+            // 设置默认日期
+            document.getElementById('start-date').value = '2020-05-01';
+            document.getElementById('end-date').value = '2020-12-31';
+            document.getElementById('position-select').value = '七星岗'
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // 初始化图表加载器
-        const chartLoader = new ChartLoader();
-
-        // 设置默认日期
-        document.getElementById('start-date').value = '2020-05-01';
-        document.getElementById('end-date').value = '2020-12-31';
-        document.getElementById('position-select').value = '七星岗'
-
-        // 鱼类图表更新函数
-        function updateGrowthChart() {
-            const metric = document.getElementById('metric-select').value;
-            const img = document.getElementById('chart-growth');
-            const loading = document.getElementById('growth-loading');
-
-            img.style.display = 'none';
-            loading.style.display = 'block';
-
-
-            // 真实环境中使用以下代码
-
-            const baseUrl = '/api/charts/growth';
-            const params = new URLSearchParams({metric});
-
-            fetch(`${baseUrl}?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        img.src = data.image;
-                        img.style.display = 'block';
-                    } else {
-                        throw new Error(data.message || '图表加载失败');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert(`更新鱼类图表失败: ${error.message}`);
-                })
-                .finally(() => {
-                    loading.style.display = 'none';
-                });
-
-        }
-
-        // 水质图表更新函数
-        function updateWaterChart() {
-            const position = document.getElementById('position-select').value;
-            const metric = document.getElementById('water-metric-select').value;
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-
-            if (!startDate || !endDate || startDate > endDate) {
-                alert("请选择有效的日期范围");
-                return;
-            }
-
-            const img = document.getElementById('chart-water');
-            const loading = document.querySelector('.chart-container:last-child .chart-loading');
-
-            img.style.display = 'none';
-            // loading.style.display = 'block';
-
-
-            // 真实环境中使用以下代码
-
-            const [from_year, from_month, from_day] = startDate.split('-');
-            const [to_year, to_month, to_day] = endDate.split('-');
-
-            const baseUrl = '/api/charts/water_quality';
-            const params = new URLSearchParams({
-                from_year,
-                from_month,
-                from_day,
-                to_year,
-                to_month,
-                to_day,
-                position,
-                metric
-            });
-
-            fetch(`${baseUrl}?${params}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        img.src = data.image;
-                        img.style.display = 'block';
-                    } else {
-                        throw new Error(data.message || '图表加载失败');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert(`更新水质图表失败: ${error.message}`);
-                })
-                .finally(() => {
-                    // loading.style.display = 'none';
-                });
-
-        }
-
-        // 导出图表函数
-        function exportChart(chartId) {
-            let img;
-            let fileName;
-
-            if (chartId === 'growth') {
-                img = document.getElementById('chart-growth');
+            // 鱼类图表更新函数
+            function updateGrowthChart() {
                 const metric = document.getElementById('metric-select').value;
-                fileName = `鱼类数据_${metric}_${new Date().toISOString().slice(0, 10)}.png`;
-            } else if (chartId === 'water_quality') {
-                img = document.getElementById('chart-water');
+                const img = document.getElementById('chart-growth');
+                const loading = document.getElementById('growth-loading');
+
+                img.style.display = 'none';
+                loading.style.display = 'block';
+
+
+                // 真实环境中使用以下代码
+
+                const baseUrl = '/api/charts/growth';
+                const params = new URLSearchParams({ metric });
+
+                fetch(`${baseUrl}?${params}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            img.src = data.image;
+                            img.style.display = 'block';
+                        } else {
+                            throw new Error(data.message || '图表加载失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert(`更新鱼类图表失败: ${error.message}`);
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
+
+            }
+
+            // 水质图表更新函数
+            function updateWaterChart() {
                 const position = document.getElementById('position-select').value;
                 const metric = document.getElementById('water-metric-select').value;
                 const startDate = document.getElementById('start-date').value;
                 const endDate = document.getElementById('end-date').value;
-                fileName = `水质数据_${position}_${metric}_${startDate}_至_${endDate}.png`;
+
+                if (!startDate || !endDate || startDate > endDate) {
+                    alert("请选择有效的日期范围");
+                    return;
+                }
+
+                const img = document.getElementById('chart-water');
+                const loading = document.querySelector('.chart-container:last-child .chart-loading');
+
+                img.style.display = 'none';
+                // loading.style.display = 'block';
+
+
+                // 真实环境中使用以下代码
+
+                const [from_year, from_month, from_day] = startDate.split('-');
+                const [to_year, to_month, to_day] = endDate.split('-');
+
+                const baseUrl = '/api/charts/water_quality';
+                const params = new URLSearchParams({
+                    from_year,
+                    from_month,
+                    from_day,
+                    to_year,
+                    to_month,
+                    to_day,
+                    position,
+                    metric
+                });
+
+                fetch(`${baseUrl}?${params}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            img.src = data.image;
+                            img.style.display = 'block';
+                        } else {
+                            throw new Error(data.message || '图表加载失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert(`更新水质图表失败: ${error.message}`);
+                    })
+                    .finally(() => {
+                        // loading.style.display = 'none';
+                    });
+
             }
 
-            if (!img || !img.src) {
-                alert('图表尚未加载完成，无法导出');
-                return;
+            // 导出图表函数
+            function exportChart(chartId) {
+                let img;
+                let fileName;
+
+                if (chartId === 'growth') {
+                    img = document.getElementById('chart-growth');
+                    const metric = document.getElementById('metric-select').value;
+                    fileName = `鱼类数据_${metric}_${new Date().toISOString().slice(0, 10)}.png`;
+                } else if (chartId === 'water_quality') {
+                    img = document.getElementById('chart-water');
+                    const position = document.getElementById('position-select').value;
+                    const metric = document.getElementById('water-metric-select').value;
+                    const startDate = document.getElementById('start-date').value;
+                    const endDate = document.getElementById('end-date').value;
+                    fileName = `水质数据_${position}_${metric}_${startDate}_至_${endDate}.png`;
+                }
+
+                if (!img || !img.src) {
+                    alert('图表尚未加载完成，无法导出');
+                    return;
+                }
+
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             }
 
-            const a = document.createElement('a');
-            a.href = img.src;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
+            // 绑定事件
+            document.getElementById('update-growth').addEventListener('click', updateGrowthChart);
+            document.getElementById('update-water').addEventListener('click', updateWaterChart);
 
-        // 绑定事件
-        document.getElementById('update-growth').addEventListener('click', updateGrowthChart);
-        document.getElementById('update-water').addEventListener('click', updateWaterChart);
-
-        // 绑定导出按钮事件
-        document.querySelectorAll('.export-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const chartId = this.getAttribute('data-chart-id');
-                exportChart(chartId);
+            // 绑定导出按钮事件
+            document.querySelectorAll('.export-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const chartId = this.getAttribute('data-chart-id');
+                    exportChart(chartId);
+                });
             });
-        });
 
-        // 初始加载图表
-        updateGrowthChart();
-        updateWaterChart();
-    });
-</script>
+            // 初始加载图表
+            updateGrowthChart();
+            updateWaterChart();
+        });
+    </script>
 </body>
+
 </html>
