@@ -7,3 +7,6 @@ data
 # In reality, we should not send these file to the repository
 # config.py
 # .env
+
+# Ignore model
+*.pth
