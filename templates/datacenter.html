@@ -431,24 +431,19 @@
                     <ul class="row">
                         <li class="col-md-3 col-sm-6">
                             <span>监测点名称：</span>
-                            <input type="text" class="form-control" placeholder="输入监测点名称">
+                            <input type="text" class="form-control" placeholder="输入监测点名称" id="site_name">
                         </li>
                         <li class="col-md-3 col-sm-6">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option>全部区域</option>
-                                <option>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
+                            <span>流域区域：</span>
+                            <input type="text" class="form-control" placeholder="输入位置区域" id="position">
                         </li>
                         <li class="col-md-3 col-sm-6">
                             <span>水质状态：</span>
-                            <select class="form-control">
+                            <select class="form-control" id="status">
                                 <option>全部状态</option>
                                 <option>正常</option>
-                                <option>预警</option>
-                                <option>异常</option>
+                                <option>维护</option>
+                                <option>停站</option>
                             </select>
                         </li>
                         <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
@@ -696,6 +691,9 @@
                 status: "全部状态"
             };
             const tbody = document.getElementById('waterPointTableBody');
+            document.querySelector('input[placeholder="输入监测点名称"]').value = '';
+            document.getElementById('position').value = '全部区域';
+            document.getElementById('status').value = '全部状态';
             loadWaterquality(1, 10);  // 默认加载第1页，每页10条
             let current_perpage = 10; // 当前每页显示条数
 
@@ -832,16 +830,13 @@
             });
 
             document.getElementById('exportBtn').addEventListener('click', function () {
-                const siteName = document.querySelector('input[placeholder="输入监测点名称"]').value;
-                const basin = document.querySelector('select.form-control').value;
-                const status = document.querySelectorAll('select.form-control')[1].value;
-
                 const query = new URLSearchParams({
-                    site_name: siteName,
-                    basin: basin,
-                    status: status
+                    site_name: activeFilter.site_name,
+                    basin: activeFilter.basin,
+                    status: activeFilter.status
                 });
-
+                // print(query)
+                // print(activeFilter)
                 const url = `/api/waterquality/export?${query.toString()}`;
                 window.location.href = url;  // 跳转下载文件
             });
@@ -849,12 +844,12 @@
             // 搜索按钮事件
             document.getElementById('search-btn').addEventListener('click', function () {
                 activeFilter.site_name = document.querySelector('input[placeholder="输入监测点名称"]').value;
-                activeFilter.basin = document.querySelectorAll('select.form-control')[0].value;
-                activeFilter.status = document.querySelectorAll('select.form-control')[1].value;
+                activeFilter.basin = document.getElementById('position').value;
+                activeFilter.status = document.getElementById('status').value;
 
                 document.querySelector('input[placeholder="输入监测点名称"]').value = '';
-                document.querySelectorAll('select.form-control')[0].value = '全部区域';
-                document.querySelectorAll('select.form-control')[1].value = '全部状态';
+                document.getElementById('position').value = '全部区域';
+                document.getElementById('status').value = '全部状态';
 
                 loadWaterquality(1, current_perpage);  // 重新加载第一页数据
             });

@@ -973,7 +973,7 @@ def get_waterquality():
     if site_name:
         query = query.filter(WaterQuality.site_name.like(f"%{site_name}%"))
     if basin and basin != "全部区域":
-        query = query.filter(WaterQuality.basin == basin)
+        query = query.filter(WaterQuality.basin.like(f"%{basin}%"))
     if status and status != "全部状态":
         query = query.filter(WaterQuality.site_status == status)
 
@@ -1026,8 +1026,8 @@ def export_waterquality():
     query = WaterQuality.query
     if site_name:
         query = query.filter(WaterQuality.site_name.like(f"%{site_name}%"))
-    if basin and basin != "全部区域":
-        query = query.filter(WaterQuality.basin == basin)
+    if basin and basin != "全部区域":    
+        query = query.filter(WaterQuality.basin.like(f"%{basin}%"))
     if status and status != "全部状态":
         query = query.filter(WaterQuality.site_status == status)
 
