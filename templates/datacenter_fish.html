@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>数据中心 - 鱼类管理</title>
+    <title>数据中心 - 水质管理</title>
     <link rel="icon" href="/static/icon.png" type="image/x-icon">
     <!-- 样式表 -->
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
@@ -81,7 +82,7 @@
             list-style: none;
         }
 
-        .side-navigation > li > a {
+        .side-navigation>li>a {
             display: block;
             padding: 12px 20px;
             color: rgba(255, 255, 255, 0.8);
@@ -91,14 +92,14 @@
             border-left: 3px solid transparent;
         }
 
-        .side-navigation > li > a:hover,
-        .side-navigation > li > a.active {
+        .side-navigation>li>a:hover,
+        .side-navigation>li>a.active {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-left: 3px solid var(--primary-color);
         }
 
-        .side-navigation > li > a i {
+        .side-navigation>li>a i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
@@ -296,12 +297,12 @@
                 display: none;
             }
 
-            .sidebar-left .side-navigation > li > a {
+            .sidebar-left .side-navigation>li>a {
                 text-align: center;
                 padding: 15px 10px;
             }
 
-            .sidebar-left .side-navigation > li > a i {
+            .sidebar-left .side-navigation>li>a i {
                 margin-right: 0;
                 font-size: 20px;
             }
@@ -321,377 +322,554 @@
                 padding: 15px;
             }
         }
+
+        .pagination {
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pagination li {
+            margin: 0 5px;
+        }
+
+        .table td,
+        .table th {
+            padding: 12px 8px !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .panel-body {
+            overflow-x: auto;
+        }
+
+        .page {
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .form-control {
+            height: 36px;
+            padding: 6px 12px;
+        }
     </style>
 </head>
 
 <body>
-<!-- 导航栏 -->
-<header data-block-type="headers" data-id="1">
-    <div class="container-fluid" style="background-color: #e3f2fd;">
-        <nav class="navbar navbar-expand-md no-gutters">
-            <div class="col-2 text-left">
-                <!-- <a href="/"> -->
-                <img height="40" alt="数据平台" class="custom-logo">
-                <!-- </a> -->
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/homepage">首页</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
-                    </ul>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <!-- <a href="/"> -->
+                    <img height="40" alt="数据平台" class="custom-logo">
+                    <!-- </a> -->
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/homepage">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
+                        </ul>
+                    </div>
 
-                <!-- 用户状态区域 -->
-                <div class="user-menu">
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
                         <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
                             {{ session.get('username', '游客') }}
                         </span>
-                    <a href="/logout" class="logout-link">
-                        <i class="fa fa-sign-out"></i>
-                        退出
-                    </a>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </div>
-</header>
-
-<!-- 主内容区域 -->
-<div class="main-container">
-    <!-- 侧边栏 -->
-    <div class="sidebar-left">
-        <div class="sidebar-left-info">
-            <div class="search-field"></div>
-            <ul class="nav nav-pills nav-stacked side-navigation">
-                <li>
-                    <a href="/datacenter"><i class="fa fa-tint"></i> <span>水质管理</span></a>
-                </li>
-                <li>
-                    <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
-                </li>
-                <li>
-                    <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
-                </li>
-            </ul>
+            </nav>
         </div>
-    </div>
+    </header>
 
     <!-- 主内容区域 -->
-    <div class="content-wrapper">
-        <!-- 搜索区域 -->
-        <div class="search-box">
-            <div class="form1">
-                <ul class="row">
-                    <li class="col-md-3 col-sm-6">
-                        <span>监测点名称：</span>
-                        <input type="text" class="form-control" placeholder="输入监测点名称">
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar-left">
+            <div class="sidebar-left-info">
+                <div class="search-field"></div>
+                <ul class="nav nav-pills nav-stacked side-navigation">
+                    <li>
+                        <a href="/datacenter"><i class="fa fa-tint"></i> <span>水质管理</span></a>
                     </li>
-                    <li class="col-md-3 col-sm-6">
-                        <span>位置区域：</span>
-                        <select class="form-control">
-                            <option>全部区域</option>
-                            <option>A区鱼塘</option>
-                            <option>B区鱼塘</option>
-                            <option>C区鱼塘</option>
-                        </select>
+                    <li>
+                        <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
                     </li>
-                    <li class="col-md-3 col-sm-6">
-                        <span>水质状态：</span>
-                        <select class="form-control">
-                            <option>全部状态</option>
-                            <option>正常</option>
-                            <option>预警</option>
-                            <option>异常</option>
-                        </select>
-                    </li>
-                    <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
-                        <a href="#" class="btn btn-primary w-100">搜索</a>
+                    <li>
+                        <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <!-- 操作按钮 -->
-        <div class="clearfix m-b-20">
-            <div class="pull-left">
-                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWaterPointModal">
-                    <i class="fa fa-plus"></i> 添加监测点
-                </a>
-                <a href="#" class="btn btn-success">
-                    <i class="fa fa-file-excel-o"></i> 导出数据
-                </a>
+        <!-- 主内容区域 -->
+        <div class="content-wrapper">
+            <!-- 搜索区域 -->
+            <div class="search-box">
+                <div class="form1">
+                    <ul class="row">
+                        <li class="col-md-3 col-sm-6">
+                            <span>鱼类品种：</span>
+                            <input type="text" class="form-control" placeholder="输入品种" id="search_species"
+                                list="species-list">
+                            <datalist id="species-list"></datalist>
+                        </li>
+                        <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
+                            <a href="#" class="btn btn-primary w-100" id="search-btn">搜索</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
 
-        <!-- 数据表格 -->
-        <div class="panel">
-            <div class="panel-body">
-                <table class="table m-t-20">
-                    <thead>
-                    <tr>
-                        <th>监测点ID</th>
-                        <th>监测点名称</th>
-                        <th>位置区域</th>
-                        <th>PH值</th>
-                        <th>溶解氧(mg/L)</th>
-                        <th>氨氮(mg/L)</th>
-                        <th>温度(℃)</th>
-                        <th>水质状态</th>
-                        <th>最后更新</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>WP001</td>
-                        <td>A区主鱼塘</td>
-                        <td>A区</td>
-                        <td>7.2</td>
-                        <td>6.8</td>
-                        <td>0.12</td>
-                        <td>24.5</td>
-                        <td><span class="water-status status-good">正常</span></td>
-                        <td>2023-06-10 14:25</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP002</td>
-                        <td>B区东侧</td>
-                        <td>B区</td>
-                        <td>6.8</td>
-                        <td>5.2</td>
-                        <td>0.35</td>
-                        <td>26.8</td>
-                        <td><span class="water-status status-warning">预警</span></td>
-                        <td>2023-06-10 13:45</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP003</td>
-                        <td>C区深水区</td>
-                        <td>C区</td>
-                        <td>7.5</td>
-                        <td>7.1</td>
-                        <td>0.08</td>
-                        <td>23.9</td>
-                        <td><span class="water-status status-good">正常</span></td>
-                        <td>2023-06-10 12:30</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP004</td>
-                        <td>A区浅水区</td>
-                        <td>A区</td>
-                        <td>5.9</td>
-                        <td>4.1</td>
-                        <td>0.85</td>
-                        <td>28.3</td>
-                        <td><span class="water-status status-danger">异常</span></td>
-                        <td>2023-06-10 11:15</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP005</td>
-                        <td>B区西侧</td>
-                        <td>B区</td>
-                        <td>7.0</td>
-                        <td>6.0</td>
-                        <td>0.25</td>
-                        <td>25.2</td>
-                        <td><span class="water-status status-warning">预警</span></td>
-                        <td>2023-06-10 10:40</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <!-- 操作按钮 -->
+            <div class="clearfix m-b-20">
+                <div class="pull-left">
+                    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addFishPointModal">
+                        <i class="fa fa-plus"></i> 添加数据
+                    </a>
+                    <a href="#" class="btn btn-success" id="exportBtn">
+                        <i class="fa fa-file-excel-o"></i> 导出数据
+                    </a>
+                </div>
+            </div>
 
-                <!-- 分页 -->
-                <div class="page clearfix">
-                    <div class="pull-left">共 24 条记录 第 1 / 3 页</div>
-                    <div class="pull-right">
-                        <nav aria-label="..." class="pull-left">
-                            <ul class="pagination">
-                                <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">下一页</a></li>
-                            </ul>
-                        </nav>
-                        <div class="pull-left p-r-20 p-l-20">
-                            <select class="form-control">
-                                <option>10条每页</option>
-                                <option>20条每页</option>
-                                <option>50条每页</option>
-                            </select>
+            <!-- 数据表格 -->
+            <div class="panel">
+                <div class="panel-body">
+                    <table class="table m-t-20">
+                        <thead>
+                            <tr>
+                                <th title="鱼类品种名称">品种</th>
+                                <th title="鱼的体重，单位为克（g）">体重(g)</th>
+                                <th title="第一种长度测量，单位为厘米（cm）">长度1(cm)</th>
+                                <th title="第二种长度测量，单位为厘米（cm）">长度2(cm)</th>
+                                <th title="第三种长度测量，单位为厘米（cm）">长度3(cm)</th>
+                                <th title="鱼体的高度，单位为厘米（cm）">高度(cm)</th>
+                                <th title="鱼体的宽度，单位为厘米（cm）">宽度(cm)</th>
+                                <th title="操作功能，如查看详情、编辑等">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fishPointTableBody">
+                            <tr>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 分页 -->
+                    <!-- <div class="page clearfix">
+                        <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
+                        <div class="pull-right">
+                            <nav aria-label="..." class="pull-left">
+                                <ul class="pagination" id="pagination-bar">
+                                </ul>
+                            </nav>
+                            <div class="pull-left p-r-20  p-l-20">
+                                <select class="form-control" id="per-page-selector">
+                                    <option value="10">10条每页</option>
+                                    <option value="20">20条每页</option>
+                                    <option value="50">50条每页</option>
+                                </select>
+                            </div>第
+                            <input type="text" id="goto-page-input" class="form-control" value="1">页
+                            <button id="goto-page-btn" class="btn btn-default">跳转</button>
                         </div>
-                        <div class="pull-left">跳至
-                            <input type="text" value="1" class="form-control"
-                                   style="width: 60px; display: inline-block;">
-                            页
+                    </div> -->
+
+                    <!-- 分页 -->
+                    <div class="page clearfix mt-3"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="pull-left" id="pagination-info">共 0 条记录 第 1 / 1 页</div>
+
+                        <div class="pagination-wrapper" style="display: flex; align-items: center;">
+                            <!-- 分页条 -->
+                            <nav aria-label="分页导航">
+                                <ul class="pagination mb-0" id="pagination-bar">
+                                    <!-- JS 插入分页按钮 -->
+                                </ul>
+                            </nav>
+
+                            <!-- 每页条数选择 -->
+                            <select class="form-control form-control-sm ml-3" id="per-page-selector"
+                                style="width: auto;">
+                                <option value="10">10条/页</option>
+                                <option value="20">20条/页</option>
+                                <option value="50">50条/页</option>
+                            </select>
+
+                            <!-- 跳页 -->
+                            <div class="ml-3 d-flex align-items-center">
+                                跳至
+                                <input type="number" id="goto-page-input" class="form-control form-control-sm mx-2"
+                                    style="width: 60px;" min="1">
+                                页
+                                <button class="btn btn-sm btn-primary ml-2" id="goto-page-btn">跳转</button>
+                            </div>
                         </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 添加监测点模态框 -->
-<div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog" aria-labelledby="addWaterPointModalLabel">
-    <div class="modal-dialog" role="document" style="width: 500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="addWaterPointModalLabel">添加水质监测点</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form1 form2">
-                    <ul class="row">
-                        <li class="col-xs-12">
-                            <span>监测点名称：</span>
-                            <input type="text" class="form-control" placeholder="输入监测点名称">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>详细位置：</span>
-                            <input type="text" class="form-control" placeholder="输入详细位置">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>监测设备ID：</span>
-                            <input type="text" class="form-control" placeholder="输入设备ID">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>负责人：</span>
-                            <input type="text" class="form-control" placeholder="输入负责人姓名">
-                        </li>
-                    </ul>
+    <!-- 添加监测点模态框 -->
+    <div class="modal fade" id="addFishPointModal" tabindex="-1" role="dialog" aria-labelledby="addFishPointModalLabel">
+        <div class="modal-dialog" role="document" style="width: 600px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="pull-left" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="addFishPointModalLabel">添加鱼类数据</h4>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary">添加</button>
+                <div class="modal-body">
+                    <div class="form1 form2">
+                        <ul class="row">
+                            <li class="col-xs-6">
+                                <span>鱼类品种：</span>
+                                <input type="text" class="form-control" placeholder="如 Perch" id="species">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>重量(g)：</span>
+                                <input type="number" class="form-control" placeholder="如 320" id="weight">
+                            </li>
+                            <li class="col-xs-4">
+                                <span>长度1(cm)：</span>
+                                <input type="number" class="form-control" placeholder="最小长度" id="length1">
+                            </li>
+                            <li class="col-xs-4">
+                                <span>长度2(cm)：</span>
+                                <input type="number" class="form-control" placeholder="中间长度" id="length2">
+                            </li>
+                            <li class="col-xs-4">
+                                <span>长度3(cm)：</span>
+                                <input type="number" class="form-control" placeholder="最大长度" id="length3">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>高度(cm)：</span>
+                                <input type="number" class="form-control" placeholder="如 4.2" id="height">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>宽度(cm)：</span>
+                                <input type="number" class="form-control" placeholder="如 2.5" id="width">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="AddDatabtn">添加</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- 编辑模态框 -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
-    <div class="modal-dialog" role="document" style="width: 500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="editModalLabel">编辑监测点信息</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form1 form2">
-                    <ul class="row">
-                        <li class="col-xs-12">
-                            <span>监测点名称：</span>
-                            <input type="text" class="form-control" value="A区主鱼塘">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option selected>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>详细位置：</span>
-                            <input type="text" class="form-control" value="A区中心位置">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>水质状态：</span>
-                            <select class="form-control">
-                                <option>正常</option>
-                                <option>预警</option>
-                                <option selected>异常</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>备注信息：</span>
-                            <textarea class="form-control" rows="3"
-                                      placeholder="输入备注信息">该区域最近出现异常，需要重点关注</textarea>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript -->
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
-<script>
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
 
 
-    // 侧边栏菜单交互
-    $(document).ready(function() {
-        $('.menu-list > a').click(function(e) {
-            e.preventDefault();
-            const childList = $(this).siblings('.child-list');
+        // 侧边栏菜单交互
+        $(document).ready(function () {
+            $('.menu-list > a').click(function (e) {
+                e.preventDefault();
+                const childList = $(this).siblings('.child-list');
 
-            if (childList.is(':visible')) {
-                childList.slideUp();
-            } else {
-                $('.child-list').slideUp();
-                childList.slideDown();
+                if (childList.is(':visible')) {
+                    childList.slideUp();
+                } else {
+                    $('.child-list').slideUp();
+                    childList.slideDown();
+                }
+            });
+
+            // 模拟数据加载
+            setTimeout(function () {
+                $('.stats-card').addClass('loaded');
+            }, 500);
+        });
+    </script>
+
+    <!-- Used in pages -->
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            let activeFilter = {
+                species: '',
+            };
+            const tbody = document.getElementById('fishPointTableBody');
+            document.getElementById('search_species').value = '';
+            loadFish(1, 10);  // 默认加载第1页，每页10条
+            let current_perpage = 10; // 当前每页显示条数
+
+
+            function loadFish(page = 1, perPage = 10) {
+                fetch(`/api/fish/list?page=${page}&per_page=${perPage}&species=${encodeURIComponent(activeFilter.species)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.getElementById('fishPointTableBody');
+                        tbody.innerHTML = '';  // 清空旧数据
+
+                        data.records.forEach(record => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+            <td>${record.species}</td>
+            <td>${record.weight}</td>
+            <td>${record.length1}</td>
+            <td>${record.length2}</td>
+            <td>${record.length3}</td>
+            <td>${record.height}</td>
+            <td>${record.width}</td>
+            <td>
+                <button class="btn btn-danger delete-btn" data-id="${record.id}">删除</button>
+            </td>
+            <td>`;
+                            tbody.appendChild(tr);
+                        });
+
+                        // 渲染总数
+                        document.getElementById('pagination-info').textContent =
+                            `共 ${data.total} 条记录 第 ${data.current_page} / ${data.pages} 页`;
+
+                        // 渲染分页按钮
+                        const paginationContainer = document.getElementById('pagination-bar');
+                        paginationContainer.innerHTML = '';
+
+                        // 上一页按钮
+                        const prevLi = document.createElement('li');
+                        prevLi.className = data.current_page === 1 ? 'disabled' : '';
+                        prevLi.innerHTML = `<a href="#" aria-label="Previous"><span aria-hidden="true">«</span></a>`;
+                        prevLi.addEventListener('click', function () {
+                            if (data.current_page > 1) loadFish(data.current_page - 1, perPage);
+                        });
+                        paginationContainer.appendChild(prevLi);
+
+                        // 中间页码按钮
+                        const pageWindow = 2;
+                        const startPage = Math.max(1, data.current_page - pageWindow);
+                        const endPage = Math.min(data.pages, data.current_page + pageWindow);
+
+                        // 显示第一页
+                        if (startPage > 1) {
+                            const firstLi = document.createElement('li');
+                            firstLi.innerHTML = `<a href="#">1</a>`;
+                            firstLi.addEventListener('click', function () {
+                                loadFish(1, perPage);
+                            });
+                            paginationContainer.appendChild(firstLi);
+
+                            if (startPage > 2) {
+                                const dotsLi = document.createElement('li');
+                                dotsLi.className = 'disabled';
+                                dotsLi.innerHTML = `<span>...</span>`;
+                                paginationContainer.appendChild(dotsLi);
+                            }
+                        }
+
+                        // 中间页码按钮
+                        for (let i = startPage; i <= endPage; i++) {
+                            const li = document.createElement('li');
+                            li.className = (i === data.current_page) ? 'active' : '';
+                            li.innerHTML = `<a href="#">${i}</a>`;
+                            li.addEventListener('click', function () {
+                                loadFish(i, perPage);
+                            });
+                            paginationContainer.appendChild(li);
+                        }
+
+                        // 显示最后一页
+                        if (endPage < data.pages) {
+                            if (endPage < data.pages - 1) {
+                                const dotsLi = document.createElement('li');
+                                dotsLi.className = 'disabled';
+                                dotsLi.innerHTML = `<span>...</span>`;
+                                paginationContainer.appendChild(dotsLi);
+                            }
+
+                            const lastLi = document.createElement('li');
+                            lastLi.innerHTML = `<a href="#">${data.pages}</a>`;
+                            lastLi.addEventListener('click', function () {
+                                loadFish(data.pages, perPage);
+                            });
+                            paginationContainer.appendChild(lastLi);
+                        }
+
+
+                        // 下一页按钮
+                        const nextLi = document.createElement('li');
+                        nextLi.className = (!data.pages || data.current_page >= data.pages) ? 'disabled' : '';
+                        nextLi.innerHTML = `<a href="#" aria-label="Next"><span aria-hidden="true">»</span></a>`;
+                        nextLi.addEventListener('click', function () {
+                            if (data.current_page < data.pages) loadFish(data.current_page + 1, perPage);
+                        });
+                        paginationContainer.appendChild(nextLi);
+                        if (current_perpage == 10) {
+                            document.getElementById('per-page-selector').value = 10;
+                        } else if (current_perpage == 20) {
+                            document.getElementById('per-page-selector').value = 20;
+                        } else if (current_perpage == 50) {
+                            document.getElementById('per-page-selector').value = 50;
+                        }
+                        document.getElementById('goto-page-input').value = 1; // 更新跳转页输入框
+
+                        // 重新绑定事件
+                        attachEventListeners();
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            document.getElementById('per-page-selector').addEventListener('change', function () {
+                const perPage = parseInt(this.value);
+                current_perpage = perPage;
+                loadFish(1, current_perpage); // 重新加载第一页
+            });
+
+            document.getElementById('goto-page-btn').addEventListener('click', function () {
+                const page = parseInt(document.getElementById('goto-page-input').value);
+                console.log('跳转到第', page, '页');
+                loadFish(page, current_perpage); // 加载指定页
+                document.getElementById('goto-page-input').value = 1; // 更新输入框
+            });
+
+            document.getElementById('exportBtn').addEventListener('click', function () {
+                const query = new URLSearchParams({
+                    species: activeFilter.species
+                });
+                // print(query)
+                // print(activeFilter)
+                const url = `/api/fish/export?${query.toString()}`;
+                window.location.href = url;  // 跳转下载文件
+            });
+
+            // 搜索按钮事件
+            document.getElementById('search-btn').addEventListener('click', function () {
+                activeFilter.species = document.getElementById('search_species').value;
+
+                document.getElementById('search_species').value = '';
+
+                loadFish(1, current_perpage);  // 重新加载第一页数据
+            });
+
+            function clearAddModalForm() {
+                document.getElementById('species').value = '';
+                document.getElementById('weight').value = '';
+                document.getElementById('length1').value = '';
+                document.getElementById('length2').value = '';
+                document.getElementById('length3').value = '';
+                document.getElementById('height').value = '';
+                document.getElementById('width').value = '';
+            }
+
+
+
+            // 添加数据按钮事件
+            document.getElementById('AddDatabtn').addEventListener('click', function () {
+                // 获取用户输入的数据
+                const data = {
+                    species: document.getElementById('species').value.trim(),
+                    weight: parseFloat(document.getElementById('weight').value.trim()),
+                    length1: parseFloat(document.getElementById('length1').value.trim()),
+                    length2: parseFloat(document.getElementById('length2').value.trim()),
+                    length3: parseFloat(document.getElementById('length3').value.trim()),
+                    height: parseFloat(document.getElementById('height').value.trim()),
+                    width: parseFloat(document.getElementById('width').value.trim())
+                };
+
+                // 发送数据到后端
+                fetch('/api/fish/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('数据添加成功');
+                            // 你可以在这里执行一些清理操作或刷新页面等
+                            loadFish(1, current_perpage); // 重新加载第一页数据
+                            $('#addFishPointModal').modal('hide'); // 关闭模态框
+                            clearAddModalForm(); // 清空表单
+                        } else {
+                            alert('添加失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('发生错误');
+                    });
+            });
+
+            function attachEventListeners() {
+                // 删除按钮事件
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        if (confirm('确定要删除该鱼类数据吗？')) {
+                            fetch(`/api/fish/delete`, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: id })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('数据删除成功');
+                                        loadFish(1, current_perpage); // 重新加载第一页数据
+                                    } else {
+                                        alert('删除失败');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('发生错误');
+                                });
+                        }
+                    });
+                });
             }
         });
+    </script>
 
-        // 模拟数据加载
-        setTimeout(function() {
-            $('.stats-card').addClass('loaded');
-        }, 500);
-    });
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/api/species')
+                .then(response => response.json())
+                .then(data => {
+                    const datalist = document.getElementById('species-list');
+                    data.species.forEach(species => {
+                        const option = document.createElement('option');
+                        option.value = species;
+                        datalist.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('获取品种失败:', error));
+        });
+    </script>
+
 </body>
+
 </html>

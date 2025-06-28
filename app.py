@@ -1114,6 +1114,7 @@ def get_waterquality():
     data = []
     for r in records:
         data.append({
+            "id": r.id,
             "province": safe(r.province),
             "basin": safe(r.basin),
             "site_name": safe(r.site_name),
@@ -1132,7 +1133,7 @@ def get_waterquality():
             "algae_density": safe(r.algae_density),
             "site_status": safe(r.site_status)
         })
-    print(data)
+    # print(data)
     return jsonify({
         "status": "success",
         "total": pagination.total,
@@ -1191,6 +1192,204 @@ def export_waterquality():
                      as_attachment=True,
                      download_name="水质监测数据.xlsx",
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+# This route is used to add water quality data
+@app.route("/api/waterquality/add", methods=["POST"])
+def add_waterquality():
+    data = request.get_json()
+    # print(data)
+    # 提取数据
+    province = data.get("province")
+    basin = data.get("basin")
+    site_name = data.get("site_name")
+    monitor_time = data.get("monitor_time")
+    water_quality_level = data.get("water_quality_level")
+    temperature = data.get("temperature")
+    ph = data.get("ph")
+    dissolved_oxygen = data.get("dissolved_oxygen")
+    conductivity = data.get("conductivity")
+    turbidity = data.get("turbidity")
+    cod_mn = data.get("cod_mn")
+    ammonia_nitrogen = data.get("ammonia_nitrogen")
+    total_phosphorus = data.get("total_phosphorus")
+    total_nitrogen = data.get("total_nitrogen")
+    chlorophyll = data.get("chlorophyll")
+    algae_density = data.get("algae_density")
+    site_status = data.get("site_status")
+
+    # 存储数据到数据库
+    new_entry = WaterQuality(
+        province = province,
+        basin=basin,
+        site_name=site_name,
+        monitor_time=datetime.strptime(monitor_time, "%Y-%m-%d %H:%M") if monitor_time else None,
+        water_quality_level=water_quality_level,
+        temperature=temperature,
+        ph=ph,
+        dissolved_oxygen=dissolved_oxygen,
+        conductivity=conductivity,
+        turbidity=turbidity,
+        cod_mn=cod_mn,
+        ammonia_nitrogen=ammonia_nitrogen,
+        total_phosphorus=total_phosphorus,
+        total_nitrogen=total_nitrogen,
+        chlorophyll=chlorophyll,
+        algae_density=algae_density,
+        site_status=site_status
+    )
+
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Water quality data added successfully"})
+
+# This route is used to delete water quality data
+@app.route("/api/waterquality/delete", methods=["DELETE"])
+def delete_waterquality():
+    data = request.get_json()
+    record_id = data.get('id')
+    # print(record_id)
+    # 查找记录
+    record = FishProfile.query.get(record_id)
+    if not record:
+        return jsonify({"success": False, "error": "Record not found"}), 404
+
+    # 删除记录
+    db.session.delete(record)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Record deleted successfully"})
+
+# Followings are used in fish profile
+
+# 后端 Flask 路由，返回所有唯一品种
+@app.route('/api/species')
+def get_species():
+    species_list = db.session.query(FishProfile.species).distinct().all()
+    species_names = [s[0] for s in species_list if s[0]]  # 去除空值
+    return jsonify({"status": "success", "species": species_names})
+
+@app.route('/api/fish/list')
+def get_fishes():
+    page = int(request.args.get("page", 1))
+    per_page = int(request.args.get("per_page", 10))
+    # 接收筛选参数（如有）
+    species = request.args.get("species")
+
+    print(species)
+    # 查询数据
+    query = FishProfile.query
+    if species:
+        query = query.filter(FishProfile.species.like(f"%{species}%"))
+
+    query = query.order_by(FishProfile.id.desc())
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    records = pagination.items
+
+    def safe(value):
+        return value if value is not None else "--"
+
+    data = []
+    for r in records:
+        data.append({
+            "id": r.id,
+            "species": safe(r.species),
+            "height": safe(r.height),
+            "weight": safe(r.weight),
+            "length1": safe(r.length1),
+            "length2": safe(r.length2),
+            "length3": safe(r.length3),
+            "width": safe(r.width),
+        })
+
+    return jsonify({
+        "status": "success",
+        "total": pagination.total,
+        "pages": pagination.pages,
+        "current_page": page,
+        "records": data
+    })
+
+@app.route('/api/fish/export')
+def export_fished():
+    # 接收筛选参数（如有）
+    species = request.args.get("species")
+
+    # 查询数据
+    query = FishProfile.query
+    if species:
+        query = query.filter(FishProfile.species.like(f"%{species}%"))
+
+    records = query.all()
+
+    # 转换为 DataFrame
+    df = pd.DataFrame([{
+        "品种": r.species or "--",
+        "高度(cm)": r.height if r.height is not None else "--",
+        "重量(g)": r.weight if r.weight is not None else "--",
+        "长度1(cm)": r.length1 if r.length1 is not None else "--",
+        "长度2(cm)": r.length2 if r.length2 is not None else "--",
+        "长度3(cm)": r.length3 if r.length3 is not None else "--",
+        "宽度(cm)": r.width if r.width is not None else "--",
+    } for r in records])
+
+    # 写入 BytesIO 缓冲区
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name="鱼类数据")
+    output.seek(0)
+
+    return send_file(output,
+                     as_attachment=True,
+                     download_name="鱼类数据.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+# This route is used to add fish data
+@app.route("/api/fish/add", methods=["POST"])
+def add_fish():
+    data = request.get_json()
+    # print(data)
+    # 提取数据
+    species = data.get("species")
+    height = data.get("height")
+    weight = data.get("weight")
+    length1 = data.get("length1")
+    length2 = data.get("length2")
+    length3 = data.get("length3")
+    width = data.get("width")
+
+    # 存储数据到数据库
+    new_entry = FishProfile(
+        species=species,
+        height=height,
+        weight=weight,
+        length1=length1,
+        length2=length2,
+        length3=length3,
+        width=width
+    )
+
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Fish data added successfully"})
+
+@app.route('/api/fish/delete', methods=["DELETE"])
+def delete_fish():
+    data = request.get_json()
+    record_id = data.get('id')
+    # print(record_id)
+    # 查找记录
+    record = FishProfile.query.get(record_id)
+    if not record:
+        return jsonify({"success": False, "error": "Record not found"}), 404
+
+    # 删除记录
+    db.session.delete(record)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Record deleted successfully"})
+
 
 
 if __name__ == "__main__":

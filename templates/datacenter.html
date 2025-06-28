@@ -431,7 +431,7 @@
                     <ul class="row">
                         <li class="col-md-3 col-sm-6">
                             <span>监测点名称：</span>
-                            <input type="text" class="form-control" placeholder="输入监测点名称" id="site_name">
+                            <input type="text" class="form-control" placeholder="输入监测点名称" id="search_site_name">
                         </li>
                         <li class="col-md-3 col-sm-6">
                             <span>流域区域：</span>
@@ -558,50 +558,114 @@
     <!-- 添加监测点模态框 -->
     <div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog"
         aria-labelledby="addWaterPointModalLabel">
-        <div class="modal-dialog" role="document" style="width: 500px;">
+        <div class="modal-dialog" role="document" style="width: 600px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="pull-left" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="addWaterPointModalLabel">添加水质监测点</h4>
+                    <button type="button" class="pull-left" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="addWaterPointModalLabel">添加水质数据</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form1 form2">
                         <ul class="row">
+
+                            <li class="col-xs-6">
+                                <span>省份：</span>
+                                <input type="text" class="form-control" placeholder="如 北京市" id="province">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>流域：</span>
+                                <input type="text" class="form-control" placeholder="如 黄河流域" id="basin">
+                            </li>
                             <li class="col-xs-12">
                                 <span>监测点名称：</span>
-                                <input type="text" class="form-control" placeholder="输入监测点名称">
+                                <input type="text" class="form-control" placeholder="输入监测点名称" id="site_name">
                             </li>
                             <li class="col-xs-12">
-                                <span>位置区域：</span>
-                                <select class="form-control">
-                                    <option>A区鱼塘</option>
-                                    <option>B区鱼塘</option>
-                                    <option>C区鱼塘</option>
+                                <span>监测时间：</span>
+                                <input type="datetime-local" class="form-control" id="monitor_time">
+                            </li>
+                            <li class="col-xs-12">
+                                <span>水质等级：</span>
+                                <select class="form-control" id="water_quality_level">
+                                    <option>Ⅰ类</option>
+                                    <option>Ⅱ类</option>
+                                    <option>Ⅲ类</option>
+                                    <option>Ⅳ类</option>
+                                    <option>Ⅴ类</option>
+                                    <option>劣Ⅴ类</option>
                                 </select>
                             </li>
-                            <li class="col-xs-12">
-                                <span>详细位置：</span>
-                                <input type="text" class="form-control" placeholder="输入详细位置">
+
+                            <li class="col-xs-6">
+                                <span>温度(℃)：</span>
+                                <input type="number" class="form-control" placeholder="如 20.5" id="temperature">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>pH值：</span>
+                                <input type="number" step="0.01" class="form-control" placeholder="如 7.3" id="ph">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>溶解氧(mg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="dissolved_oxygen">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>电导率(μS/cm)：</span>
+                                <input type="number" class="form-control" id="conductivity" placeholder="如 500">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>浊度(NTU)：</span>
+                                <input type="number" step="0.1" class="form-control" id="turbidity" placeholder="如 2.5">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>CODMn(mg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="cod_mn" placeholder="如 5.0">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>氨氮(mg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="ammonia_nitrogen"
+                                    placeholder="如 0.5">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>总磷(mg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="total_phosphorus"
+                                    placeholder="如 0.02">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>总氮(mg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="total_nitrogen"
+                                    placeholder="如 0.5">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>叶绿素(μg/L)：</span>
+                                <input type="number" step="0.01" class="form-control" id="chlorophyll"
+                                    placeholder="如 1.5">
+                            </li>
+                            <li class="col-xs-6">
+                                <span>藻类密度(cells/L)：</span>
+                                <input type="text" class="form-control" placeholder="如 1.2万" id="algae_density">
                             </li>
                             <li class="col-xs-12">
-                                <span>监测设备ID：</span>
-                                <input type="text" class="form-control" placeholder="输入设备ID">
+                                <span>监测点状态：</span>
+                                <select class="form-control" id="site_status">
+                                    <option>正常</option>
+                                    <option>维护</option>
+                                    <option>异常</option>
+                                </select>
                             </li>
-                            <li class="col-xs-12">
-                                <span>负责人：</span>
-                                <input type="text" class="form-control" placeholder="输入负责人姓名">
-                            </li>
+
                         </ul>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary">添加</button>
+                    <button type="button" class="btn btn-primary" id="AddDatabtn">添加</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- 编辑模态框 -->
     <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
@@ -725,6 +789,9 @@
           <td>${record.chlorophyll}</td>
           <td>${record.algae_density}</td>
           <td>${record.site_status}</td>
+          <td>
+              <button class="btn btn-danger delete-btn" data-id="${record.id}">删除</button>
+          </td>
           <td>`;
                             tbody.appendChild(tr);
                         });
@@ -813,6 +880,9 @@
                             document.getElementById('per-page-selector').value = 50;
                         }
                         document.getElementById('goto-page-input').value = 1; // 更新跳转页输入框
+
+                        // 重新绑定事件
+                        attachEventListeners();
                     })
                     .catch(error => console.error('Error:', error));
             }
@@ -854,6 +924,105 @@
                 loadWaterquality(1, current_perpage);  // 重新加载第一页数据
             });
 
+            function clearAddModalForm() {
+                document.getElementById('province').value = '';
+                document.getElementById('basin').value = '';
+                document.getElementById('site_name').value = '';
+                document.getElementById('monitor_time').value = '';
+                document.getElementById('water_quality_level').value = '';
+                document.getElementById('temperature').value = '';
+                document.getElementById('ph').value = '';
+                document.getElementById('dissolved_oxygen').value = '';
+                document.getElementById('conductivity').value = '';
+                document.getElementById('turbidity').value = '';
+                document.getElementById('cod_mn').value = '';
+                document.getElementById('ammonia_nitrogen').value = '';
+                document.getElementById('total_phosphorus').value = '';
+                document.getElementById('total_nitrogen').value = '';
+                document.getElementById('chlorophyll').value = '';
+                document.getElementById('algae_density').value = '';
+                document.getElementById('site_status').value = '';
+            }
+
+
+
+            // 添加数据按钮事件
+            document.getElementById('AddDatabtn').addEventListener('click', function () {
+                // 获取用户输入的数据
+                const data = {
+                    province: document.getElementById('province').value,
+                    basin: document.getElementById('basin').value,
+                    site_name: document.getElementById('site_name').value,
+                    monitor_time: document.getElementById('monitor_time').value.replace('T', ' '), // 替换T为空格   
+                    water_quality_level: document.getElementById('water_quality_level').value,
+                    temperature: document.getElementById('temperature').value,
+                    ph: document.getElementById('ph').value,
+                    dissolved_oxygen: document.getElementById('dissolved_oxygen').value,
+                    conductivity: document.getElementById('conductivity').value,
+                    turbidity: document.getElementById('turbidity').value,
+                    cod_mn: document.getElementById('cod_mn').value,
+                    ammonia_nitrogen: document.getElementById('ammonia_nitrogen').value,
+                    total_phosphorus: document.getElementById('total_phosphorus').value,
+                    total_nitrogen: document.getElementById('total_nitrogen').value,
+                    chlorophyll: document.getElementById('chlorophyll').value,
+                    algae_density: document.getElementById('algae_density').value,
+                    site_status: document.getElementById('site_status').value
+                };
+
+                // 发送数据到后端
+                fetch('/api/waterquality/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('数据添加成功');
+                            // 你可以在这里执行一些清理操作或刷新页面等
+                            loadWaterquality(1, current_perpage); // 重新加载第一页数据
+                            $('#addWaterPointModal').modal('hide'); // 关闭模态框
+                            clearAddModalForm(); // 清空表单
+                        } else {
+                            alert('添加失败');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('发生错误');
+                    });
+            });
+
+            function attachEventListeners() {
+                // 删除按钮事件
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        if (confirm('确定要删除该水质数据吗？')) {
+                            fetch(`/api/waterquality/delete`, {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: id })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('数据删除成功');
+                                        loadWaterquality(1, current_perpage); // 重新加载第一页数据
+                                    } else {
+                                        alert('删除失败');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    alert('发生错误');
+                                });
+                        }
+                    });
+                });
+            }
         });
     </script>
 
