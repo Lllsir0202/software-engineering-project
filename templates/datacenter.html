@@ -431,28 +431,23 @@
                     <ul class="row">
                         <li class="col-md-3 col-sm-6">
                             <span>监测点名称：</span>
-                            <input type="text" class="form-control" placeholder="输入监测点名称">
+                            <input type="text" class="form-control" placeholder="输入监测点名称" id="site_name">
                         </li>
                         <li class="col-md-3 col-sm-6">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option>全部区域</option>
-                                <option>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
+                            <span>流域区域：</span>
+                            <input type="text" class="form-control" placeholder="输入位置区域" id="position">
                         </li>
                         <li class="col-md-3 col-sm-6">
                             <span>水质状态：</span>
-                            <select class="form-control">
+                            <select class="form-control" id="status">
                                 <option>全部状态</option>
                                 <option>正常</option>
-                                <option>预警</option>
-                                <option>异常</option>
+                                <option>维护</option>
+                                <option>停站</option>
                             </select>
                         </li>
                         <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
-                            <a href="#" class="btn btn-primary w-100">搜索</a>
+                            <a href="#" class="btn btn-primary w-100" id="search-btn">搜索</a>
                         </li>
                     </ul>
                 </div>
@@ -464,7 +459,7 @@
                     <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWaterPointModal">
                         <i class="fa fa-plus"></i> 添加数据
                     </a>
-                    <a href="#" class="btn btn-success">
+                    <a href="#" class="btn btn-success" id="exportBtn">
                         <i class="fa fa-file-excel-o"></i> 导出数据
                     </a>
                 </div>
@@ -690,12 +685,21 @@
     <!-- Used in pages -->
     <script>
         window.addEventListener('DOMContentLoaded', function () {
+            let activeFilter = {
+                site_name: "",
+                basin: "全部区域",
+                status: "全部状态"
+            };
             const tbody = document.getElementById('waterPointTableBody');
+            document.querySelector('input[placeholder="输入监测点名称"]').value = '';
+            document.getElementById('position').value = '全部区域';
+            document.getElementById('status').value = '全部状态';
             loadWaterquality(1, 10);  // 默认加载第1页，每页10条
             let current_perpage = 10; // 当前每页显示条数
 
+
             function loadWaterquality(page = 1, perPage = 10) {
-                fetch(`/api/waterquality/list?page=${page}&per_page=${perPage}`)
+                fetch(`/api/waterquality/list?page=${page}&per_page=${perPage}&site_name=${encodeURIComponent(activeFilter.site_name)}&basin=${encodeURIComponent(activeFilter.basin)}&status=${encodeURIComponent(activeFilter.status)}`)
                     .then(response => response.json())
                     .then(data => {
                         const tbody = document.getElementById('waterPointTableBody');
@@ -801,11 +805,11 @@
                             if (data.current_page < data.pages) loadWaterquality(data.current_page + 1, perPage);
                         });
                         paginationContainer.appendChild(nextLi);
-                        if(current_perpage == 10) {
+                        if (current_perpage == 10) {
                             document.getElementById('per-page-selector').value = 10;
-                        } else if(current_perpage == 20) {
+                        } else if (current_perpage == 20) {
                             document.getElementById('per-page-selector').value = 20;
-                        } else if(current_perpage == 50) {
+                        } else if (current_perpage == 50) {
                             document.getElementById('per-page-selector').value = 50;
                         }
                         document.getElementById('goto-page-input').value = 1; // 更新跳转页输入框
@@ -824,6 +828,32 @@
                 loadWaterquality(page, current_perpage); // 加载指定页
                 document.getElementById('goto-page-input').value = 1; // 更新输入框
             });
+
+            document.getElementById('exportBtn').addEventListener('click', function () {
+                const query = new URLSearchParams({
+                    site_name: activeFilter.site_name,
+                    basin: activeFilter.basin,
+                    status: activeFilter.status
+                });
+                // print(query)
+                // print(activeFilter)
+                const url = `/api/waterquality/export?${query.toString()}`;
+                window.location.href = url;  // 跳转下载文件
+            });
+
+            // 搜索按钮事件
+            document.getElementById('search-btn').addEventListener('click', function () {
+                activeFilter.site_name = document.querySelector('input[placeholder="输入监测点名称"]').value;
+                activeFilter.basin = document.getElementById('position').value;
+                activeFilter.status = document.getElementById('status').value;
+
+                document.querySelector('input[placeholder="输入监测点名称"]').value = '';
+                document.getElementById('position').value = '全部区域';
+                document.getElementById('status').value = '全部状态';
+
+                loadWaterquality(1, current_perpage);  // 重新加载第一页数据
+            });
+
         });
     </script>
 
