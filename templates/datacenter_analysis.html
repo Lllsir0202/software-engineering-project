@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -81,7 +82,7 @@
             list-style: none;
         }
 
-        .side-navigation > li > a {
+        .side-navigation>li>a {
             display: block;
             padding: 12px 20px;
             color: rgba(255, 255, 255, 0.8);
@@ -91,14 +92,14 @@
             border-left: 3px solid transparent;
         }
 
-        .side-navigation > li > a:hover,
-        .side-navigation > li > a.active {
+        .side-navigation>li>a:hover,
+        .side-navigation>li>a.active {
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-left: 3px solid var(--primary-color);
         }
 
-        .side-navigation > li > a i {
+        .side-navigation>li>a i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
@@ -296,12 +297,12 @@
                 display: none;
             }
 
-            .sidebar-left .side-navigation > li > a {
+            .sidebar-left .side-navigation>li>a {
                 text-align: center;
                 padding: 15px 10px;
             }
 
-            .sidebar-left .side-navigation > li > a i {
+            .sidebar-left .side-navigation>li>a i {
                 margin-right: 0;
                 font-size: 20px;
             }
@@ -325,373 +326,249 @@
 </head>
 
 <body>
-<!-- 导航栏 -->
-<header data-block-type="headers" data-id="1">
-    <div class="container-fluid" style="background-color: #e3f2fd;">
-        <nav class="navbar navbar-expand-md no-gutters">
-            <div class="col-2 text-left">
-                <!-- <a href="/"> -->
-                <img height="40" alt="数据平台" class="custom-logo">
-                <!-- </a> -->
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="/homepage">首页</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
-                    </ul>
+    <!-- 导航栏 -->
+    <header data-block-type="headers" data-id="1">
+        <div class="container-fluid" style="background-color: #e3f2fd;">
+            <nav class="navbar navbar-expand-md no-gutters">
+                <div class="col-2 text-left">
+                    <!-- <a href="/"> -->
+                    <img height="40" alt="数据平台" class="custom-logo">
+                    <!-- </a> -->
                 </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/homepage">首页</a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/visualization">分析报告</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin">管理员页面</a></li>
+                        </ul>
+                    </div>
 
-                <!-- 用户状态区域 -->
-                <div class="user-menu">
+                    <!-- 用户状态区域 -->
+                    <div class="user-menu">
                         <span class="user-name" title="当前用户：{{ session['username'] }}">
                             <i class="fa fa-user-circle-o"></i>
                             {{ session.get('username', '游客') }}
                         </span>
-                    <a href="/logout" class="logout-link">
-                        <i class="fa fa-sign-out"></i>
-                        退出
-                    </a>
+                        <a href="/logout" class="logout-link">
+                            <i class="fa fa-sign-out"></i>
+                            退出
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </div>
-</header>
-
-<!-- 主内容区域 -->
-<div class="main-container">
-    <!-- 侧边栏 -->
-    <div class="sidebar-left">
-        <div class="sidebar-left-info">
-            <div class="search-field"></div>
-            <ul class="nav nav-pills nav-stacked side-navigation">
-                <li>
-                    <a href="/datacenter"><i class="fa fa-tint"></i> <span>水质管理</span></a>
-                </li>
-                <li>
-                    <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
-                </li>
-                <li>
-                    <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
-                </li>
-            </ul>
+            </nav>
         </div>
-    </div>
+    </header>
 
     <!-- 主内容区域 -->
-    <div class="content-wrapper">
-        <!-- 搜索区域 -->
-        <div class="search-box">
-            <div class="form1">
-                <ul class="row">
-                    <li class="col-md-3 col-sm-6">
-                        <span>监测点名称：</span>
-                        <input type="text" class="form-control" placeholder="输入监测点名称">
+    <div class="main-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar-left">
+            <div class="sidebar-left-info">
+                <div class="search-field"></div>
+                <ul class="nav nav-pills nav-stacked side-navigation">
+                    <li>
+                        <a href="/datacenter"><i class="fa fa-tint"></i> <span>水质管理</span></a>
                     </li>
-                    <li class="col-md-3 col-sm-6">
-                        <span>位置区域：</span>
-                        <select class="form-control">
-                            <option>全部区域</option>
-                            <option>A区鱼塘</option>
-                            <option>B区鱼塘</option>
-                            <option>C区鱼塘</option>
-                        </select>
+                    <li>
+                        <a href="/data-fish"><i class="fa fa-fish"></i> <span>鱼类管理</span></a>
                     </li>
-                    <li class="col-md-3 col-sm-6">
-                        <span>水质状态：</span>
-                        <select class="form-control">
-                            <option>全部状态</option>
-                            <option>正常</option>
-                            <option>预警</option>
-                            <option>异常</option>
-                        </select>
-                    </li>
-                    <li class="col-md-3 col-sm-6" style="padding-top: 24px;">
-                        <a href="#" class="btn btn-primary w-100">搜索</a>
+                    <li>
+                        <a href="/data-analysis"><i class="fa fa-chart-line"></i> <span>数据分析</span></a>
                     </li>
                 </ul>
             </div>
         </div>
 
-        <!-- 操作按钮 -->
-        <div class="clearfix m-b-20">
-            <div class="pull-left">
-                <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addWaterPointModal">
-                    <i class="fa fa-plus"></i> 添加监测点
-                </a>
-                <a href="#" class="btn btn-success">
-                    <i class="fa fa-file-excel-o"></i> 导出数据
-                </a>
-            </div>
-        </div>
-
-        <!-- 数据表格 -->
-        <div class="panel">
-            <div class="panel-body">
-                <table class="table m-t-20">
-                    <thead>
-                    <tr>
-                        <th>监测点ID</th>
-                        <th>监测点名称</th>
-                        <th>位置区域</th>
-                        <th>PH值</th>
-                        <th>溶解氧(mg/L)</th>
-                        <th>氨氮(mg/L)</th>
-                        <th>温度(℃)</th>
-                        <th>水质状态</th>
-                        <th>最后更新</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>WP001</td>
-                        <td>A区主鱼塘</td>
-                        <td>A区</td>
-                        <td>7.2</td>
-                        <td>6.8</td>
-                        <td>0.12</td>
-                        <td>24.5</td>
-                        <td><span class="water-status status-good">正常</span></td>
-                        <td>2023-06-10 14:25</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP002</td>
-                        <td>B区东侧</td>
-                        <td>B区</td>
-                        <td>6.8</td>
-                        <td>5.2</td>
-                        <td>0.35</td>
-                        <td>26.8</td>
-                        <td><span class="water-status status-warning">预警</span></td>
-                        <td>2023-06-10 13:45</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP003</td>
-                        <td>C区深水区</td>
-                        <td>C区</td>
-                        <td>7.5</td>
-                        <td>7.1</td>
-                        <td>0.08</td>
-                        <td>23.9</td>
-                        <td><span class="water-status status-good">正常</span></td>
-                        <td>2023-06-10 12:30</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP004</td>
-                        <td>A区浅水区</td>
-                        <td>A区</td>
-                        <td>5.9</td>
-                        <td>4.1</td>
-                        <td>0.85</td>
-                        <td>28.3</td>
-                        <td><span class="water-status status-danger">异常</span></td>
-                        <td>2023-06-10 11:15</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>WP005</td>
-                        <td>B区西侧</td>
-                        <td>B区</td>
-                        <td>7.0</td>
-                        <td>6.0</td>
-                        <td>0.25</td>
-                        <td>25.2</td>
-                        <td><span class="water-status status-warning">预警</span></td>
-                        <td>2023-06-10 10:40</td>
-                        <td>
-                            <a href="#" data-toggle="modal" data-target="#editModal"
-                               class="btn btn-sm btn-outline-primary">编辑</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">详情</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <!-- 分页 -->
-                <div class="page clearfix">
-                    <div class="pull-left">共 24 条记录 第 1 / 3 页</div>
-                    <div class="pull-right">
-                        <nav aria-label="..." class="pull-left">
-                            <ul class="pagination">
-                                <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item"><a class="page-link" href="#">下一页</a></li>
-                            </ul>
-                        </nav>
-                        <div class="pull-left p-r-20 p-l-20">
-                            <select class="form-control">
-                                <option>10条每页</option>
-                                <option>20条每页</option>
-                                <option>50条每页</option>
-                            </select>
+        <div class="content-wrapper">
+            <!-- 上传图片模块 -->
+            <div class="panel mb-4">
+                <div class="panel-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-upload fa-lg mr-2 text-primary"></i>
+                        <h5 class="mb-0">图片上传</h5>
+                    </div>
+                    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/upload_image">
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-md-8">
+                                <label for="imageFile">选择图片文件：</label>
+                                <input type="file" class="form-control-file" id="imageFile" name="image">
+                            </div>
+                            <div class="form-group col-md-4 text-right">
+                                <label>&nbsp;</label><br>
+                                <button type="submit" class="btn btn-outline-primary w-100" id="uploadButton">
+                                    <i class="fa fa-cloud-upload"></i> 上传
+                                </button>
+                            </div>
                         </div>
-                        <div class="pull-left">跳至
-                            <input type="text" value="1" class="form-control"
-                                   style="width: 60px; display: inline-block;">
-                            页
+                    </form>
+                    <div id="uploadResult" class="alert alert-success mt-3 d-none" role="alert">
+                        图片上传成功！
+                    </div>
+                </div>
+            </div>
+
+            <!-- 智能问答模块 -->
+            <div class="panel mb-4">
+                <div class="panel-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa fa-comments fa-lg mr-2 text-success"></i>
+                        <h5 class="mb-0">智能问答助手</h5>
+                    </div>
+                    <form id="qaForm">
+                        <div class="form-row align-items-center">
+                            <div class="form-group col-md-9">
+                                <input type="text" class="form-control" id="questionInput"
+                                    placeholder="请输入您的问题，例如：哪个鱼塘水质最差？">
+                            </div>
+                            <div class="form-group col-md-3 text-right">
+                                <button type="submit" class="btn btn-outline-success w-100">
+                                    <i class="fa fa-paper-plane"></i> 提问
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="mt-3">
+                        <label>系统回答：</label>
+                        <div id="qaAnswer" class="p-3 rounded bg-white border"
+                            style="min-height: 80px; font-size: 15px; color: #333;">
+                            <span class="text-muted">等待提问…</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+
     </div>
-</div>
-
-<!-- 添加监测点模态框 -->
-<div class="modal fade" id="addWaterPointModal" tabindex="-1" role="dialog" aria-labelledby="addWaterPointModalLabel">
-    <div class="modal-dialog" role="document" style="width: 500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="addWaterPointModalLabel">添加水质监测点</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form1 form2">
-                    <ul class="row">
-                        <li class="col-xs-12">
-                            <span>监测点名称：</span>
-                            <input type="text" class="form-control" placeholder="输入监测点名称">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>详细位置：</span>
-                            <input type="text" class="form-control" placeholder="输入详细位置">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>监测设备ID：</span>
-                            <input type="text" class="form-control" placeholder="输入设备ID">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>负责人：</span>
-                            <input type="text" class="form-control" placeholder="输入负责人姓名">
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary">添加</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 编辑模态框 -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
-    <div class="modal-dialog" role="document" style="width: 500px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
-                </button>
-                <h4 class="modal-title" id="editModalLabel">编辑监测点信息</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form1 form2">
-                    <ul class="row">
-                        <li class="col-xs-12">
-                            <span>监测点名称：</span>
-                            <input type="text" class="form-control" value="A区主鱼塘">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>位置区域：</span>
-                            <select class="form-control">
-                                <option selected>A区鱼塘</option>
-                                <option>B区鱼塘</option>
-                                <option>C区鱼塘</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>详细位置：</span>
-                            <input type="text" class="form-control" value="A区中心位置">
-                        </li>
-                        <li class="col-xs-12">
-                            <span>水质状态：</span>
-                            <select class="form-control">
-                                <option>正常</option>
-                                <option>预警</option>
-                                <option selected>异常</option>
-                            </select>
-                        </li>
-                        <li class="col-xs-12">
-                            <span>备注信息：</span>
-                            <textarea class="form-control" rows="3"
-                                      placeholder="输入备注信息">该区域最近出现异常，需要重点关注</textarea>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary">保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript -->
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
-<script>
 
 
-    // 侧边栏菜单交互
-    $(document).ready(function() {
-        $('.menu-list > a').click(function(e) {
+    <!-- JavaScript -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+
+
+        // 侧边栏菜单交互
+        $(document).ready(function () {
+            $('.menu-list > a').click(function (e) {
+                e.preventDefault();
+                const childList = $(this).siblings('.child-list');
+
+                if (childList.is(':visible')) {
+                    childList.slideUp();
+                } else {
+                    $('.child-list').slideUp();
+                    childList.slideDown();
+                }
+            });
+
+            // 模拟数据加载
+            setTimeout(function () {
+                $('.stats-card').addClass('loaded');
+            }, 500);
+        });
+    </script>
+
+    <script>
+        const qaForm = document.getElementById('qaForm');
+        const questionInput = document.getElementById('questionInput');
+        const qaAnswer = document.getElementById('qaAnswer');
+
+        let history = [];
+
+        qaForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            const childList = $(this).siblings('.child-list');
+            const question = questionInput.value.trim();
+            if (!question) return;
 
-            if (childList.is(':visible')) {
-                childList.slideUp();
-            } else {
-                $('.child-list').slideUp();
-                childList.slideDown();
+            // 用户输入展示
+            qaAnswer.innerHTML = `<strong style="color:blue;">我：</strong>${question}<br><span class="text-muted">🤖 AI 正在思考中...</span>`;
+
+            // 清空输入框
+            questionInput.value = '';
+
+            // 判断是否清空对话
+            if (question.toLowerCase() === '退出' || question.toLowerCase() === 'exit') {
+                history = [];
+                qaAnswer.innerHTML = `<span class="text-muted"> 对话已清空，请继续提问。</span>`;
+                return;
+            }
+
+            // 添加用户提问到历史
+            history.push({ role: "user", content: question });
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: question })
+                });
+
+                const data = await response.json();
+                const reply = data.reply || '（无回答）';
+
+                // 添加 AI 回答到历史
+                history.push({ role: "ai", content: reply });
+
+                // 显示问答
+                qaAnswer.innerHTML = `<strong style="color:blue;">我：</strong>${question}<br><strong style="color:green;">AI：</strong>${reply}`;
+            } catch (error) {
+                qaAnswer.innerHTML = `<span class="text-danger"> 请求失败，请稍后重试。</span>`;
+                console.error('智能问答请求失败:', error);
             }
         });
+    </script>
 
-        // 模拟数据加载
-        setTimeout(function() {
-            $('.stats-card').addClass('loaded');
-        }, 500);
-    });
-</script>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+
+        document.getElementById('uploadButton').addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(uploadForm);
+            const resultDiv = document.getElementById('uploadResult');
+
+            // 发送图片到后端
+            fetch('/api/picture', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 构造识别结果展示
+                        resultDiv.classList.remove('d-none', 'alert-danger');
+                        resultDiv.classList.add('alert-success');
+                        resultDiv.innerHTML = `
+                        <h5>识别结果：</h5>
+                        <p><strong>鱼类：</strong> ${data.fish_type}</p>
+                        <p><strong>预测体长：</strong> ${data.fish_length} cm</p>
+                        <img src="/static/uploads/${data.filename}" alt="上传的图片" class="img-fluid rounded" style="max-width: 300px;">
+                    `;
+                    } else {
+                        resultDiv.classList.remove('d-none', 'alert-success');
+                        resultDiv.classList.add('alert-danger');
+                        resultDiv.innerHTML = `上传失败：${data.error || '服务器错误'}`;
+                    }
+                }).catch(err => {
+                    resultDiv.classList.remove('d-none', 'alert-success');
+                    resultDiv.classList.add('alert-danger');
+                    resultDiv.innerHTML = '上传失败，请稍后再试。';
+                    console.error('Upload error:', err);
+                });
+        });
+    </script>
+
 </body>
+
 </html>

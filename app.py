@@ -25,6 +25,9 @@ import base64
 import io
 import os
 import matplotlib
+from model.inference import predict
+from werkzeug.utils import secure_filename
+from openai import OpenAI
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -1392,5 +1395,93 @@ def delete_fish():
 
 
 
+# Using picture recognition
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/picture', methods=['GET', 'POST'])
+def upload_image():
+    if request.method == 'POST':
+        if 'image' not in request.files:
+            return "没有上传文件", 400
+
+        file = request.files['image']
+
+        if file.filename == '':
+            return "文件名为空", 400
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+
+            fish_type, fish_length = predict(save_path)
+
+            return jsonify({
+                "success": True,
+                "fish_type": fish_type,
+                "fish_length": fish_length,
+                "filename": filename
+            })
+
+    return jsonify({
+        "success": False,
+        "message": "请上传图片"
+    })
+
+client = OpenAI(
+    api_key="sk-423a2d8c08b143ad88363249d2681f1c",
+    base_url="https://api.deepseek.com/v1"
+)
+model = "deepseek-chat"
+
+@app.route('/api/chat', methods=['GET', 'POST'])
+def chat():
+    if 'history' not in session:
+        session['history'] = []
+
+    if request.method == 'POST':
+        data = request.get_json()
+        user_input = data.get('message')
+
+        if user_input.strip().lower() in ['exit', '退出']:
+            session.pop('history', None)
+            return redirect(url_for('chat'))
+
+        session['history'].append({"role": "user", "content": user_input})
+
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=session['history'],
+                stream=False
+            )
+            ai_reply = response.choices[0].message.content
+            session['history'].append({"role": "assistant", "content": ai_reply})
+
+        except Exception as e:
+            ai_reply = f"发生错误：{str(e)}"
+
+        return jsonify(
+            {
+                "status": "success",
+                "reply": ai_reply,
+                "history": session['history']
+            }
+        )
+
+    return jsonify(
+        {
+            "status": "success",
+            "history": session['history']
+        }
+    )
+
+
+
 if __name__ == "__main__":
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     app.run(debug=True)
