@@ -50,7 +50,7 @@
             background: #fff;
             border-radius: 8px;
             padding: 1.5rem;
-            height: 500px;
+            height: 350px;
         }
     </style>
 </head>
@@ -68,11 +68,11 @@
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="collapse navbar-collapse" id="navbarNav2">
                     <div class="collapse navbar-collapse justify-content-center col-md-8" id="navbarNav">
                         <ul class="navbar-nav">
                             <li class="nav-item active">
-                                <a class="nav-link" href="/homepage">首页</a>
+                                <a class="nav-link" href="#">首页</a>
                             </li>
                             <li class="nav-item"><a class="nav-link" href="/dashboard">仪表盘</a></li>
                             <li class="nav-item"><a class="nav-link" href="/datacenter">数据中心</a></li>
@@ -150,7 +150,7 @@
                     </a>
                 </div>
                 <div class="col-md-3 col-6 mb-3">
-                    <a href="#" id="alarm-center-btn" class="quick-action-btn bg-light">
+                    <a href="#" class="quick-action-btn bg-light">
                         <i class="fa fa-bell fa-2x text-danger"></i>
                         <div class="mt-2">警报中心</div>
                     </a>
@@ -190,35 +190,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- 警报模态框 -->
-        <div class="modal fade" id="warningModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">警报中心</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>传感器名称</th>
-                                    <th>监测指标</th>
-                                    <th>当前值</th>
-                                    <th>预警范围</th>
-                                    <th>传感器状态</th>
-                                </tr>
-                            </thead>
-                            <tbody id="warning-table-body">
-                                <!-- 动态插入行 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </main>
 
     <!-- 脚本 -->
@@ -228,6 +199,34 @@
     <script>
         // 图表初始化
         document.addEventListener('DOMContentLoaded', function () {
+            // 水质趋势图
+            new Chart(document.getElementById('water-quality-chart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: 'PH值',
+                        data: [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8],
+                        borderColor: '#4CAF50'
+                    }, {
+                        label: '溶解氧 (mg/L)',
+                        data: [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1],
+                        borderColor: '#2196F3'
+                    }]
+                }
+            });
+
+            // 设备状态饼图
+            new Chart(document.getElementById('device-status-chart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['正常', '预警', '离线'],
+                    datasets: [{
+                        data: [85, 10, 5],
+                        backgroundColor: ['#4CAF50', '#FFC107', '#9E9E9E']
+                    }]
+                }
+            });
 
             // 退出确认
             document.querySelector('.logout-link').addEventListener('click', function (e) {
@@ -258,7 +257,7 @@
 
     <!-- Here is used to get from database and add in homepage -->
     <script>
-        fetch("/api/homepage/summary")
+        fetch("/api/dashboard/summary")
             .then(response => response.json())
             .then(data => {
                 document.getElementById("sensor-summary").textContent = data["sensors_count"];
@@ -289,124 +288,6 @@
                 document.getElementById("uptime-summary").textContent = "加载失败";
             });
 
-    </script>
-
-    <!-- Here is used to get data from database and then paint -->
-    <script>
-        fetch("/api/homepage/status_summary")
-            .then(response => response.json())
-            .then(result => {
-                // 创建图表
-                new Chart(document.getElementById('device-status-chart').getContext('2d'), {
-                    type: 'pie',
-                    data: {
-                        labels: result.labels,
-                        datasets: [{
-                            data: result.data,
-                            backgroundColor: ['#4CAF50', '#FFC107', '#9E9E9E']
-                        }]
-                    }
-                });
-
-                // 隐藏加载提示
-                document.querySelector('#device-status-chart')
-                    .closest('.chart-container')
-                    .querySelector('.chart-loading')
-                    .style.display = "none";
-            })
-            .catch(error => {
-                console.error("设备状态数据加载失败:", error);
-                // 隐藏加载提示
-                document.querySelector('#device-status-chart')
-                    .closest('.chart-container')
-                    .querySelector('.chart-loading')
-                    .style.display = "none";
-                const ctx = document.getElementById('device-status-chart').getContext('2d');
-                ctx.font = "16px sans-serif";
-                ctx.fillText("设备状态数据加载失败", 50, 100);
-            });
-
-        fetch("/api/homepage/water_quality_trend")
-            .then(resp => resp.json())
-            .then(data => {
-                document.querySelector("#water-quality-chart").parentElement.querySelector(".chart-loading").style.display = "none";
-
-                new Chart(document.getElementById('water-quality-chart').getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: [
-                            {
-                                label: 'PH值',
-                                data: data.ph,
-                                borderColor: '#4CAF50',
-                                fill: false
-                            },
-                            {
-                                label: '溶解氧 (mg/L)',
-                                data: data.do,
-                                borderColor: '#2196F3',
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-
-                document.querySelector('#water-quality-chart')
-                    .closest('.chart-container')
-                    .querySelector('.chart-loading')
-                    .style.display = "none";
-            })
-            .catch(error => {
-                console.error("水质趋势图加载失败:", error);
-                document.querySelector('#water-quality-chart')
-                    .closest('.chart-container')
-                    .querySelector('.chart-loading')
-                    .style.display = "none";
-                const ctx = document.getElementById('water-quality-chart').getContext('2d');
-                ctx.font = "16px sans-serif";
-                ctx.fillText("水质数据加载失败", 50, 100);
-            });
-    </script>
-
-    <!-- Here is used to get data from database and then click to show warnings -->
-    <script>
-        function loadWarnings() {
-            fetch("/api/homepage/warnings")
-                .then(response => response.json())
-                .then(data => {
-                    const tbody = document.getElementById("warning-table-body");
-                    tbody.innerHTML = ""; // 清空旧数据
-
-                    if (data.warnings.length === 0) {
-                        tbody.innerHTML = "<tr><td colspan='5' class='text-center'>当前无活跃警报</td></tr>";
-                    } else {
-                        data.warnings.forEach(w => {
-                            const row = `
-            <tr>
-              <td>${w.sensor_name}</td>
-              <td>${w.test}</td>
-              <td>${w.capacity}</td>
-              <td>${w.min_value} ~ ${w.max_value}</td>
-              <td>${w.status}</td>
-            </tr>`;
-                            tbody.insertAdjacentHTML("beforeend", row);
-                        });
-                    }
-
-                    new bootstrap.Modal(document.getElementById('warningModal')).show();
-                })
-                .catch(err => {
-                    alert("加载警报信息失败！");
-                    console.error(err);
-                });
-        }
-
-        document.getElementById("alarm-center-btn").addEventListener("click", loadWarnings);
     </script>
 
 </body>

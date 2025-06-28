@@ -23,9 +23,12 @@ import pytz
 import re
 import base64
 import io
+import os
+import matplotlib
 
-from plot_utils import plot_average_by_species
-from waterQualityUtils import draw_metrics
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from plot_utils import plot_average_by_species, generate_water_quality_plot
 
 # Used in database
 from database.models import *
@@ -48,6 +51,7 @@ mail = Mail(app)
 def generate_code():
     return str(random.randint(100000, 999999))
 
+
 # Used for test
 # @app.route("/test-db")
 # def test_db():
@@ -65,7 +69,7 @@ def index():
 def admin():
     # Check if the user is logged in as admin
     username = session.get("username")
-    admin = User.query.filter_by(username=username, role='admin').first()
+    admin = User.query.filter_by(username=username, role="admin").first()
     if admin:
         # If the user is an admin, redirect to the admin page
         return redirect(url_for("admin_page"))
@@ -106,17 +110,20 @@ def summary():
         # print(f"今日预警数量: {warning_count}")
         # 正常运行率（例如，你可以计算未报警的 / 总设备数）
         normal_percent = 100.0
-        normal_num = Sensor.query.filter_by(status='正常').count()
+        normal_num = Sensor.query.filter_by(status="正常").count()
         if sensors_count > 0:
             normal_percent = round(normal_num / sensors_count * 100, 1)
         # print(f"传感器总数: {sensors_count}, 预警数量: {warning_count}, 正常运行率: {normal_percent}%")
-        return jsonify({
-            "sensors_count": sensors_count,
-            "warning_count": warning_count,
-            "normal_percent": normal_percent
-        })
+        return jsonify(
+            {
+                "sensors_count": sensors_count,
+                "warning_count": warning_count,
+                "normal_percent": normal_percent,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 # In homepage it is used to get the data to show the chart
 @app.route("/api/homepage/status_summary")
@@ -125,24 +132,24 @@ def device_status_summary():
     warning_count = Sensor.query.filter_by(status="故障").count()
     maintain_count = Sensor.query.filter_by(status="维护中").count()
 
-    return jsonify({
-        "labels": ["正常", "故障", "维护中"],
-        "data": [normal_count, warning_count, maintain_count]
-    })
+    return jsonify(
+        {
+            "labels": ["正常", "故障", "维护中"],
+            "data": [normal_count, warning_count, maintain_count],
+        }
+    )
+
 
 # In homepage it is used to get the water quality data to show the chart
 @app.route("/api/homepage/water_quality_trend")
 def water_quality_trend():
     # 模拟从数据库中获取过去7天数据
-    days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
     ph_values = [6.8, 7.0, 7.2, 6.9, 7.1, 7.0, 6.8]  # 从数据库取
     do_values = [5.2, 5.5, 5.8, 5.3, 5.6, 5.4, 5.1]  # 从数据库取
 
-    return jsonify({
-        "labels": days,
-        "ph": ph_values,
-        "do": do_values
-    })
+    return jsonify({"labels": days, "ph": ph_values, "do": do_values})
+
 
 # In homepage it is used to get the data of warnings
 @app.route("/api/homepage/warnings")
@@ -162,23 +169,23 @@ def get_active_warnings():
 
         # print(f"Checking sensor {sensor.name} with current value {current_value} against config min {config.min_value} and max {config.max_value}")
         if current_value < config.min_value or current_value > config.max_value:
-            warning_list.append({
-                "sensor_name": sensor.name,
-                "capacity": current_value,
-                "test": sensor.test,
-                "min_value": config.min_value,
-                "max_value": config.max_value,
-                "status": sensor.status
-            })
+            warning_list.append(
+                {
+                    "sensor_name": sensor.name,
+                    "capacity": current_value,
+                    "test": sensor.test,
+                    "min_value": config.min_value,
+                    "max_value": config.max_value,
+                    "status": sensor.status,
+                }
+            )
 
     return jsonify({"warnings": warning_list})
-
 
 
 @app.route("/datacenter/", methods=["GET"])
 def datacenter():
     return render_template("datacenter.html")
-
 
 
 @app.route("/data-fish/", methods=["GET"])
@@ -196,10 +203,10 @@ def dashboard():
     return render_template("dashboard.html")
 
 
-
 @app.route("/visualization")
 def visualization():
     return render_template("visualization.html")
+
 
 # Used to get user information
 def login_as_user(username, password_input):
@@ -220,16 +227,20 @@ def login():
         session["username"] = username
         # session["email"] = user["email"]
         session["login_time"] = time.time()
-        return jsonify({"success": True, "redirect": url_for("homepage", name=username)})
+        return jsonify(
+            {"success": True, "redirect": url_for("homepage", name=username)}
+        )
     else:
         return jsonify({"success": False, "message": "用户名或密码错误"})
 
+
 def login_as_admin(adminname, password):
-    user = User.query.filter_by(username=adminname, role='admin').first()
+    user = User.query.filter_by(username=adminname, role="admin").first()
     if user and user.check_password(password):
         return user
     # print(f"Admin login failed for {adminname} with password {password}")
     return None
+
 
 @app.route("/login_admin", methods=["POST"])
 def login_admin():
@@ -241,6 +252,7 @@ def login_admin():
         return jsonify({"success": True, "redirect": url_for("admin_page")})
     else:
         return jsonify({"success": False, "message": "管理员名或密码错误"})
+
 
 @app.route("/login_by_email", methods=["POST"])
 def login_by_email():
@@ -265,7 +277,9 @@ def login_by_email():
         session.pop("verification_code", None)
         session.pop("verification_email", None)
         session.pop("verification_expire", None)
-        return jsonify({"success": True, "redirect": url_for("homepage", name=session['username'])})
+        return jsonify(
+            {"success": True, "redirect": url_for("homepage", name=session["username"])}
+        )
 
 
 @app.route("/add_user", methods=["POST"])
@@ -288,10 +302,12 @@ def add_user():
         return jsonify({"success": False, "message": "邮箱已被注册"})
 
     new_user = User(
-        username = username,
-        email = email,
-        password = User.generate_password_hash(password, method='pbkdf2:sha256'),  # 使用模型方法加密密码->because it's too long so we use pbkdf2:sha256
-        role = 'user',
+        username=username,
+        email=email,
+        password=User.generate_password_hash(
+            password, method="pbkdf2:sha256"
+        ),  # 使用模型方法加密密码->because it's too long so we use pbkdf2:sha256
+        role="user",
     )
 
     db.session.add(new_user)
@@ -345,28 +361,30 @@ def logout():
 @app.route("/api/users", methods=["GET"])
 def get_users():
     try:
-        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        page = int(request.args.get("page", 1))  # 当前页码，默认1
         per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
 
         query = User.query.order_by(User.created_at.desc())
-        query = User.query.filter_by(role='user')  # 只查询普通用户
+        query = User.query.filter_by(role="user")  # 只查询普通用户
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
         users = [
             {
                 "username": user.username,
                 "email": user.email,
-                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
             for user in pagination.items
         ]
 
-        return jsonify({
-            "users": users,
-            "total": pagination.total,
-            "pages": pagination.pages,
-            "current_page": page
-        })
+        return jsonify(
+            {
+                "users": users,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -389,9 +407,11 @@ def add_users():
         new_user = User(
             username=data["username"],
             email=data["email"],
-            password=generate_password_hash(data["password"], method='pbkdf2:sha256'),  # 使用模型方法加密密码
-            role='user',  # 默认角色为用户
-            created_at=datetime.now()  # 设置创建时间
+            password=generate_password_hash(
+                data["password"], method="pbkdf2:sha256"
+            ),  # 使用模型方法加密密码
+            role="user",  # 默认角色为用户
+            created_at=datetime.now(),  # 设置创建时间
         )
         db.session.add(new_user)
         db.session.commit()
@@ -405,15 +425,13 @@ def add_users():
 def delete_user():
     username = request.get_json()
     try:
-        deleted_user = User.query.filter_by(username=username,role='user').first()
+        deleted_user = User.query.filter_by(username=username, role="user").first()
         if deleted_user is None:
             return jsonify({"success": False, "error": f'未找到用户名 "{username}"'}), 404
         # 找到后
         db.session.delete(deleted_user)
         db.session.commit()
-        return jsonify(
-            {"success": True, "message": f'用户 "{username}" 已成功删除'}
-        )
+        return jsonify({"success": True, "message": f'用户 "{username}" 已成功删除'})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -422,28 +440,30 @@ def delete_user():
 @app.route("/api/admin", methods=["GET"])
 def get_admin():
     try:
-        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        page = int(request.args.get("page", 1))  # 当前页码，默认1
         per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
 
         query = User.query.order_by(User.created_at.desc())
-        query = User.query.filter_by(role='admin')  # 只查询普通用户
+        query = User.query.filter_by(role="admin")  # 只查询普通用户
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
         users = [
             {
                 "username": user.username,
                 "email": user.email,
-                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S")
+                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             }
             for user in pagination.items
         ]
 
-        return jsonify({
-            "users": users,
-            "total": pagination.total,
-            "pages": pagination.pages,
-            "current_page": page
-        })
+        return jsonify(
+            {
+                "users": users,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -466,9 +486,11 @@ def add_admin():
         new_user = User(
             username=data["username"],
             email=data["email"],
-            password=generate_password_hash(data["password"], method='pbkdf2:sha256'),  # 使用模型方法加密密码
-            role='admin',
-            created_at=datetime.now()  # 设置创建时间
+            password=generate_password_hash(
+                data["password"], method="pbkdf2:sha256"
+            ),  # 使用模型方法加密密码
+            role="admin",
+            created_at=datetime.now(),  # 设置创建时间
         )
         db.session.add(new_user)
         db.session.commit()
@@ -482,37 +504,38 @@ def add_admin():
 def delete_admin():
     username = request.get_json()
     try:
-        deleted_user = User.query.filter_by(username=username, role='admin').first()
-        if deleted_user.username == 'admin':
+        deleted_user = User.query.filter_by(username=username, role="admin").first()
+        if deleted_user.username == "admin":
             return jsonify({"success": False, "error": '无法删除默认管理员 "admin"'}), 403
         if deleted_user is None:
             return jsonify({"success": False, "error": f'未找到管理员名 "{username}"'}), 404
         # 找到后
         db.session.delete(deleted_user)
         db.session.commit()
-        return jsonify(
-            {"success": True, "message": f'管理员 "{username}" 已成功删除'}
-        )
+        return jsonify({"success": True, "message": f'管理员 "{username}" 已成功删除'})
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
 # Reset admin password
-@app.route('/api/users/reset_password', methods=['POST'])
+@app.route("/api/users/reset_password", methods=["POST"])
 def reset_password():
     data = request.get_json()
-    username = data.get('username')
+    username = data.get("username")
 
     user = User.query.filter_by(username=username).first()
     if not user:
-        return jsonify({'success': False, 'message': '用户不存在'}), 404
+        return jsonify({"success": False, "message": "用户不存在"}), 404
 
     # 例如默认重置为 123456
-    new_password = '123456'
-    user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+    new_password = "123456"
+    user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
     user.created_at = datetime.now()  # 更新创建时间
     db.session.commit()
-    return jsonify({'success': True, 'message': f'用户 {username} 的密码已重置为 {new_password}'})
+    return jsonify(
+        {"success": True, "message": f"用户 {username} 的密码已重置为 {new_password}"}
+    )
 
 
 @app.route("/user_list")
@@ -524,10 +547,11 @@ def user_list():
 def admin_list():
     return render_template("管理员列表.html")
 
-@app.route("/api/sensors", methods=['GET'])
+
+@app.route("/api/sensors", methods=["GET"])
 def get_sensors():
     try:
-        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        page = int(request.args.get("page", 1))  # 当前页码，默认1
         per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
 
         query = Sensor.query.order_by(Sensor.id.asc())
@@ -542,26 +566,39 @@ def get_sensors():
                 "test": sensor.test,
                 "count": sensor.count,
                 "price": sensor.price,
-                "update_time": sensor.update_time.strftime("%Y-%m-%d %H:%M:%S")
+                "update_time": sensor.update_time.strftime("%Y-%m-%d %H:%M:%S"),
             }
             for sensor in pagination.items
         ]
 
-        return jsonify({
-            "sensors": sensors,
-            "total": pagination.total,
-            "pages": pagination.pages,
-            "current_page": page
-        })
+        return jsonify(
+            {
+                "sensors": sensors,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/api/sensors", methods=['POST'])
+
+@app.route("/api/sensors", methods=["POST"])
 def add_sensors():
     data = request.get_json()
     # print(data)
     # 验证必填字段
-    required_fields = ["id", "name", "capacity", "status", "farm", "test", "count", "price", "update_time"]
+    required_fields = [
+        "id",
+        "name",
+        "capacity",
+        "status",
+        "farm",
+        "test",
+        "count",
+        "price",
+        "update_time",
+    ]
     for field in required_fields:
         if field not in data:
             return jsonify({"success": False, "message": f"Missing field: {field}"})
@@ -571,15 +608,15 @@ def add_sensors():
             return jsonify({"success": False, "message": "id已被使用"})
 
         new_sensor = Sensor(
-            id = data["id"],
-            name = data["name"],
-            capacity = data["capacity"],
-            status = data["status"],
-            farm = data["farm"],
-            test = data["test"],
-            count = data["count"],
-            price = data["price"],
-            update_time = datetime.strptime(data["update_time"], "%Y-%m-%d %H:%M:%S")
+            id=data["id"],
+            name=data["name"],
+            capacity=data["capacity"],
+            status=data["status"],
+            farm=data["farm"],
+            test=data["test"],
+            count=data["count"],
+            price=data["price"],
+            update_time=datetime.strptime(data["update_time"], "%Y-%m-%d %H:%M:%S"),
         )
         db.session.add(new_sensor)
         db.session.commit()
@@ -588,7 +625,8 @@ def add_sensors():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-@app.route("/api/sensors", methods=['DELETE'])
+
+@app.route("/api/sensors", methods=["DELETE"])
 def delete_sensors():
     sensorid = request.get_json()
     try:
@@ -598,9 +636,7 @@ def delete_sensors():
         # 找到后
         db.session.delete(deleted_sensor)
         db.session.commit()
-        return jsonify(
-            {"success": True, "message": f'传感器id "{sensorid}" 已成功删除'}
-        )
+        return jsonify({"success": True, "message": f'传感器id "{sensorid}" 已成功删除'})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -616,7 +652,7 @@ def warning():
 
 
 # Just used to get a specific warning by id
-@app.route("/api/warning", methods=['POST'])
+@app.route("/api/warning", methods=["POST"])
 def get_warning():
     try:
         id = request.get_json()
@@ -629,14 +665,15 @@ def get_warning():
             "metric": query.metric,
             "min_value": query.min_value,
             "max_value": query.max_value,
-            "enabled": query.enabled
+            "enabled": query.enabled,
         }
         return jsonify(warning)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Used to modify a specific warning
-@app.route("/api/warning/update", methods=['POST'])
+@app.route("/api/warning/update", methods=["POST"])
 def update_warning():
     try:
         data = request.get_json()
@@ -656,17 +693,18 @@ def update_warning():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+
 # Used to create a specific warning
-@app.route("/api/warning/create", methods=['POST'])
+@app.route("/api/warning/create", methods=["POST"])
 def create_warning():
     try:
         data = request.get_json()
         new_warning = WarningConfig(
-            sensor_id=data['sensor_id'],
-            metric=data['metric'],
-            min_value=data['min_value'],
-            max_value=data['max_value'],
-            enabled=data['enabled']
+            sensor_id=data["sensor_id"],
+            metric=data["metric"],
+            min_value=data["min_value"],
+            max_value=data["max_value"],
+            enabled=data["enabled"],
         )
         db.session.add(new_warning)
         db.session.commit()
@@ -675,10 +713,10 @@ def create_warning():
         return jsonify({"success": False, "error": str(e)})
 
 
-@app.route("/api/warnings", methods=['GET'])
+@app.route("/api/warnings", methods=["GET"])
 def get_warnings():
     try:
-        page = int(request.args.get("page", 1))        # 当前页码，默认1
+        page = int(request.args.get("page", 1))  # 当前页码，默认1
         per_page = int(request.args.get("per_page", 10))  # 每页条数，默认10
 
         query = WarningConfig.query.order_by(WarningConfig.sensor_id.asc())
@@ -690,22 +728,24 @@ def get_warnings():
                 "metric": warning.metric,
                 "min_value": warning.min_value,
                 "max_value": warning.max_value,
-                "enabled": warning.enabled
+                "enabled": warning.enabled,
             }
             for warning in pagination.items
         ]
 
-        return jsonify({
-            "warnings": warnings,
-            "total": pagination.total,
-            "pages": pagination.pages,
-            "current_page": page
-        })
+        return jsonify(
+            {
+                "warnings": warnings,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "current_page": page,
+            }
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/warnings", methods=['DELETE'])
+@app.route("/api/warnings", methods=["DELETE"])
 def delete_warnings():
     id = request.get_json()
     try:
@@ -715,9 +755,7 @@ def delete_warnings():
         # 找到后
         db.session.delete(deleted_warning)
         db.session.commit()
-        return jsonify(
-            {"success": True, "message": f'指定预警已成功删除'}
-        )
+        return jsonify({"success": True, "message": f"指定预警已成功删除"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -725,7 +763,7 @@ def delete_warnings():
 @app.route("/api/charts/growth")
 def plot():
     try:
-        metric = request.args.get('metric', 'Height(cm)').strip()
+        metric = request.args.get("metric", "Height(cm)").strip()
 
         # 例如前端传了 metric=Height(cm)，后端映射成 height
         column_mapping = {
@@ -734,12 +772,14 @@ def plot():
             "Length1(cm)": "length1",
             "Length2(cm)": "length2",
             "Length3(cm)": "length3",
-            "Width(cm)": "width"
+            "Width(cm)": "width",
         }
         actual_column = column_mapping[metric]
 
         # 使用 ORM 查询 species + 你选的指标字段
-        results = db.session.query(FishProfile.species, getattr(FishProfile, actual_column)).all()
+        results = db.session.query(
+            FishProfile.species, getattr(FishProfile, actual_column)
+        ).all()
 
         # 转成 DataFrame，列名为 ["species", metric]
         df = pd.DataFrame(results, columns=["Species", metric])
@@ -757,7 +797,7 @@ def plot():
     except ValueError as e:
         return jsonify({"status": "error", "message": str(e)}), 400
 
-     
+
 @app.route("/api/weather", methods=["GET"])
 def get_weather():
     """获取当前天气信息"""
@@ -766,7 +806,6 @@ def get_weather():
         cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
         openmeteo = openmeteo_requests.Client(session=retry_session)
-        
 
         # 设置请求参数 - 以北京为例
         url = "https://api.open-meteo.com/v1/forecast"
@@ -922,40 +961,128 @@ def water_quality_chart():
             "from_year": request.args.get("from_year", "2020").strip(),
             "from_month": request.args.get("from_month", "05").strip(),
             "from_day": request.args.get("from_day", "08").strip(),
-            "to_year": request.args.get("to_year", "2020").strip(),
+            "to_year": request.args.get("to_year", "2021").strip(),
             "to_month": request.args.get("to_month", "05").strip(),
             "to_day": request.args.get("to_day", "31").strip(),
-            "position": request.args.get("position", "鼓楼外大街").strip(),
-            "metrics": re.sub(r"<[^>]+>|\?.*", "", request.args.get("metrics", "水温")),
-            "data_root_dir": "data",
+            "position": request.args.get("position", "七星岗").strip(),
+            "metrics": request.args.get("metric", "水温").strip(),
+        }
+        print(params["metrics"])
+
+        # 指标到数据库字段的映射
+        metric_mapping = {
+            "水温": "temperature",
+            "pH": "ph",
+            "溶解氧": "dissolved_oxygen",
+            "电导率": "conductivity",
+            "浊度": "turbidity",
+            "高锰酸盐指数": "cod_mn",
+            "氨氮": "ammonia_nitrogen",
+            "总磷": "total_phosphorus",
+            "总氮": "total_nitrogen",
+            "叶绿素": "chlorophyll",
+            "藻密度": "algae_density",
         }
 
-        # 获取图像 BytesIO
-        result = draw_metrics(**params)
-
-        if isinstance(result, str):
-            app.logger.error(f"图表生成失败: {result}")
+        # 验证指标是否有效
+        metric = params["metrics"]
+        if metric not in metric_mapping:
+            available_metrics = ", ".join(metric_mapping.keys())
             return (
                 jsonify(
                     {
                         "status": "error",
-                        "message": result,
-                        "suggestions": ["检查指标名称是否正确", "确认日期范围内存在数据", "验证监测点名称是否有效"],
+                        "message": f"无效的指标: {metric}",
+                        "suggestions": [f"可用指标: {available_metrics}"],
                     }
                 ),
                 400,
             )
 
-        result.seek(0)
-        img_base64 = base64.b64encode(result.read()).decode("utf-8")
+        # 构造日期范围 - 修复日期处理
+        try:
+            # 创建开始日期（包含时间部分）
+            start_date = datetime(
+                int(params["from_year"]),
+                int(params["from_month"]),
+                int(params["from_day"]),
+                0,
+                0,
+                0,  # 设置为当天的开始时间
+            )
+
+            # 创建结束日期（包含时间部分）
+            end_date = datetime(
+                int(params["to_year"]),
+                int(params["to_month"]),
+                int(params["to_day"]),
+                23,
+                59,
+                59,  # 设置为当天的结束时间
+            )
+        except ValueError as e:
+            return jsonify({"status": "error", "message": f"日期格式错误: {str(e)}"}), 400
+
+        if start_date > end_date:
+            return jsonify({"status": "error", "message": "开始日期不能晚于结束日期"}), 400
+
+        # 从数据库查询数据
+        db_field = metric_mapping[metric]
+
+        # 构建查询 - 使用正确的日期范围
+        results = (
+            WaterQuality.query.with_entities(
+                WaterQuality.monitor_time, getattr(WaterQuality, db_field)
+            )
+            .filter(
+                WaterQuality.site_name == params["position"],
+                WaterQuality.monitor_time.between(start_date, end_date),
+                getattr(WaterQuality, db_field).is_not(None),  # 过滤掉 db_field 为 null 的记录
+            )
+            .order_by(WaterQuality.monitor_time.asc())
+            .all()
+        )
+
+        # 记录查询结果用于调试
+        app.logger.info(f"水质数据查询结果: 位置={params['position']}, 指标={metric}")
+        app.logger.info(f"日期范围: {start_date} 至 {end_date}")
+        app.logger.info(f"找到 {len(results)} 条记录")
+
+        # 检查是否有数据
+        if not results:
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": f"在{params['position']}监测点没有找到{start_date.date()}到{end_date.date()}的数据",
+                        "suggestions": ["检查日期范围", "确认监测点名称正确"],
+                    }
+                ),
+                404,
+            )
+
+        # 准备绘图数据
+        dates = [result[0] for result in results]
+        values = [result[1] for result in results]
+
+        # 记录找到的日期范围用于调试
+        if dates:
+            app.logger.info(f"实际数据日期范围: {min(dates)} 至 {max(dates)}")
+
+        # 生成图表
+        img_io = generate_water_quality_plot(
+            dates, values, metric, params["position"], start_date, end_date
+        )
+        img_io.seek(0)
+        img_base64 = base64.b64encode(img_io.read()).decode("utf-8")
 
         return jsonify(
             {"status": "success", "image": f"data:image/png;base64,{img_base64}"}
         )
 
     except Exception as e:
-        app.logger.error(f"系统错误: {str(e)}")
-        return jsonify({"status": "error", "message": f"内部服务器错误: {str(e)}"}), 500
+        app.logger.error(f"水质图表生成错误: {str(e)}", exc_info=True)
+        return jsonify({"status": "error", "message": f"服务器错误: {str(e)}"}), 500
 
 
 # Here is some routes used in datacenter
